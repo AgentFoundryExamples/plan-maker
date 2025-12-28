@@ -254,13 +254,16 @@ describe('PlanDetailPage', () => {
       renderComponent('plan-123');
 
       expect(screen.getByText('Specifications')).toBeInTheDocument();
-      expect(screen.getByText(/this plan contains 1 specification/i)).toBeInTheDocument();
-      expect(screen.getByText('Spec #1')).toBeInTheDocument();
-      expect(screen.getByText('Build REST API')).toBeInTheDocument();
-      expect(screen.getByText('Create a scalable REST API')).toBeInTheDocument();
+      // Accordion should render with spec header visible
+      expect(screen.getByRole('button', { name: /spec #1/i })).toBeInTheDocument();
+      expect(screen.getByText(/build rest api/i)).toBeInTheDocument();
+      // Should show question summary
+      expect(screen.getByText(/1 of 1 question remaining/i)).toBeInTheDocument();
     });
 
-    it('renders all spec sections when present', () => {
+    it('renders all spec sections when present', async () => {
+      const user = (await import('@testing-library/user-event')).default.setup();
+      
       mockUsePlanDetail.mockReturnValue({
         data: mockPlanData,
         error: null,
@@ -272,13 +275,17 @@ describe('PlanDetailPage', () => {
 
       renderComponent('plan-123');
 
+      // Expand the accordion to see spec details
+      const accordionButton = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(accordionButton);
+
+      // Now we can see the spec details
       expect(screen.getByText('Must Have:')).toBeInTheDocument();
       expect(screen.getByText('Authentication')).toBeInTheDocument();
       expect(screen.getByText('Nice to Have:')).toBeInTheDocument();
       expect(screen.getByText('Caching')).toBeInTheDocument();
       expect(screen.getByText("Don't:")).toBeInTheDocument();
       expect(screen.getByText('Complex frontend')).toBeInTheDocument();
-      expect(screen.getByText('Open Questions:')).toBeInTheDocument();
       expect(screen.getByText('Which database?')).toBeInTheDocument();
       expect(screen.getByText('Assumptions:')).toBeInTheDocument();
       expect(screen.getByText('PostgreSQL available')).toBeInTheDocument();
@@ -443,8 +450,8 @@ describe('PlanDetailPage', () => {
 
       renderComponent('plan-minimal');
 
-      expect(screen.getByText('Basic spec')).toBeInTheDocument();
-      expect(screen.getByText('Simple vision')).toBeInTheDocument();
+      // Accordion header should show spec purpose
+      expect(screen.getByRole('button', { name: /basic spec/i })).toBeInTheDocument();
       // Should not crash with missing optional fields
       expect(screen.queryByText('Must Have:')).not.toBeInTheDocument();
       expect(screen.queryByText('Nice to Have:')).not.toBeInTheDocument();
@@ -493,7 +500,9 @@ describe('PlanDetailPage', () => {
 
       renderComponent('plan-large');
 
-      expect(screen.getByText(/this plan contains 50 specifications/i)).toBeInTheDocument();
+      // Accordion should render all specs
+      const accordions = screen.getAllByRole('button', { name: /spec #/i });
+      expect(accordions).toHaveLength(50);
       // Metadata should still render without being blocked
       expect(screen.getByText('Plan #plan-large')).toBeInTheDocument();
     });
@@ -585,6 +594,72 @@ describe('PlanDetailPage', () => {
       renderComponent();
 
       expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+  });
+
+  describe('Accordion Integration', () => {
+    it('renders SpecAccordion when specs are present', () => {
+      const mockPlanData: PlanJobStatus = {
+        job_id: 'plan-123',
+        status: 'SUCCEEDED',
+        created_at: '2025-01-15T10:30:00Z',
+        updated_at: '2025-01-15T10:35:00Z',
+        result: {
+          specs: [
+            {
+              purpose: 'Build REST API',
+              vision: 'Create a scalable REST API',
+              open_questions: ['Which database?'],
+            },
+          ],
+        },
+      };
+
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-123');
+
+      expect(screen.getByText('Specifications')).toBeInTheDocument();
+      // Accordion header should be rendered
+      expect(screen.getByRole('button', { name: /spec #1/i })).toBeInTheDocument();
+    });
+
+    it('does not render old spec container format', () => {
+      const mockPlanData: PlanJobStatus = {
+        job_id: 'plan-123',
+        status: 'SUCCEEDED',
+        created_at: '2025-01-15T10:30:00Z',
+        updated_at: '2025-01-15T10:35:00Z',
+        result: {
+          specs: [
+            {
+              purpose: 'Build REST API',
+              vision: 'Create a scalable REST API',
+            },
+          ],
+        },
+      };
+
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-123');
+
+      // Old format had "This plan contains X specifications"
+      expect(screen.queryByText(/this plan contains 1 specification/i)).not.toBeInTheDocument();
     });
   });
 });
