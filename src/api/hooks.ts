@@ -35,6 +35,7 @@ import type { PlanResponse } from './softwarePlanner/models/PlanResponse';
 import type { JobStatusResponse } from './specClarifier/models/JobStatusResponse';
 import {
   createPlanAsync,
+  listPlans,
   type AsyncPlanJob,
   type CreatePlanOptions,
 } from './softwarePlannerClient';
@@ -259,4 +260,76 @@ export function useCreatePlanAsync(
     // Prevent duplicate submissions - only one mutation can be in-flight at a time
     ...options,
   });
+}
+
+/**
+ * Options for the usePlansList hook
+ */
+export interface UsePlansListOptions {
+  limit?: number;
+  cursor?: string;
+  refetchInterval?: number | false;
+  enabled?: boolean;
+  fetchImpl?: typeof fetch;
+}
+
+/**
+ * Hook for fetching a paginated list of planning jobs.
+ *
+ * This hook provides a query interface for listing planning jobs using the
+ * Software Planner API. It includes:
+ * - Automatic polling/refetching when refetchInterval is specified
+ * - Conditional fetching via the enabled option
+ * - Limit defaulting to 25 and clamping to max 25
+ * - Cursor-based pagination support
+ * - Typed data, error, and loading states
+ * - Last updated timestamp tracking
+ *
+ * Usage:
+ * ```tsx
+ * const { data, error, isLoading, lastUpdated, refetch } = usePlansList({
+ *   limit: 25,
+ *   refetchInterval: 5000, // Poll every 5 seconds
+ *   enabled: true,
+ * });
+ *
+ * if (isLoading) return <Spinner />;
+ * if (error) return <ErrorMessage error={error} />;
+ *
+ * return (
+ *   <div>
+ *     <h2>Plans ({data?.total})</h2>
+ *     {data?.jobs.map(job => <PlanCard key={job.job_id} job={job} />)}
+ *   </div>
+ * );
+ * ```
+ *
+ * @param options - Options for controlling the query behavior
+ * @returns Query result with data, error, loading state, and refetch function
+ */
+export function usePlansList(options: UsePlansListOptions = {}) {
+  const { limit, cursor, refetchInterval, enabled = true, fetchImpl } = options;
+
+  // Normalize limit to the effective value for stable query key
+  const effectiveLimit = Math.min(limit ?? 25, 25);
+
+  const queryResult = useQuery({
+    queryKey: ['plans', 'list', { limit: effectiveLimit, cursor }],
+    queryFn: async () => {
+      return listPlans({ limit, cursor, fetchImpl });
+    },
+    enabled,
+    refetchInterval,
+    staleTime: refetchInterval ? 0 : 5 * 60 * 1000, // If polling, always consider stale
+  });
+
+  return {
+    data: queryResult.data,
+    error: queryResult.error,
+    isLoading: queryResult.isLoading,
+    isError: queryResult.isError,
+    isSuccess: queryResult.isSuccess,
+    lastUpdated: queryResult.dataUpdatedAt,
+    refetch: queryResult.refetch,
+  };
 }

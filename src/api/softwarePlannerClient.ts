@@ -52,6 +52,68 @@ export interface PlanJobsList {
 }
 
 /**
+ * Metadata for status display
+ */
+export interface StatusMetadata {
+  label: string;
+  description: string;
+  color: string;
+  icon?: string;
+}
+
+/**
+ * Status mapping for planner job statuses
+ * Maps each status to display metadata for UI components
+ */
+export const PLANNER_STATUS_MAP: Record<
+  'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED',
+  StatusMetadata
+> = {
+  QUEUED: {
+    label: 'Queued',
+    description: 'Job is waiting to be processed',
+    color: 'var(--color-info)',
+    icon: 'clock',
+  },
+  RUNNING: {
+    label: 'Running',
+    description: 'Job is currently being processed',
+    color: 'var(--color-warning)',
+    icon: 'spinner',
+  },
+  SUCCEEDED: {
+    label: 'Succeeded',
+    description: 'Job completed successfully',
+    color: 'var(--color-success)',
+    icon: 'check',
+  },
+  FAILED: {
+    label: 'Failed',
+    description: 'Job failed to complete',
+    color: 'var(--color-danger)',
+    icon: 'error',
+  },
+} as const;
+
+/**
+ * Get status metadata for a given status, with fallback for unknown statuses
+ * @param status - The status string to look up
+ * @returns Status metadata with label, description, color, and optional icon
+ */
+export function getStatusMetadata(status: string): StatusMetadata {
+  if (status in PLANNER_STATUS_MAP) {
+    return PLANNER_STATUS_MAP[status as keyof typeof PLANNER_STATUS_MAP];
+  }
+  // Fallback for unknown statuses
+  return {
+    label: 'Unknown',
+    description: `Status: ${status}`,
+    color: 'var(--color-text-secondary)',
+    icon: 'question',
+  };
+}
+
+/**
  * Options for creating a plan
  */
 export interface CreatePlanOptions {
@@ -197,20 +259,32 @@ export async function getPlanById(
 }
 
 /**
+ * Options for listing plans
+ */
+export interface ListPlansOptions {
+  limit?: number;
+  cursor?: string;
+  fetchImpl?: typeof fetch;
+}
+
+/**
  * List recent planning jobs
- * @param limit - Optional maximum number of jobs to return
- * @param fetchImpl - Optional custom fetch implementation
+ * @param options - Optional parameters including limit (default 25, max 25) and cursor for pagination
  * @returns List of recent jobs
  */
 export async function listPlans(
-  limit?: number,
-  fetchImpl?: typeof fetch
+  options: ListPlansOptions = {}
 ): Promise<PlanJobsList> {
+  const { limit, cursor, fetchImpl } = options;
   const config = getSoftwarePlannerConfig(fetchImpl);
   const url = new URL(`${config.baseUrl}/api/v1/plans`);
 
-  if (limit !== undefined) {
-    url.searchParams.set('limit', limit.toString());
+  // Default limit to 25 and clamp to max 25
+  const effectiveLimit = Math.min(limit ?? 25, 25);
+  url.searchParams.set('limit', effectiveLimit.toString());
+
+  if (cursor) {
+    url.searchParams.set('cursor', cursor);
   }
 
   const response = await config.fetchImpl(url.toString(), {

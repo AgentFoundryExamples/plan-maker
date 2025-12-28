@@ -17,6 +17,8 @@ import {
   createPlanAsync,
   getPlanById,
   listPlans,
+  getStatusMetadata,
+  PLANNER_STATUS_MAP,
 } from './softwarePlannerClient';
 import { clearEnvCache } from './env';
 import type { PlanResponse } from './softwarePlanner';
@@ -210,13 +212,13 @@ describe('Software Planner Client', () => {
   });
 
   describe('listPlans', () => {
-    it('successfully lists plans without limit', async () => {
+    it('successfully lists plans without limit (defaults to 25)', async () => {
       setupEnv();
 
       const mockResponse = {
         jobs: [],
         total: 0,
-        limit: 100,
+        limit: 25,
       };
 
       const mockFetch = vi.fn().mockResolvedValue({
@@ -224,29 +226,85 @@ describe('Software Planner Client', () => {
         json: async () => mockResponse,
       });
 
-      const result = await listPlans(undefined, mockFetch as any);
+      const result = await listPlans({ fetchImpl: mockFetch as any });
 
       expect(result).toEqual(mockResponse);
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8080/api/v1/plans',
+        'http://localhost:8080/api/v1/plans?limit=25',
         expect.objectContaining({
           method: 'GET',
         })
       );
     });
 
-    it('includes limit parameter when provided', async () => {
+    it('includes limit parameter when provided and clamps to 25', async () => {
       setupEnv();
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({ jobs: [], total: 0, limit: 50 }),
+        json: async () => ({ jobs: [], total: 0, limit: 25 }),
       });
 
-      await listPlans(50, mockFetch as any);
+      await listPlans({ limit: 50, fetchImpl: mockFetch as any });
+
+      // Should be clamped to 25
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:8080/api/v1/plans?limit=25',
+        expect.any(Object)
+      );
+    });
+
+    it('respects limit when less than 25', async () => {
+      setupEnv();
+
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ jobs: [], total: 0, limit: 10 }),
+      });
+
+      await listPlans({ limit: 10, fetchImpl: mockFetch as any });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8080/api/v1/plans?limit=50',
+        'http://localhost:8080/api/v1/plans?limit=10',
+        expect.any(Object)
+      );
+    });
+
+    it('includes cursor parameter when provided', async () => {
+      setupEnv();
+
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ jobs: [], total: 0, limit: 25 }),
+      });
+
+      await listPlans({
+        cursor: 'next-page-token',
+        fetchImpl: mockFetch as any,
+      });
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:8080/api/v1/plans?limit=25&cursor=next-page-token',
+        expect.any(Object)
+      );
+    });
+
+    it('does not include cursor parameter when empty string', async () => {
+      setupEnv();
+
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ jobs: [], total: 0, limit: 25 }),
+      });
+
+      await listPlans({
+        cursor: '',
+        fetchImpl: mockFetch as any,
+      });
+
+      // Empty cursor should not be sent
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:8080/api/v1/plans?limit=25',
         expect.any(Object)
       );
     });
@@ -259,9 +317,73 @@ describe('Software Planner Client', () => {
         json: async () => ({ error: 'Server error' }),
       });
 
-      await expect(listPlans(undefined, mockFetch as any)).rejects.toThrow(
+      await expect(listPlans({ fetchImpl: mockFetch as any })).rejects.toThrow(
         /Failed to list plans/
       );
+    });
+  });
+
+  describe('Status Mapping', () => {
+    it('returns correct metadata for QUEUED status', () => {
+      const metadata = getStatusMetadata('QUEUED');
+
+      expect(metadata).toEqual({
+        label: 'Queued',
+        description: 'Job is waiting to be processed',
+        color: 'var(--color-info)',
+        icon: 'clock',
+      });
+    });
+
+    it('returns correct metadata for RUNNING status', () => {
+      const metadata = getStatusMetadata('RUNNING');
+
+      expect(metadata).toEqual({
+        label: 'Running',
+        description: 'Job is currently being processed',
+        color: 'var(--color-warning)',
+        icon: 'spinner',
+      });
+    });
+
+    it('returns correct metadata for SUCCEEDED status', () => {
+      const metadata = getStatusMetadata('SUCCEEDED');
+
+      expect(metadata).toEqual({
+        label: 'Succeeded',
+        description: 'Job completed successfully',
+        color: 'var(--color-success)',
+        icon: 'check',
+      });
+    });
+
+    it('returns correct metadata for FAILED status', () => {
+      const metadata = getStatusMetadata('FAILED');
+
+      expect(metadata).toEqual({
+        label: 'Failed',
+        description: 'Job failed to complete',
+        color: 'var(--color-danger)',
+        icon: 'error',
+      });
+    });
+
+    it('returns Unknown metadata for unrecognized status', () => {
+      const metadata = getStatusMetadata('UNKNOWN_STATUS');
+
+      expect(metadata).toEqual({
+        label: 'Unknown',
+        description: 'Status: UNKNOWN_STATUS',
+        color: 'var(--color-text-secondary)',
+        icon: 'question',
+      });
+    });
+
+    it('PLANNER_STATUS_MAP contains all known statuses', () => {
+      expect(PLANNER_STATUS_MAP).toHaveProperty('QUEUED');
+      expect(PLANNER_STATUS_MAP).toHaveProperty('RUNNING');
+      expect(PLANNER_STATUS_MAP).toHaveProperty('SUCCEEDED');
+      expect(PLANNER_STATUS_MAP).toHaveProperty('FAILED');
     });
   });
 });
