@@ -32,7 +32,11 @@ import {
 } from '@tanstack/react-query';
 import type { PlanRequest } from './softwarePlanner/models/PlanRequest';
 import type { PlanResponse } from './softwarePlanner/models/PlanResponse';
-import type { JobStatusResponse } from './specClarifier/models/JobStatusResponse';
+import type {
+  JobStatusResponse,
+  JobSummaryResponse,
+  ClarificationRequestWithConfig,
+} from './specClarifier';
 import {
   createPlanAsync,
   listPlans,
@@ -41,6 +45,7 @@ import {
   type CreatePlanOptions,
   type PlanJobStatus,
 } from './softwarePlannerClient';
+import { clarifySpecs, getClarifierStatus, type ClarifyOptions } from './specClarifierClient';
 
 /**
  * Example hook stub for fetching a plan by ID.
@@ -185,14 +190,16 @@ export function useCreatePlan(
 }
 
 /**
- * Example hook stub for fetching clarification job status.
+ * Hook for fetching clarification job status.
  *
- * @warning NOT IMPLEMENTED - This hook will throw an error if called.
- * Connect to the actual API client before using in production.
+ * This hook provides a query interface for checking the status of a clarification job.
+ * See specClarifierClient.ts for full OpenAPI contract details.
  *
  * Usage:
  * ```tsx
- * const { data: status } = useClarificationStatus(jobId);
+ * const { data: status } = useClarificationStatus(jobId, {
+ *   refetchInterval: 2000, // Poll every 2 seconds
+ * });
  * ```
  *
  * @param jobId - The clarification job ID to fetch
@@ -200,7 +207,7 @@ export function useCreatePlan(
  * @returns React Query result with job status data
  */
 export function useClarificationStatus(
-  jobId: string,
+  jobId: string | undefined,
   options?: Omit<
     UseQueryOptions<JobStatusResponse, Error>,
     'queryKey' | 'queryFn'
@@ -208,12 +215,9 @@ export function useClarificationStatus(
 ) {
   return useQuery<JobStatusResponse, Error>({
     queryKey: ['clarification', jobId],
-    queryFn: async () => {
-      // TODO: Replace with actual API call from specClarifierClient
-      // Example: return await getClarifierStatus(jobId);
-      throw new Error(
-        'useClarificationStatus is not yet implemented. Connect to specClarifierClient before using.'
-      );
+    queryFn: () => {
+      // The 'enabled' option ensures jobId is defined when this function runs
+      return getClarifierStatus(jobId!);
     },
     enabled: !!jobId,
     ...options,
@@ -381,4 +385,71 @@ export function usePlansList(options: UsePlansListOptions = {}) {
     lastUpdated: queryResult.dataUpdatedAt,
     refetch: queryResult.refetch,
   };
+}
+
+/**
+ * Options for submitting clarifications, extending the request with client options.
+ */
+export interface SubmitClarificationsOptions extends ClarificationRequestWithConfig {
+  fetchImpl?: typeof fetch;
+}
+
+/**
+ * Hook for submitting specifications for asynchronous clarification.
+ *
+ * This hook provides a mutation interface for submitting clarification requests to the
+ * Spec Clarifier API. See specClarifierClient.ts for full OpenAPI contract details.
+ *
+ * Usage:
+ * ```tsx
+ * const submitClarifications = useSubmitClarifications({
+ *   onSuccess: (data) => navigate(`/clarifications/${data.id}`),
+ *   onError: (error) => console.error('Submission failed:', error)
+ * });
+ *
+ * submitClarifications.mutate({
+ *   plan: {
+ *     specs: [{
+ *       purpose: 'Build user auth',
+ *       vision: 'Secure auth system',
+ *       open_questions: ['Which OAuth providers?']
+ *     }]
+ *   },
+ *   answers: [{
+ *     spec_index: 0,
+ *     question_index: 0,
+ *     question: 'Which OAuth providers?',
+ *     answer: 'Google and GitHub'
+ *   }]
+ * });
+ * ```
+ *
+ * @param options - React Query mutation options for customizing behavior
+ * @returns Mutation object with mutate/mutateAsync, loading state, error, and job data
+ */
+export function useSubmitClarifications(
+  options?: UseMutationOptions<
+    JobSummaryResponse,
+    Error,
+    SubmitClarificationsOptions
+  >
+) {
+  return useMutation<
+    JobSummaryResponse,
+    Error,
+    SubmitClarificationsOptions
+  >({
+    mutationFn: async (request: SubmitClarificationsOptions) => {
+      // Separate client options from the API request payload
+      const { fetchImpl, ...clarificationRequest } = request;
+      const clarifyOptions: ClarifyOptions = { fetchImpl };
+
+      // Call the API client - env validation and base URL checks happen in the client
+      const response = await clarifySpecs(clarificationRequest, clarifyOptions);
+
+      return response;
+    },
+    // Prevent duplicate submissions - only one mutation can be in-flight at a time
+    ...options,
+  });
 }
