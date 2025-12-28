@@ -110,8 +110,11 @@ export function usePlanDetail(
   return useQuery<PlanJobStatus, Error>({
     queryKey: ['plan', 'detail', planId],
     queryFn: async () => {
-      // planId is guaranteed to be truthy here due to enabled check
-      return getPlanById(planId!);
+      // Double-check planId exists even though enabled should prevent this
+      if (!planId) {
+        throw new Error('Plan ID is required but was not provided');
+      }
+      return getPlanById(planId);
     },
     enabled: !!planId, // Only run if planId is truthy
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
