@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePlansList } from '@/api/hooks';
 import { getStatusMetadata } from '@/api/softwarePlannerClient';
+import { formatTimestamp } from '@/utils/dateUtils';
 import type { PlanJobStatus } from '@/api/softwarePlannerClient';
 import '@/styles/PlansListPage.css';
 
@@ -82,17 +83,6 @@ const PlansListPage: React.FC = () => {
 
   const handleRefresh = () => {
     refetch();
-  };
-
-  const formatTimestamp = (timestamp: string): string => {
-    const date = new Date(timestamp);
-    return date.toLocaleString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    });
   };
 
   return (

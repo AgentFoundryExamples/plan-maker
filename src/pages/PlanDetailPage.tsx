@@ -2,24 +2,13 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { usePlanDetail } from '@/api/hooks';
 import { getStatusMetadata } from '@/api/softwarePlannerClient';
+import { formatTimestamp } from '@/utils/dateUtils';
 import '@/styles/PlansListPage.css';
+import '@/styles/PlanDetailPage.css';
 
 const PlanDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error } = usePlanDetail(id);
-
-  // Format timestamp for display
-  const formatTimestamp = (timestamp: string | undefined): string => {
-    if (!timestamp) return 'N/A';
-    const date = new Date(timestamp);
-    return date.toLocaleString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    });
-  };
 
   // Loading state
   if (isLoading) {
@@ -86,8 +75,8 @@ const PlanDetailPage: React.FC = () => {
       
       {/* Plan Metadata Card */}
       <div className="card mt-lg">
-        <div className="plan-card-header" style={{ marginBottom: 'var(--spacing-md)' }}>
-          <h2 style={{ margin: 0 }}>Plan #{data.job_id}</h2>
+        <div className="plan-card-header plan-header">
+          <h2>Plan #{data.job_id}</h2>
           <span
             className="status-badge"
             style={{
@@ -125,8 +114,8 @@ const PlanDetailPage: React.FC = () => {
 
         {/* Error message if job failed */}
         {data.status === 'FAILED' && data.error && (
-          <div style={{ marginTop: 'var(--spacing-md)', padding: 'var(--spacing-md)', backgroundColor: 'var(--color-danger-bg, #fee)', borderRadius: 'var(--border-radius)' }}>
-            <h3 style={{ marginTop: 0, color: 'var(--color-danger)' }}>Error</h3>
+          <div className="plan-error-container">
+            <h3>Error</h3>
             <p><strong>Type:</strong> {data.error.type}</p>
             <p><strong>Message:</strong> {data.error.error}</p>
           </div>
@@ -142,28 +131,20 @@ const PlanDetailPage: React.FC = () => {
           </div>
         ) : (
           <div>
-            <p style={{ marginBottom: 'var(--spacing-md)' }}>
+            <p className="spec-count">
               This plan contains {specs.length} specification{specs.length !== 1 ? 's' : ''}.
             </p>
             {specs.map((spec, index) => (
-              <div 
-                key={index}
-                style={{
-                  marginBottom: 'var(--spacing-lg)',
-                  padding: 'var(--spacing-md)',
-                  backgroundColor: 'var(--color-background-secondary, #f5f5f5)',
-                  borderRadius: 'var(--border-radius)',
-                }}
-              >
+              <div key={index} className="spec-container">
                 <h3>Spec #{index + 1}</h3>
-                <div style={{ marginBottom: 'var(--spacing-sm)' }}>
+                <div className="spec-section">
                   <strong>Purpose:</strong> {spec.purpose}
                 </div>
-                <div style={{ marginBottom: 'var(--spacing-sm)' }}>
+                <div className="spec-section">
                   <strong>Vision:</strong> {spec.vision}
                 </div>
                 {spec.must && spec.must.length > 0 && (
-                  <div style={{ marginBottom: 'var(--spacing-sm)' }}>
+                  <div className="spec-section">
                     <strong>Must Have:</strong>
                     <ul>
                       {spec.must.map((item, i) => (
@@ -173,7 +154,7 @@ const PlanDetailPage: React.FC = () => {
                   </div>
                 )}
                 {spec.nice && spec.nice.length > 0 && (
-                  <div style={{ marginBottom: 'var(--spacing-sm)' }}>
+                  <div className="spec-section">
                     <strong>Nice to Have:</strong>
                     <ul>
                       {spec.nice.map((item, i) => (
@@ -183,7 +164,7 @@ const PlanDetailPage: React.FC = () => {
                   </div>
                 )}
                 {spec.dont && spec.dont.length > 0 && (
-                  <div style={{ marginBottom: 'var(--spacing-sm)' }}>
+                  <div className="spec-section">
                     <strong>Don't:</strong>
                     <ul>
                       {spec.dont.map((item, i) => (
@@ -193,7 +174,7 @@ const PlanDetailPage: React.FC = () => {
                   </div>
                 )}
                 {spec.open_questions && spec.open_questions.length > 0 && (
-                  <div style={{ marginBottom: 'var(--spacing-sm)' }}>
+                  <div className="spec-section">
                     <strong>Open Questions:</strong>
                     <ul>
                       {spec.open_questions.map((item, i) => (
@@ -203,7 +184,7 @@ const PlanDetailPage: React.FC = () => {
                   </div>
                 )}
                 {spec.assumptions && spec.assumptions.length > 0 && (
-                  <div style={{ marginBottom: 'var(--spacing-sm)' }}>
+                  <div className="spec-section">
                     <strong>Assumptions:</strong>
                     <ul>
                       {spec.assumptions.map((item, i) => (

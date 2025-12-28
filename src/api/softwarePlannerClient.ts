@@ -260,6 +260,12 @@ export async function getPlanById(
 
 /**
  * Get detailed information about a specific plan
+ * 
+ * This is a semantic alias for getPlanById that makes the intent clearer when
+ * fetching plan details in UI components. Both functions call the same API endpoint
+ * GET /api/v1/plans/{id}, but this name better reflects the purpose of fetching
+ * complete plan data including metadata and specs.
+ * 
  * @param planId - The plan ID to fetch
  * @param fetchImpl - Optional custom fetch implementation
  * @returns Job status with result containing plan response and specs
