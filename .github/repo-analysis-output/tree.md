@@ -55,7 +55,9 @@
     └── specClarifierClient.ts
   ├── components
     ├── ErrorBoundary.test.tsx
-    └── ErrorBoundary.tsx
+    ├── ErrorBoundary.tsx
+    ├── SpecAccordion.test.tsx
+    └── SpecAccordion.tsx
   ├── layout
     ├── AppLayout.css
     ├── AppLayout.test.tsx

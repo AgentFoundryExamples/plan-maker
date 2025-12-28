@@ -243,6 +243,14 @@
             {
               "type": "file",
               "name": "ErrorBoundary.tsx"
+            },
+            {
+              "type": "file",
+              "name": "SpecAccordion.test.tsx"
+            },
+            {
+              "type": "file",
+              "name": "SpecAccordion.tsx"
             }
           ]
         },
