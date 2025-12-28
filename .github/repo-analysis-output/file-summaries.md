@@ -4,15 +4,24 @@ Heuristic summaries of source files based on filenames, extensions, and paths.
 
 Schema Version: 2.0
 
-Total files: 34
+Total files: 36
+
+## eslint.config.js
+**Language:** JavaScript  
+**Role:** implementation  
+**Role Justification:** general implementation file (default classification)  
+**Summary:** JavaScript module for eslint.config  
+**Size:** 3.28 KB  
+**LOC:** 82  
+**TODOs/FIXMEs:** 0  
 
 ## src/api/EXAMPLES.ts
 **Language:** TypeScript  
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 4.64 KB  
-**LOC:** 108  
+**Size:** 4.61 KB  
+**LOC:** 105  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/clientConfig.test.ts
@@ -20,8 +29,8 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 4.48 KB  
-**LOC:** 88  
+**Size:** 4.59 KB  
+**LOC:** 105  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/clientConfig.ts
@@ -29,8 +38,8 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 2.48 KB  
-**LOC:** 58  
+**Size:** 2.49 KB  
+**LOC:** 64  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/env.test.ts
@@ -38,8 +47,8 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 3.72 KB  
-**LOC:** 65  
+**Size:** 3.79 KB  
+**LOC:** 74  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/env.ts
@@ -47,17 +56,26 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 2.26 KB  
+**Size:** 2.27 KB  
 **LOC:** 62  
 **TODOs/FIXMEs:** 0  
+
+## src/api/hooks.ts
+**Language:** TypeScript  
+**Role:** implementation  
+**Role Justification:** general implementation file (default classification)  
+**Summary:** TypeScript core implementation  
+**Size:** 5.41 KB  
+**LOC:** 142  
+**TODOs/FIXMEs:** 4  
 
 ## src/api/softwarePlanner/index.ts
 **Language:** TypeScript  
 **Role:** entry-point  
 **Role Justification:** common entry point name 'index'  
 **Summary:** TypeScript main entry point (role: entry-point)  
-**Size:** 1.01 KB  
-**LOC:** 9  
+**Size:** 0.99 KB  
+**LOC:** 8  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/softwarePlanner/models/HTTPValidationError.ts
@@ -74,7 +92,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 1.73 KB  
+**Size:** 1.70 KB  
 **LOC:** 30  
 **TODOs/FIXMEs:** 0  
 
@@ -83,7 +101,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 1.06 KB  
+**Size:** 1.05 KB  
 **LOC:** 19  
 **TODOs/FIXMEs:** 0  
 
@@ -92,7 +110,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 1.80 KB  
+**Size:** 1.75 KB  
 **LOC:** 49  
 **TODOs/FIXMEs:** 0  
 
@@ -101,7 +119,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 0.81 KB  
+**Size:** 0.80 KB  
 **LOC:** 9  
 **TODOs/FIXMEs:** 0  
 
@@ -110,8 +128,8 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 6.89 KB  
-**LOC:** 206  
+**Size:** 6.93 KB  
+**LOC:** 211  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/softwarePlannerClient.ts
@@ -119,8 +137,8 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 6.80 KB  
-**LOC:** 206  
+**Size:** 6.75 KB  
+**LOC:** 197  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/specClarifier/index.ts
@@ -128,8 +146,8 @@ Total files: 34
 **Role:** entry-point  
 **Role Justification:** common entry point name 'index'  
 **Summary:** TypeScript main entry point (role: entry-point)  
-**Size:** 1.61 KB  
-**LOC:** 18  
+**Size:** 1.59 KB  
+**LOC:** 17  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/specClarifier/models/ClarificationConfig.ts
@@ -137,7 +155,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 2.83 KB  
+**Size:** 2.65 KB  
 **LOC:** 63  
 **TODOs/FIXMEs:** 0  
 
@@ -146,7 +164,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 1.22 KB  
+**Size:** 1.20 KB  
 **LOC:** 23  
 **TODOs/FIXMEs:** 0  
 
@@ -155,7 +173,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 1.70 KB  
+**Size:** 1.68 KB  
 **LOC:** 33  
 **TODOs/FIXMEs:** 0  
 
@@ -164,7 +182,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 0.99 KB  
+**Size:** 0.98 KB  
 **LOC:** 17  
 **TODOs/FIXMEs:** 0  
 
@@ -173,7 +191,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 1.52 KB  
+**Size:** 1.47 KB  
 **LOC:** 41  
 **TODOs/FIXMEs:** 0  
 
@@ -182,7 +200,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 1.21 KB  
+**Size:** 1.20 KB  
 **LOC:** 21  
 **TODOs/FIXMEs:** 0  
 
@@ -200,7 +218,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 1.05 KB  
+**Size:** 1.04 KB  
 **LOC:** 19  
 **TODOs/FIXMEs:** 0  
 
@@ -209,7 +227,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 2.35 KB  
+**Size:** 2.30 KB  
 **LOC:** 54  
 **TODOs/FIXMEs:** 0  
 
@@ -218,7 +236,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 1.64 KB  
+**Size:** 1.59 KB  
 **LOC:** 40  
 **TODOs/FIXMEs:** 0  
 
@@ -227,7 +245,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 0.97 KB  
+**Size:** 0.96 KB  
 **LOC:** 17  
 **TODOs/FIXMEs:** 0  
 
@@ -236,7 +254,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 1.32 KB  
+**Size:** 1.29 KB  
 **LOC:** 31  
 **TODOs/FIXMEs:** 0  
 
@@ -245,7 +263,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 1.66 KB  
+**Size:** 1.61 KB  
 **LOC:** 46  
 **TODOs/FIXMEs:** 0  
 
@@ -254,7 +272,7 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 0.81 KB  
+**Size:** 0.80 KB  
 **LOC:** 9  
 **TODOs/FIXMEs:** 0  
 
@@ -263,8 +281,8 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 9.60 KB  
-**LOC:** 289  
+**Size:** 9.63 KB  
+**LOC:** 293  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/specClarifierClient.ts
@@ -272,8 +290,8 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 5.26 KB  
-**LOC:** 137  
+**Size:** 5.30 KB  
+**LOC:** 148  
 **TODOs/FIXMEs:** 0  
 
 ## src/test/setup.ts
@@ -299,8 +317,8 @@ Total files: 34
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript module for vite.config  
-**Size:** 0.80 KB  
-**LOC:** 11  
+**Size:** 0.91 KB  
+**LOC:** 17  
 **TODOs/FIXMEs:** 0  
 
 ## vitest.config.ts

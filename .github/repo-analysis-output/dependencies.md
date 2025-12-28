@@ -8,20 +8,36 @@ Includes classification of external dependencies as stdlib vs third-party.
 
 ## Statistics
 
-- **Total files**: 34
-- **Intra-repo dependencies**: 30
-- **External stdlib dependencies**: 0
-- **External third-party dependencies**: 6
+- **Total files**: 36
+- **Intra-repo dependencies**: 33
+- **External stdlib dependencies**: 1
+- **External third-party dependencies**: 16
 
 ## External Dependencies
 
+### Standard Library / Core Modules
+
+Total: 1 unique modules
+
+- `path`
+
 ### Third-Party Packages
 
-Total: 6 unique packages
+Total: 16 unique packages
 
+- `@eslint/js`
+- `@tanstack/react-query`
 - `@testing-library/jest-dom`
 - `@testing-library/react`
+- `@typescript-eslint/eslint-plugin`
+- `@typescript-eslint/parser`
 - `@vitejs/plugin-react`
+- `eslint-config-prettier`
+- `eslint-plugin-import`
+- `eslint-plugin-react`
+- `eslint-plugin-react-hooks`
+- `eslint-plugin-react-refresh`
+- `globals`
 - `vite`
 - `vitest`
 - `vitest/config`
@@ -41,6 +57,7 @@ Total: 6 unique packages
 
 ## Files with Most Dependencies (Intra-Repo)
 
+- `src/api/hooks.ts` (3 dependencies)
 - `src/api/softwarePlannerClient.test.ts` (3 dependencies)
 - `src/api/specClarifier/models/ClarificationRequestWithConfig.ts` (3 dependencies)
 - `src/api/specClarifierClient.test.ts` (3 dependencies)
@@ -50,4 +67,3 @@ Total: 6 unique packages
 - `src/api/specClarifier/models/ClarificationRequest.ts` (2 dependencies)
 - `src/api/specClarifier/models/JobStatusResponse.ts` (2 dependencies)
 - `src/api/specClarifierClient.ts` (2 dependencies)
-- `src/api/clientConfig.ts` (1 dependencies)

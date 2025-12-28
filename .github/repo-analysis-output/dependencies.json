@@ -1,6 +1,25 @@
 {
   "nodes": [
     {
+      "id": "eslint.config.js",
+      "path": "eslint.config.js",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "@eslint/js",
+          "@typescript-eslint/eslint-plugin",
+          "@typescript-eslint/parser",
+          "eslint-config-prettier",
+          "eslint-plugin-import",
+          "eslint-plugin-react",
+          "eslint-plugin-react-hooks",
+          "eslint-plugin-react-refresh",
+          "globals"
+        ]
+      }
+    },
+    {
       "id": "src/api/EXAMPLES.ts",
       "path": "src/api/EXAMPLES.ts",
       "type": "file",
@@ -47,6 +66,17 @@
       "external_dependencies": {
         "stdlib": [],
         "third-party": []
+      }
+    },
+    {
+      "id": "src/api/hooks.ts",
+      "path": "src/api/hooks.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "@tanstack/react-query"
+        ]
       }
     },
     {
@@ -305,7 +335,9 @@
       "path": "vite.config.ts",
       "type": "file",
       "external_dependencies": {
-        "stdlib": [],
+        "stdlib": [
+          "path"
+        ],
         "third-party": [
           "@vitejs/plugin-react",
           "vite"
@@ -349,6 +381,18 @@
     {
       "source": "src/api/env.test.ts",
       "target": "src/api/env.ts"
+    },
+    {
+      "source": "src/api/hooks.ts",
+      "target": "src/api/softwarePlanner/models/PlanRequest.ts"
+    },
+    {
+      "source": "src/api/hooks.ts",
+      "target": "src/api/softwarePlanner/models/PlanResponse.ts"
+    },
+    {
+      "source": "src/api/hooks.ts",
+      "target": "src/api/specClarifier/models/JobStatusResponse.ts"
     },
     {
       "source": "src/api/softwarePlanner/models/HTTPValidationError.ts",
@@ -448,16 +492,28 @@
     }
   ],
   "external_dependencies_summary": {
-    "stdlib": [],
+    "stdlib": [
+      "path"
+    ],
     "third-party": [
+      "@eslint/js",
+      "@tanstack/react-query",
       "@testing-library/jest-dom",
       "@testing-library/react",
+      "@typescript-eslint/eslint-plugin",
+      "@typescript-eslint/parser",
       "@vitejs/plugin-react",
+      "eslint-config-prettier",
+      "eslint-plugin-import",
+      "eslint-plugin-react",
+      "eslint-plugin-react-hooks",
+      "eslint-plugin-react-refresh",
+      "globals",
       "vite",
       "vitest",
       "vitest/config"
     ],
-    "stdlib_count": 0,
-    "third-party_count": 6
+    "stdlib_count": 1,
+    "third-party_count": 16
   }
 }

@@ -47,6 +47,8 @@
     ├── env.test.ts
     ├── env.ts
     ├── EXAMPLES.ts
+    ├── hooks.test.tsx
+    ├── hooks.ts
     ├── softwarePlannerClient.test.ts
     ├── softwarePlannerClient.ts
     ├── specClarifierClient.test.ts
@@ -77,6 +79,9 @@
   └── vite-env.d.ts
 ├── .env.example
 ├── .gitignore
+├── .prettierignore
+├── .prettierrc
+├── eslint.config.js
 ├── index.html
 ├── LICENSE
 ├── package-lock.json

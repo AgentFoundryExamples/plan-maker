@@ -208,6 +208,14 @@
             },
             {
               "type": "file",
+              "name": "hooks.test.tsx"
+            },
+            {
+              "type": "file",
+              "name": "hooks.ts"
+            },
+            {
+              "type": "file",
               "name": "softwarePlannerClient.test.ts"
             },
             {
@@ -339,6 +347,18 @@
     {
       "type": "file",
       "name": ".gitignore"
+    },
+    {
+      "type": "file",
+      "name": ".prettierignore"
+    },
+    {
+      "type": "file",
+      "name": ".prettierrc"
+    },
+    {
+      "type": "file",
+      "name": "eslint.config.js"
     },
     {
       "type": "file",
