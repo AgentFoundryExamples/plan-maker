@@ -24,6 +24,7 @@ import {
 import { clearEnvCache } from './env';
 import type { AsyncPlanJob } from './softwarePlannerClient';
 import { JobStatus } from './specClarifier';
+import * as specClarifierClient from './specClarifierClient';
 
 describe('React Query Setup', () => {
   it('should render children within QueryClientProvider', () => {
@@ -1318,27 +1319,14 @@ describe('useClarificationStatus', () => {
       },
     };
 
-    const mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => mockResponse,
-    });
-
-    // Create a custom fetch wrapper for the query
-    const customFetch = mockFetch as any;
+    // Mock the client function directly
+    const getClarifierStatusSpy = vi
+      .spyOn(specClarifierClient, 'getClarifierStatus')
+      .mockResolvedValue(mockResponse);
 
     function TestComponent() {
       const { data, isLoading, isSuccess } = useClarificationStatus(
-        'test-job-123',
-        {
-          // Override the fetch by using a query option that the underlying client will use
-          queryFn: async () => {
-            const response = await customFetch(
-              'http://localhost:8081/v1/clarifications/test-job-123',
-              { method: 'GET' }
-            );
-            return response.json();
-          },
-        }
+        'test-job-123'
       );
 
       return (
@@ -1358,6 +1346,8 @@ describe('useClarificationStatus', () => {
     await waitFor(() => {
       expect(screen.getByText('Status: SUCCESS')).toBeInTheDocument();
     });
+
+    expect(getClarifierStatusSpy).toHaveBeenCalledWith('test-job-123');
   });
 
   it('does not fetch when jobId is undefined', async () => {
