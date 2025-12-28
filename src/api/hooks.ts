@@ -17,13 +17,11 @@
  * This module provides reusable hooks that wrap the generated API clients
  * with React Query for caching, automatic refetching, and optimistic updates.
  *
- * @warning These hooks are currently STUBS and will throw errors if used.
- * They must be connected to the actual API client functions before use in production.
+ * Implemented hooks:
+ * - useCreatePlanAsync: Mutation hook for creating async software planning jobs
  *
- * To implement:
- * 1. Import the corresponding function from softwarePlannerClient or specClarifierClient
- * 2. Replace the queryFn/mutationFn implementation with the actual API call
- * 3. Remove the warning from the JSDoc
+ * @warning Some hooks are currently STUBS and will throw errors if used.
+ * They must be connected to the actual API client functions before use in production.
  */
 
 import {
@@ -35,6 +33,11 @@ import {
 import type { PlanRequest } from './softwarePlanner/models/PlanRequest';
 import type { PlanResponse } from './softwarePlanner/models/PlanResponse';
 import type { JobStatusResponse } from './specClarifier/models/JobStatusResponse';
+import {
+  createPlanAsync,
+  type AsyncPlanJob,
+  type CreatePlanOptions,
+} from './softwarePlannerClient';
 
 /**
  * Example hook stub for fetching a plan by ID.
@@ -163,6 +166,97 @@ export function useClarificationStatus(
       );
     },
     enabled: !!jobId,
+    ...options,
+  });
+}
+
+/**
+ * Validates PlanRequest payload before submission
+ * @param request - The plan request to validate
+ * @throws Error if validation fails
+ */
+function validatePlanRequest(request: PlanRequest): void {
+  if (!request.description || request.description.trim() === '') {
+    throw new Error('Description is required and cannot be empty');
+  }
+}
+
+/**
+ * Logs request/response in development mode only
+ * @param type - Type of log (request or response)
+ * @param data - Data to log
+ */
+function logInDevelopment(type: 'request' | 'response', data: unknown): void {
+  if (import.meta.env.DEV) {
+    console.log(`[${type.toUpperCase()}]`, data);
+  }
+}
+
+/**
+ * Hook for creating an asynchronous software planning job.
+ *
+ * This hook provides a mutation interface for creating async planning jobs using the
+ * Software Planner API. It includes:
+ * - Automatic base URL configuration from environment variables
+ * - Payload validation before submission
+ * - Prevention of duplicate in-flight submissions
+ * - Development-only request/response logging
+ * - Typed error handling
+ *
+ * Usage:
+ * ```tsx
+ * const createPlan = useCreatePlanAsync({
+ *   onSuccess: (data) => {
+ *     console.log('Job created:', data.job_id);
+ *   },
+ *   onError: (error) => {
+ *     console.error('Failed:', error);
+ *   }
+ * });
+ *
+ * // Submit a plan creation request
+ * createPlan.mutate({
+ *   description: 'Build a REST API for managing tasks',
+ *   model: 'gpt-4-turbo', // optional
+ * });
+ *
+ * // Access loading state
+ * if (createPlan.isPending) {
+ *   return <Spinner />;
+ * }
+ * ```
+ *
+ * @param options - React Query mutation options for customizing behavior
+ * @returns Mutation object with mutate/mutateAsync, loading state, and error
+ */
+export function useCreatePlanAsync(
+  options?: UseMutationOptions<
+    AsyncPlanJob,
+    Error,
+    PlanRequest & CreatePlanOptions
+  >
+) {
+  return useMutation<AsyncPlanJob, Error, PlanRequest & CreatePlanOptions>({
+    mutationFn: async (request: PlanRequest & CreatePlanOptions) => {
+      // Validate payload before making the request
+      validatePlanRequest(request);
+
+      // Separate client options from the API request payload
+      const { apiKey, fetchImpl, ...planRequest } = request;
+      const createOptions: CreatePlanOptions = { apiKey, fetchImpl };
+
+      // Log request in development mode
+      logInDevelopment('request', planRequest);
+
+      // Call the API client
+      const response = await createPlanAsync(planRequest, createOptions);
+
+      // Log response in development mode
+      logInDevelopment('response', response);
+
+      return response;
+    },
+    // Prevent duplicate submissions - only one mutation can be in-flight at a time
     ...options,
   });
 }
