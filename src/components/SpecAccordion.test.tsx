@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SpecAccordion from './SpecAccordion';
@@ -50,7 +50,8 @@ describe('SpecAccordion', () => {
       renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       expect(screen.getByText('Questions Summary')).toBeInTheDocument();
-      expect(screen.getByText(/3 of 3 questions remaining/i)).toBeInTheDocument();
+      // Both inline and sticky summary show this text
+      expect(screen.getAllByText(/3 of 3 questions remaining/i).length).toBeGreaterThanOrEqual(1);
     });
 
     it('shows all answered when all questions are answered', async () => {
@@ -75,7 +76,7 @@ describe('SpecAccordion', () => {
       await user.type(secondTextarea, 'Chart.js');
 
       await waitFor(() => {
-        expect(screen.getByText(/✓ all questions answered/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/✓ all questions answered/i).length).toBeGreaterThanOrEqual(1);
       });
     });
 
@@ -96,7 +97,7 @@ describe('SpecAccordion', () => {
       const user = userEvent.setup();
       renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
-      expect(screen.getByText(/3 of 3 questions remaining/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/3 of 3 questions remaining/i).length).toBeGreaterThanOrEqual(1);
 
       // Expand first spec and answer one question
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
@@ -106,7 +107,7 @@ describe('SpecAccordion', () => {
       await user.type(textareas[0], 'PostgreSQL');
 
       await waitFor(() => {
-        expect(screen.getByText(/2 of 3 questions remaining/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/2 of 3 questions remaining/i).length).toBeGreaterThanOrEqual(1);
       });
     });
   });
@@ -538,6 +539,109 @@ describe('SpecAccordion', () => {
       // Check for visually hidden status text
       const hiddenStatuses = document.querySelectorAll('.visually-hidden');
       expect(hiddenStatuses.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Answer Persistence', () => {
+    it('persists answers when accordion is collapsed and re-expanded', async () => {
+      const user = userEvent.setup();
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      
+      // Expand and type answer
+      await user.click(firstAccordion);
+      const textarea = screen.getAllByPlaceholderText(/enter your answer/i)[0];
+      await user.type(textarea, 'PostgreSQL database');
+
+      // Collapse
+      await user.click(firstAccordion);
+      expect(firstAccordion).toHaveAttribute('aria-expanded', 'false');
+
+      // Re-expand
+      await user.click(firstAccordion);
+      const textareaAfter = screen.getAllByPlaceholderText(/enter your answer/i)[0];
+      expect(textareaAfter).toHaveValue('PostgreSQL database');
+    });
+
+    it('maintains separate answers for different plans', async () => {
+      const user = userEvent.setup();
+      
+      // Render with plan-1
+      const { unmount } = renderWithProvider(<SpecAccordion planId="plan-1" specs={mockSpecs} />);
+
+      // Answer question in plan-1
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordion);
+      const textarea = screen.getAllByPlaceholderText(/enter your answer/i)[0];
+      await user.type(textarea, 'Plan 1 answer');
+
+      unmount();
+
+      // Render with plan-2
+      renderWithProvider(<SpecAccordion planId="plan-2" specs={mockSpecs} />);
+
+      // Answer should be empty for plan-2
+      const firstAccordionPlan2 = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordionPlan2);
+      const textareaPlan2 = screen.getAllByPlaceholderText(/enter your answer/i)[0];
+      expect(textareaPlan2).toHaveValue('');
+    });
+  });
+
+  describe('Sticky Summary', () => {
+    it('shows sticky summary bar with progress', () => {
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const stickyBar = screen.getByRole('region', { name: /questions progress summary/i });
+      expect(stickyBar).toBeInTheDocument();
+      expect(stickyBar).toHaveAttribute('data-position', 'bottom');
+    });
+
+    it('shows quick links to unanswered specs', () => {
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const spec1Link = screen.getByRole('button', { name: /go to spec 1/i });
+      const spec2Link = screen.getByRole('button', { name: /go to spec 2/i });
+      
+      expect(spec1Link).toBeInTheDocument();
+      expect(spec2Link).toBeInTheDocument();
+    });
+
+    it('can hide sticky summary via prop', () => {
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} showStickySummary={false} />);
+
+      const stickyBar = screen.queryByRole('region', { name: /questions progress summary/i });
+      expect(stickyBar).not.toBeInTheDocument();
+    });
+
+    it('can change sticky position via prop', () => {
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} stickyPosition="top" />);
+
+      const stickyBar = screen.getByRole('region', { name: /questions progress summary/i });
+      expect(stickyBar).toHaveAttribute('data-position', 'top');
+    });
+
+    it('expands spec when clicking quick link', async () => {
+      const user = userEvent.setup();
+      
+      // Mock scrollIntoView since jsdom doesn't support it
+      Element.prototype.scrollIntoView = vi.fn();
+      
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      // Check that spec 1 is not expanded initially
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      expect(firstAccordion).toHaveAttribute('aria-expanded', 'false');
+
+      // Click the quick link
+      const spec1Link = screen.getByRole('button', { name: /go to spec 1/i });
+      await user.click(spec1Link);
+
+      // Check that spec 1 accordion is now expanded
+      await waitFor(() => {
+        expect(firstAccordion).toHaveAttribute('aria-expanded', 'true');
+      });
     });
   });
 });

@@ -260,8 +260,8 @@ describe('PlanDetailPage', () => {
       // Accordion should render with spec header visible
       expect(screen.getByRole('button', { name: /spec #1/i })).toBeInTheDocument();
       expect(screen.getByText(/build rest api/i)).toBeInTheDocument();
-      // Should show question summary
-      expect(screen.getByText(/1 of 1 question remaining/i)).toBeInTheDocument();
+      // Should show question summary (both inline and sticky)
+      expect(screen.getAllByText(/1 of 1 question remaining/i).length).toBeGreaterThanOrEqual(1);
     });
 
     it('renders all spec sections when present', async () => {
