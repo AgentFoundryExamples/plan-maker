@@ -157,30 +157,19 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
    * Scroll to and focus the first invalid question
    * This is called when submission is attempted with validation errors
    */
-  const VALIDATION_SCROLL_DELAY_MS = 300; // Delay for accordion animation to complete
-  
   const scrollToFirstError = useCallback(() => {
     if (!validationResult || validationResult.errors.length === 0) return;
 
     const firstError = validationResult.errors[0];
-    const { specIndex, questionIndex } = firstError;
+    const { specIndex } = firstError;
 
     // Expand the spec containing the first error
     setExpandedSpecs((prev) => {
+      if (prev.has(specIndex)) return prev; // Already expanded
       const next = new Set(prev);
       next.add(specIndex);
       return next;
     });
-
-    // After a short delay to allow accordion to expand, scroll and focus
-    setTimeout(() => {
-      const key = `${specIndex}-${questionIndex}`;
-      const element = questionRefs.current.get(key);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        element.focus();
-      }
-    }, VALIDATION_SCROLL_DELAY_MS);
   }, [validationResult]);
 
   // Expose scrollToFirstError to parent via imperative handle if needed
@@ -190,6 +179,29 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
       scrollToFirstError();
     }
   }, [showValidationErrors, validationResult, scrollToFirstError]);
+
+  // Effect to handle scrolling after an accordion is expanded due to validation
+  React.useEffect(() => {
+    if (!showValidationErrors || !validationResult || validationResult.isValid) return;
+
+    const firstError = validationResult.errors[0];
+    if (!firstError) return;
+
+    const { specIndex, questionIndex } = firstError;
+
+    // Only scroll if this spec was just expanded
+    if (expandedSpecs.has(specIndex)) {
+      // Use requestAnimationFrame to wait for the DOM to be ready after expansion
+      requestAnimationFrame(() => {
+        const key = `${specIndex}-${questionIndex}`;
+        const element = questionRefs.current.get(key);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          element.focus({ preventScroll: true }); // preventScroll as scrollIntoView handles it
+        }
+      });
+    }
+  }, [expandedSpecs, showValidationErrors, validationResult]);
 
   return (
     <div className="spec-accordion-container">

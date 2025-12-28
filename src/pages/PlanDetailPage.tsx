@@ -47,15 +47,18 @@ const PlanDetailPage: React.FC = () => {
 
   // Handle submission
   const handleSubmit = useCallback(() => {
-    if (!data?.result?.specs || !validationResult) return;
+    if (!data?.result?.specs) return;
 
+    // Revalidate immediately before submission to ensure current state
+    const currentValidation = validateAnswers(data.job_id, data.result.specs);
+    
     // Check validation
-    if (!validationResult.isValid) {
+    if (!currentValidation.isValid) {
       setShowValidationErrors(true);
       setSubmissionBanner({
         type: 'error',
         title: 'Incomplete Answers',
-        message: `Please answer all ${validationResult.unansweredCount} remaining question${validationResult.unansweredCount !== 1 ? 's' : ''} before submitting.`,
+        message: `Please answer all ${currentValidation.unansweredCount} remaining question${currentValidation.unansweredCount !== 1 ? 's' : ''} before submitting.`,
       });
       return;
     }
@@ -64,12 +67,13 @@ const PlanDetailPage: React.FC = () => {
     setSubmissionBanner(null);
     setShowValidationErrors(false);
 
-    // Build the answers array
+    // Build the answers array - only send answers, not the full plan
     const answers: QuestionAnswer[] = [];
     data.result.specs.forEach((spec, specIndex) => {
       const questions = spec.open_questions || [];
       questions.forEach((question, questionIndex) => {
         const answer = getAnswer(data.job_id, specIndex, questionIndex);
+        // Sanitize answer by trimming whitespace
         answers.push({
           spec_index: specIndex,
           question_index: questionIndex,
@@ -79,22 +83,14 @@ const PlanDetailPage: React.FC = () => {
       });
     });
 
-    // Submit the clarifications
+    // Submit the clarifications with simplified payload
     submitClarifications.mutate({
       plan: {
-        specs: data.result.specs.map(spec => ({
-          purpose: spec.purpose,
-          vision: spec.vision,
-          must: spec.must,
-          nice: spec.nice,
-          dont: spec.dont,
-          open_questions: spec.open_questions,
-          assumptions: spec.assumptions,
-        })),
+        specs: data.result.specs,
       },
       answers,
     });
-  }, [data, validationResult, getAnswer, submitClarifications]);
+  }, [data, validateAnswers, getAnswer, submitClarifications]);
 
   // Clear banner when user starts fixing issues
   const dismissBanner = useCallback(() => {

@@ -313,6 +313,9 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
    * - Statistics (total questions, unanswered count)
    * - Map of unanswered questions grouped by spec
    * 
+   * Performance optimized: Only iterates over answers for the current plan
+   * instead of depending on getAnswer which triggers on any answer change.
+   * 
    * @param planId - The plan ID to validate
    * @param specs - Array of spec items containing open_questions
    * @returns PlanValidationResult with validation state
@@ -325,13 +328,17 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
     const unansweredBySpec = new Map<number, number[]>();
     let totalQuestions = 0;
 
+    // Get answers for this plan only (performance optimization)
+    const planAnswers = getAnswersForPlan(planId);
+
     // Enumerate all questions and check if they are answered
     specs.forEach((spec, specIndex) => {
       const questions = spec.open_questions || [];
       totalQuestions += questions.length;
 
       questions.forEach((question, questionIndex) => {
-        const answer = getAnswer(planId, specIndex, questionIndex);
+        const key = `${planId}-${specIndex}-${questionIndex}`;
+        const answer = planAnswers[key] || '';
         // Check if answer is empty or contains only whitespace
         if (!answer.trim()) {
           errors.push({
@@ -356,7 +363,7 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
       errors,
       unansweredBySpec,
     };
-  }, [getAnswer]);
+  }, [getAnswersForPlan]);
 
   const value: PlanAnswersContextValue = useMemo(
     () => ({
