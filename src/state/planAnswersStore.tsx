@@ -30,6 +30,22 @@ export const DEFAULT_PLAN_ANSWERS_CONFIG: PlanAnswersConfig = {
 /**
  * Structure for storing answers
  * Key format: `${planId}-${specIndex}-${questionIndex}`
+ * 
+ * Storage Strategy:
+ * All plan answers are stored together in a single localStorage entry under the configured
+ * storageKeyPrefix (default: 'plan-answers'). This approach:
+ * - Simplifies storage management with a single key
+ * - Relies on plan ID prefix in answer keys for isolation
+ * - Keeps related data together for atomic read/write operations
+ * 
+ * Alternative approaches considered:
+ * - Per-plan keys: Would require managing multiple storage keys and cleanup
+ * - Nested structure: Would increase complexity without significant benefit
+ * 
+ * Data Validation:
+ * - Validates structure on load (must be object with string values)
+ * - Filters out invalid entries (non-string values, malformed keys)
+ * - Falls back to empty state if validation fails
  */
 export interface AnswerState {
   [key: string]: string;
@@ -97,11 +113,43 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
     [configOverride]
   );
 
+  /**
+   * Validate and sanitize loaded answer state
+   */
+  const validateAnswerState = useCallback((data: unknown): AnswerState => {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      return {};
+    }
+
+    const validated: AnswerState = {};
+    const entries = Object.entries(data as Record<string, unknown>);
+
+    for (const [key, value] of entries) {
+      // Validate key format: should be `planId-specIndex-questionIndex`
+      const keyParts = key.split('-');
+      if (keyParts.length < 3) {
+        continue; // Skip malformed keys
+      }
+
+      // Validate value is a string
+      if (typeof value !== 'string') {
+        continue; // Skip non-string values
+      }
+
+      validated[key] = value;
+    }
+
+    return validated;
+  }, []);
+
   const [answers, setAnswers] = useState<AnswerState>(() => {
     // Try to hydrate from localStorage on mount (via existing localStorage utility)
     if (config.enableSessionStorage) {
       const stored = getDraft<AnswerState>(config.storageKeyPrefix);
-      return stored || {};
+      if (stored) {
+        // Validate and sanitize the loaded data
+        return validateAnswerState(stored);
+      }
     }
     return {};
   });
@@ -151,22 +199,6 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
   }, []);
 
   /**
-   * Clean up answers for a different plan when switching plans
-   */
-  const cleanupOldPlanAnswers = useCallback((newPlanId: string) => {
-    setAnswers((prev) => {
-      const next: AnswerState = {};
-      // Keep only answers for the new plan
-      Object.keys(prev).forEach((key) => {
-        if (key.startsWith(`${newPlanId}-`)) {
-          next[key] = prev[key];
-        }
-      });
-      return next;
-    });
-  }, []);
-
-  /**
    * Set an answer for a specific question
    */
   const setAnswer = useCallback((
@@ -175,11 +207,6 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
     questionIndex: number,
     value: string
   ) => {
-    // Clean up old plan's answers if switching to a new plan
-    if (currentPlanId !== null && currentPlanId !== planId) {
-      cleanupOldPlanAnswers(planId);
-    }
-    
     if (currentPlanId !== planId) {
       setCurrentPlanId(planId);
     }
@@ -189,7 +216,7 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
       ...prev,
       [key]: value,
     }));
-  }, [currentPlanId, makeKey, cleanupOldPlanAnswers]);
+  }, [currentPlanId, makeKey]);
 
   /**
    * Get an answer for a specific question

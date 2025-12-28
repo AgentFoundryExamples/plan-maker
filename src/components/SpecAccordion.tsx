@@ -39,7 +39,10 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
   maxUnansweredSpecLinks = 5
 }) => {
   const [expandedSpecs, setExpandedSpecs] = useState<Set<number>>(new Set());
-  const { getAnswer, setAnswer, isAnswered } = usePlanAnswers();
+  const { getAnswer, setAnswer, getAnswersForPlan } = usePlanAnswers();
+
+  // Get all answers for current plan to use in memoization
+  const planAnswers = getAnswersForPlan(planId);
 
   // Toggle spec expansion
   const toggleSpec = (index: number) => {
@@ -63,10 +66,11 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
     setAnswer(planId, specIndex, questionIndex, value);
   };
 
-  // Check if a question is answered - delegate to store
-  const isQuestionAnswered = (specIndex: number, questionIndex: number): boolean => {
-    return isAnswered(planId, specIndex, questionIndex);
-  };
+  // Check if a question is answered
+  const isQuestionAnswered = useCallback((specIndex: number, questionIndex: number): boolean => {
+    const key = `${planId}-${specIndex}-${questionIndex}`;
+    return (planAnswers[key] || '').trim().length > 0;
+  }, [planId, planAnswers]);
 
   // Get answer for a question - delegate to store
   const getAnswerValue = (specIndex: number, questionIndex: number): string => {
@@ -79,10 +83,11 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
       const questions = spec.open_questions || [];
       if (questions.length === 0) return 0;
       return questions.filter((_, qIndex) => {
-        return !isAnswered(planId, specIndex, qIndex);
+        const key = `${planId}-${specIndex}-${qIndex}`;
+        return (planAnswers[key] || '').trim().length === 0;
       }).length;
     });
-  }, [specs, planId, isAnswered]);
+  }, [specs, planId, planAnswers]);
 
   // Calculate unanswered questions for a spec using memoized counts
   const getUnansweredCount = (_spec: SpecItem, specIndex: number): number => {
@@ -120,7 +125,7 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
         return next;
       });
     }
-  }, []);
+  }, [setExpandedSpecs]);
 
   return (
     <div className="spec-accordion-container">
