@@ -1,8 +1,10 @@
-import React, { useState, FormEvent, useMemo } from 'react';
+import React, { useState, FormEvent, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCreatePlanAsync } from '@/api/hooks';
 import type { AsyncPlanJob } from '@/api/softwarePlannerClient';
 import type { PlanRequest } from '@/api/softwarePlanner/models/PlanRequest';
+import { getDraft, saveDraft, removeDraft } from '@/utils/localStorage';
+import { countWords } from '@/utils/textUtils';
 import '@/styles/PlannerInputPage.css';
 
 interface FormData {
@@ -42,12 +44,17 @@ const STATUS_CONFIG: Record<
 };
 
 const MAX_DESCRIPTION_LENGTH = 8192;
+const DRAFT_STORAGE_KEY = 'planner-input-draft';
 
 const PlannerInputPage: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({
-    description: '',
-    model: '',
-    system_prompt: '',
+  const [formData, setFormData] = useState<FormData>(() => {
+    // Try to restore draft from localStorage on mount
+    const draft = getDraft<FormData>(DRAFT_STORAGE_KEY);
+    return draft || {
+      description: '',
+      model: '',
+      system_prompt: '',
+    };
   });
 
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>(
@@ -61,8 +68,18 @@ const PlannerInputPage: React.FC = () => {
       setSubmittedPlan(data);
       setValidationErrors({});
       setCreatedAt(new Date().toISOString());
+      // Clear the draft after successful submission
+      removeDraft(DRAFT_STORAGE_KEY);
     },
   });
+
+  // Auto-save form data to localStorage whenever it changes
+  useEffect(() => {
+    // Only save if form has content and no plan has been submitted
+    if (!submittedPlan && (formData.description || formData.model || formData.system_prompt)) {
+      saveDraft(DRAFT_STORAGE_KEY, formData);
+    }
+  }, [formData, submittedPlan]);
 
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
@@ -134,6 +151,8 @@ const PlannerInputPage: React.FC = () => {
     });
     setValidationErrors({});
     createPlan.reset();
+    // Clear any existing draft when starting a new plan
+    removeDraft(DRAFT_STORAGE_KEY);
   };
 
   const statusConfig = useMemo(
@@ -207,8 +226,9 @@ const PlannerInputPage: React.FC = () => {
                 Project Description
               </label>
               <p className="form-helper-text">
-                Describe your software project in detail. What should it do?
-                What are the key features? (Required, max {MAX_DESCRIPTION_LENGTH} characters)
+                Describe your software project in detail. Include key features, 
+                requirements, and constraints. Be specific about what the software 
+                should do and any technical requirements. (Required, max {MAX_DESCRIPTION_LENGTH} characters)
               </p>
               <textarea
                 id="description"
@@ -217,7 +237,7 @@ const PlannerInputPage: React.FC = () => {
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={8}
-                placeholder="Example: Build a task management API with user authentication, task CRUD operations, and real-time notifications..."
+                placeholder="Example: Build a task management API with user authentication, task CRUD operations, and real-time notifications. Must support REST endpoints, use PostgreSQL database, and include rate limiting..."
                 aria-required="true"
                 aria-invalid={!!validationErrors.description}
                 aria-describedby={
@@ -236,9 +256,14 @@ const PlannerInputPage: React.FC = () => {
                   {validationErrors.description}
                 </span>
               )}
-              <span className="character-count">
-                {formData.description.length} / {MAX_DESCRIPTION_LENGTH} characters
-              </span>
+              <div className="input-meta">
+                <span className="word-count" aria-live="polite">
+                  {countWords(formData.description)} words
+                </span>
+                <span className="character-count">
+                  {formData.description.length} / {MAX_DESCRIPTION_LENGTH} characters
+                </span>
+              </div>
             </div>
 
             <div className="form-group">
@@ -266,8 +291,9 @@ const PlannerInputPage: React.FC = () => {
                 Custom System Prompt (Optional)
               </label>
               <p className="form-helper-text">
-                Override the default system prompt to customize planning
-                behavior (max 32768 characters).
+                Override the default system prompt to customize planning behavior. 
+                You can adjust the tone, focus areas, or add specific instructions 
+                for the AI planner. (Optional, max 32768 characters)
               </p>
               <textarea
                 id="system_prompt"
@@ -276,9 +302,19 @@ const PlannerInputPage: React.FC = () => {
                 value={formData.system_prompt}
                 onChange={handleInputChange}
                 rows={6}
-                placeholder="Custom instructions for the planning AI..."
+                placeholder="Example: Focus on microservices architecture. Emphasize security best practices and scalability considerations. Include detailed API documentation requirements..."
                 disabled={createPlan.isPending}
               />
+              {formData.system_prompt && (
+                <div className="input-meta">
+                  <span className="word-count" aria-live="polite">
+                    {countWords(formData.system_prompt)} words
+                  </span>
+                  <span className="character-count">
+                    {formData.system_prompt.length} / 32768 characters
+                  </span>
+                </div>
+              )}
             </div>
 
             {createPlan.error && (

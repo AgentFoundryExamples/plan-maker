@@ -75,7 +75,34 @@
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
   text-align: right;
+}
+
+.word-count {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-align: left;
+}
+
+.input-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: var(--spacing-xs);
+  gap: var(--spacing-sm);
+}
+
+/* Ensure meta info is readable on small screens */
+@media (max-width: 479px) {
+  .input-meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .character-count,
+  .word-count {
+    text-align: left;
+  }
 }
 
 .error-message {

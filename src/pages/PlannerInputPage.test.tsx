@@ -40,6 +40,8 @@ describe('PlannerInputPage', () => {
     });
     Object.assign(import.meta.env, originalEnv);
     vi.restoreAllMocks();
+    // Clear localStorage to prevent test pollution
+    localStorage.clear();
   });
 
   describe('Form Rendering', () => {
@@ -664,6 +666,266 @@ describe('PlannerInputPage', () => {
       const callArgs = mockFetch.mock.calls[0];
       const requestBody = JSON.parse(callArgs[1].body);
       expect(requestBody.system_prompt).toBe('Custom prompt');
+    });
+  });
+
+  describe('Form Persistence', () => {
+    it('restores draft from localStorage on mount', () => {
+      const draftData = {
+        description: 'Restored description',
+        model: 'gpt-4',
+        system_prompt: 'Restored prompt',
+      };
+
+      localStorage.setItem(
+        'plan-maker_planner-input-draft',
+        JSON.stringify({
+          data: draftData,
+          timestamp: Date.now(),
+        })
+      );
+
+      renderWithProviders(<PlannerInputPage />);
+
+      expect(screen.getByLabelText(/project description/i)).toHaveValue(
+        'Restored description'
+      );
+      expect(screen.getByLabelText(/model/i)).toHaveValue('gpt-4');
+      expect(screen.getByLabelText(/custom system prompt/i)).toHaveValue(
+        'Restored prompt'
+      );
+    });
+
+    it('does not restore expired draft (older than 24 hours)', () => {
+      const draftData = {
+        description: 'Expired description',
+        model: 'gpt-4',
+        system_prompt: 'Expired prompt',
+      };
+
+      const twentyFiveHoursAgo = Date.now() - 25 * 60 * 60 * 1000;
+      localStorage.setItem(
+        'plan-maker_planner-input-draft',
+        JSON.stringify({
+          data: draftData,
+          timestamp: twentyFiveHoursAgo,
+        })
+      );
+
+      renderWithProviders(<PlannerInputPage />);
+
+      expect(screen.getByLabelText(/project description/i)).toHaveValue('');
+      expect(screen.getByLabelText(/model/i)).toHaveValue('');
+      expect(screen.getByLabelText(/custom system prompt/i)).toHaveValue('');
+    });
+
+    it('saves draft to localStorage when form changes', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<PlannerInputPage />);
+
+      await user.type(
+        screen.getByLabelText(/project description/i),
+        'Draft description'
+      );
+
+      await waitFor(() => {
+        const stored = localStorage.getItem('plan-maker_planner-input-draft');
+        expect(stored).toBeTruthy();
+        if (stored) {
+          const draft = JSON.parse(stored);
+          expect(draft.data.description).toBe('Draft description');
+        }
+      });
+    });
+
+    it('clears draft after successful submission', async () => {
+      const user = userEvent.setup();
+      const mockResponse: AsyncPlanJob = {
+        job_id: 'test-job-123',
+        status: 'QUEUED',
+      };
+
+      const mockFetch = vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        } as Response)
+      );
+      global.fetch = mockFetch as any;
+
+      renderWithProviders(<PlannerInputPage />);
+
+      await user.type(
+        screen.getByLabelText(/project description/i),
+        'Test description'
+      );
+
+      // Wait for draft to be saved
+      await waitFor(() => {
+        expect(
+          localStorage.getItem('plan-maker_planner-input-draft')
+        ).toBeTruthy();
+      });
+
+      await user.click(screen.getByRole('button', { name: /create plan/i }));
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole('heading', { name: /plan created successfully/i })
+        ).toBeInTheDocument();
+      });
+
+      // Draft should be cleared after successful submission
+      expect(localStorage.getItem('plan-maker_planner-input-draft')).toBeNull();
+    });
+
+    it('clears draft when creating another plan', async () => {
+      const user = userEvent.setup();
+      const mockResponse: AsyncPlanJob = {
+        job_id: 'test-job-123',
+        status: 'QUEUED',
+      };
+
+      const mockFetch = vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockResponse),
+        } as Response)
+      );
+      global.fetch = mockFetch as any;
+
+      renderWithProviders(<PlannerInputPage />);
+
+      await user.type(
+        screen.getByLabelText(/project description/i),
+        'First plan'
+      );
+
+      await user.click(screen.getByRole('button', { name: /create plan/i }));
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', { name: /create another plan/i })
+        ).toBeInTheDocument();
+      });
+
+      await user.click(
+        screen.getByRole('button', { name: /create another plan/i })
+      );
+
+      expect(localStorage.getItem('plan-maker_planner-input-draft')).toBeNull();
+    });
+
+    it('handles localStorage unavailable gracefully', () => {
+      const originalSetItem = Storage.prototype.setItem;
+      const originalGetItem = Storage.prototype.getItem;
+
+      Storage.prototype.setItem = vi.fn(() => {
+        throw new Error('localStorage not available');
+      });
+      Storage.prototype.getItem = vi.fn(() => {
+        throw new Error('localStorage not available');
+      });
+
+      // Should not throw error when rendering
+      expect(() => renderWithProviders(<PlannerInputPage />)).not.toThrow();
+
+      Storage.prototype.setItem = originalSetItem;
+      Storage.prototype.getItem = originalGetItem;
+    });
+
+    it('does not save empty form to localStorage', () => {
+      renderWithProviders(<PlannerInputPage />);
+
+      // Empty form should not be saved
+      expect(localStorage.getItem('plan-maker_planner-input-draft')).toBeNull();
+    });
+  });
+
+  describe('Word Count Display', () => {
+    it('displays word count for description field', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<PlannerInputPage />);
+
+      const descriptionField = screen.getByLabelText(/project description/i);
+      await user.type(descriptionField, 'This is a test');
+
+      expect(screen.getByText(/4 words/i)).toBeInTheDocument();
+    });
+
+    it('updates word count as user types in description', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<PlannerInputPage />);
+
+      const descriptionField = screen.getByLabelText(/project description/i);
+      await user.type(descriptionField, 'One two three');
+
+      expect(screen.getByText(/3 words/i)).toBeInTheDocument();
+
+      await user.type(descriptionField, ' four five');
+
+      expect(screen.getByText(/5 words/i)).toBeInTheDocument();
+    });
+
+    it('displays word count for system_prompt when field has content', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<PlannerInputPage />);
+
+      const systemPromptField = screen.getByLabelText(
+        /custom system prompt/i
+      );
+      await user.type(systemPromptField, 'Custom instructions here');
+
+      const wordCounts = screen.getAllByText(/3 words/i);
+      expect(wordCounts.length).toBeGreaterThan(0);
+    });
+
+    it('shows 0 words for empty description', () => {
+      renderWithProviders(<PlannerInputPage />);
+
+      expect(screen.getByText(/0 words/i)).toBeInTheDocument();
+    });
+  });
+
+  describe('Helper Text and Placeholders', () => {
+    it('displays enhanced helper text for description field', () => {
+      renderWithProviders(<PlannerInputPage />);
+
+      expect(
+        screen.getByText(/include key features, requirements, and constraints/i)
+      ).toBeInTheDocument();
+    });
+
+    it('displays enhanced helper text for system_prompt field', () => {
+      renderWithProviders(<PlannerInputPage />);
+
+      expect(
+        screen.getByText(
+          /you can adjust the tone, focus areas, or add specific instructions/i
+        )
+      ).toBeInTheDocument();
+    });
+
+    it('displays enhanced placeholder for description field', () => {
+      renderWithProviders(<PlannerInputPage />);
+
+      const descriptionField = screen.getByLabelText(/project description/i);
+      expect(descriptionField).toHaveAttribute(
+        'placeholder',
+        expect.stringContaining('Must support REST endpoints')
+      );
+    });
+
+    it('displays enhanced placeholder for system_prompt field', () => {
+      renderWithProviders(<PlannerInputPage />);
+
+      const systemPromptField = screen.getByLabelText(
+        /custom system prompt/i
+      );
+      expect(systemPromptField).toHaveAttribute(
+        'placeholder',
+        expect.stringContaining('Focus on microservices architecture')
+      );
     });
   });
 });
