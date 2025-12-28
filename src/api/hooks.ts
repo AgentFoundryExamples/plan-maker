@@ -17,13 +17,11 @@
  * This module provides reusable hooks that wrap the generated API clients
  * with React Query for caching, automatic refetching, and optimistic updates.
  *
- * @warning These hooks are currently STUBS and will throw errors if used.
- * They must be connected to the actual API client functions before use in production.
+ * Implemented hooks:
+ * - useCreatePlanAsync: Mutation hook for creating async software planning jobs
  *
- * To implement:
- * 1. Import the corresponding function from softwarePlannerClient or specClarifierClient
- * 2. Replace the queryFn/mutationFn implementation with the actual API call
- * 3. Remove the warning from the JSDoc
+ * @warning Some hooks are currently STUBS and will throw errors if used.
+ * They must be connected to the actual API client functions before use in production.
  */
 
 import {

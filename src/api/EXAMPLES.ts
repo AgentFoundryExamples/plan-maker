@@ -144,7 +144,46 @@ async function exampleErrorHandling() {
   }
 }
 
-// Example 7: Environment configuration
+// Example 7: Using React Query hook (React components)
+// In a React component, use the useCreatePlanAsync hook for better UX
+/*
+import { useCreatePlanAsync } from './hooks';
+
+function PlanCreatorComponent() {
+  const createPlan = useCreatePlanAsync({
+    onSuccess: (data) => {
+      console.log('Job created:', data.job_id);
+      // Navigate to job status page or start polling
+    },
+    onError: (error) => {
+      console.error('Failed to create plan:', error);
+    }
+  });
+
+  const handleSubmit = (description: string) => {
+    createPlan.mutate({ description });
+  };
+
+  return (
+    <div>
+      <button
+        onClick={() => handleSubmit('Build a REST API')}
+        disabled={createPlan.isPending}
+      >
+        {createPlan.isPending ? 'Creating...' : 'Create Plan'}
+      </button>
+      {createPlan.isError && (
+        <div>Error: {createPlan.error.message}</div>
+      )}
+      {createPlan.isSuccess && (
+        <div>Job ID: {createPlan.data.job_id}</div>
+      )}
+    </div>
+  );
+}
+*/
+
+// Example 8: Environment configuration
 // The clients automatically use environment variables:
 // - VITE_SOFTWARE_PLANNER_BASE_URL
 // - VITE_SPEC_CLARIFIER_BASE_URL
