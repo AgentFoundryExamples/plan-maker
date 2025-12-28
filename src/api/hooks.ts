@@ -187,7 +187,7 @@ function validatePlanRequest(request: PlanRequest): void {
  * @param data - Data to log
  */
 function logInDevelopment(type: 'request' | 'response', data: unknown): void {
-  if (import.meta.env.MODE === 'development' || import.meta.env.DEV) {
+  if (import.meta.env.DEV) {
     console.log(`[${type.toUpperCase()}]`, data);
   }
 }
