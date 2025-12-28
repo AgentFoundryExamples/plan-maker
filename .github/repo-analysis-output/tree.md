@@ -1,4 +1,4 @@
-# agent-foundry-template
+# plan-maker
 
 ├── .github
   ├── af-config
