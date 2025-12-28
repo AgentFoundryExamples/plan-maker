@@ -14,4 +14,5 @@
   └── workflows
     └── af_maintenance.yml
 ├── LICENSE
-└── README.md
+├── README.md
+└── spec-clarifier.openapi.json
