@@ -52,7 +52,7 @@ export function getEnvConfig(): EnvConfig {
       import.meta.env.VITE_SPEC_CLARIFIER_BASE_URL
     ),
   };
-  
+
   return envConfig;
 }
 
