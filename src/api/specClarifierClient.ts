@@ -141,10 +141,10 @@ export async function waitForClarification(
   const { maxAttempts = 60, intervalMs = 2000, fetchImpl } = options;
   
   // Validate polling parameters
-  if (maxAttempts <= 0) {
+  if (typeof maxAttempts !== 'number' || !Number.isFinite(maxAttempts) || maxAttempts <= 0) {
     throw new Error('maxAttempts must be a positive number');
   }
-  if (intervalMs <= 0) {
+  if (typeof intervalMs !== 'number' || !Number.isFinite(intervalMs) || intervalMs <= 0) {
     throw new Error('intervalMs must be a positive number');
   }
   
@@ -169,5 +169,8 @@ export async function waitForClarification(
     }
   }
   
-  throw new Error(`Clarification job did not complete within ${maxAttempts} attempts`);
+  throw new Error(
+    `Clarification job did not complete within ${maxAttempts} attempts. ` +
+    `Please check the job status or increase maxAttempts if needed.`
+  );
 }

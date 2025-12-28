@@ -275,6 +275,22 @@ describe('Spec Clarifier Client', () => {
       ).rejects.toThrow(/maxAttempts must be a positive number/);
     });
 
+    it('validates maxAttempts is a valid number', async () => {
+      setupEnv();
+
+      await expect(
+        waitForClarification('test-job-id', {
+          maxAttempts: NaN,
+        })
+      ).rejects.toThrow(/maxAttempts must be a positive number/);
+
+      await expect(
+        waitForClarification('test-job-id', {
+          maxAttempts: Infinity,
+        })
+      ).rejects.toThrow(/maxAttempts must be a positive number/);
+    });
+
     it('validates intervalMs is positive', async () => {
       setupEnv();
 
@@ -287,6 +303,16 @@ describe('Spec Clarifier Client', () => {
       await expect(
         waitForClarification('test-job-id', {
           intervalMs: -1,
+        })
+      ).rejects.toThrow(/intervalMs must be a positive number/);
+    });
+
+    it('validates intervalMs is a valid number', async () => {
+      setupEnv();
+
+      await expect(
+        waitForClarification('test-job-id', {
+          intervalMs: NaN,
         })
       ).rejects.toThrow(/intervalMs must be a positive number/);
     });

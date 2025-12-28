@@ -57,8 +57,9 @@ export function getSpecClarifierConfig(fetchImpl?: typeof fetch): ApiClientConfi
  * @returns Sanitized header value
  */
 function sanitizeHeaderValue(value: string): string {
-  // Remove newlines and carriage returns to prevent header injection
-  return value.replace(/[\r\n]/g, '');
+  // Remove control characters (including newlines, carriage returns, tabs, null bytes)
+  // that could enable header injection or other attacks
+  return value.replace(/[\x00-\x1F\x7F]/g, '');
 }
 
 /**

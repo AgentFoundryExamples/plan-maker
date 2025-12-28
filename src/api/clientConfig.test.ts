@@ -114,5 +114,14 @@ describe('Client Configuration', () => {
       expect(headers['x-api-key']).not.toContain('\r');
       expect(headers['x-api-key']).not.toContain('\n');
     });
+
+    it('removes control characters from header values', () => {
+      const headers = createHeaders({
+        'x-test': 'value\x00with\x01control\x1Fchars',
+      });
+
+      expect(headers['x-test']).toBe('valuewithcontrolchars');
+      expect(headers['x-test']).not.toMatch(/[\x00-\x1F\x7F]/);
+    });
   });
 });
