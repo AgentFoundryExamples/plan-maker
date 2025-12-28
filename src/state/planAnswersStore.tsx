@@ -8,10 +8,12 @@ import { saveDraft, getDraft } from '@/utils/localStorage';
 export interface PlanAnswersConfig {
   /** Storage key prefix for answers */
   storageKeyPrefix: string;
-  /** Whether to sync to sessionStorage */
+  /** Whether to sync to localStorage (via existing localStorage utility) */
   enableSessionStorage: boolean;
   /** Debounce delay for storage writes (ms) */
   storageDebounceMs: number;
+  /** Maximum number of unanswered spec links to show in sticky summary */
+  maxUnansweredSpecLinks: number;
 }
 
 /**
@@ -22,6 +24,7 @@ export const DEFAULT_PLAN_ANSWERS_CONFIG: PlanAnswersConfig = {
   storageKeyPrefix: 'plan-answers',
   enableSessionStorage: true,
   storageDebounceMs: 500,
+  maxUnansweredSpecLinks: 5,
 };
 
 /**
@@ -95,7 +98,7 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
   );
 
   const [answers, setAnswers] = useState<AnswerState>(() => {
-    // Try to hydrate from sessionStorage on mount
+    // Try to hydrate from localStorage on mount (via existing localStorage utility)
     if (config.enableSessionStorage) {
       const stored = getDraft<AnswerState>(config.storageKeyPrefix);
       return stored || {};
@@ -106,7 +109,7 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
   const [currentPlanId, setCurrentPlanId] = useState<string | null>(null);
   const [saveTimeout, setSaveTimeout] = useState<number | null>(null);
 
-  // Debounced save to sessionStorage
+  // Debounced save to localStorage
   const saveToStorage = useCallback((state: AnswerState) => {
     if (!config.enableSessionStorage) return;
 
@@ -148,6 +151,22 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
   }, []);
 
   /**
+   * Clean up answers for a different plan when switching plans
+   */
+  const cleanupOldPlanAnswers = useCallback((newPlanId: string) => {
+    setAnswers((prev) => {
+      const next: AnswerState = {};
+      // Keep only answers for the new plan
+      Object.keys(prev).forEach((key) => {
+        if (key.startsWith(`${newPlanId}-`)) {
+          next[key] = prev[key];
+        }
+      });
+      return next;
+    });
+  }, []);
+
+  /**
    * Set an answer for a specific question
    */
   const setAnswer = useCallback((
@@ -158,25 +177,19 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
   ) => {
     // Clean up old plan's answers if switching to a new plan
     if (currentPlanId !== null && currentPlanId !== planId) {
-      setAnswers((prev) => {
-        const next: AnswerState = {};
-        // Keep only answers for the new plan
-        Object.keys(prev).forEach((key) => {
-          if (key.startsWith(`${planId}-`)) {
-            next[key] = prev[key];
-          }
-        });
-        return next;
-      });
+      cleanupOldPlanAnswers(planId);
     }
-    setCurrentPlanId(planId);
+    
+    if (currentPlanId !== planId) {
+      setCurrentPlanId(planId);
+    }
 
     const key = makeKey(planId, specIndex, questionIndex);
     setAnswers((prev) => ({
       ...prev,
       [key]: value,
     }));
-  }, [currentPlanId, makeKey]);
+  }, [currentPlanId, makeKey, cleanupOldPlanAnswers]);
 
   /**
    * Get an answer for a specific question

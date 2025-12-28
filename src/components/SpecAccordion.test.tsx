@@ -590,6 +590,11 @@ describe('SpecAccordion', () => {
   });
 
   describe('Sticky Summary', () => {
+    // Mock scrollIntoView for all tests in this suite
+    beforeEach(() => {
+      Element.prototype.scrollIntoView = vi.fn();
+    });
+
     it('shows sticky summary bar with progress', () => {
       renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
@@ -624,9 +629,6 @@ describe('SpecAccordion', () => {
 
     it('expands spec when clicking quick link', async () => {
       const user = userEvent.setup();
-      
-      // Mock scrollIntoView since jsdom doesn't support it
-      Element.prototype.scrollIntoView = vi.fn();
       
       renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 

@@ -7,6 +7,7 @@ interface SpecAccordionProps {
   specs: SpecItem[];
   stickyPosition?: 'top' | 'bottom';
   showStickySummary?: boolean;
+  maxUnansweredSpecLinks?: number;
 }
 
 /**
@@ -34,7 +35,8 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
   planId, 
   specs, 
   stickyPosition = 'bottom',
-  showStickySummary = true 
+  showStickySummary = true,
+  maxUnansweredSpecLinks = 5
 }) => {
   const [expandedSpecs, setExpandedSpecs] = useState<Set<number>>(new Set());
   const { getAnswer, setAnswer, isAnswered } = usePlanAnswers();
@@ -156,7 +158,7 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
             </p>
             {specsWithUnanswered.length > 0 && (
               <div className="unanswered-specs-list">
-                {specsWithUnanswered.slice(0, 5).map(({ idx }) => (
+                {specsWithUnanswered.slice(0, maxUnansweredSpecLinks).map(({ idx }) => (
                   <button
                     key={idx}
                     className="unanswered-spec-link"
@@ -166,8 +168,8 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
                     Spec #{idx + 1}
                   </button>
                 ))}
-                {specsWithUnanswered.length > 5 && (
-                  <span className="sticky-summary-text">+{specsWithUnanswered.length - 5} more</span>
+                {specsWithUnanswered.length > maxUnansweredSpecLinks && (
+                  <span className="sticky-summary-text">+{specsWithUnanswered.length - maxUnansweredSpecLinks} more</span>
                 )}
               </div>
             )}

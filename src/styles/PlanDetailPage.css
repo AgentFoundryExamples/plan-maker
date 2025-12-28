@@ -7,6 +7,7 @@
   --sticky-summary-position: bottom; /* Options: top, bottom */
   --sticky-summary-offset: 0px; /* Offset from edge */
   --sticky-summary-z-index: 100; /* Z-index for layering */
+  --sticky-summary-height: 80px; /* Approximate height for scroll calculations */
 }
 
 /* Back link styling */
@@ -211,8 +212,8 @@
   background-color: var(--color-background);
   overflow: hidden;
   transition: box-shadow 0.2s ease;
-  scroll-margin-top: 100px; /* For smooth scrolling with sticky header */
-  scroll-margin-bottom: 100px; /* For smooth scrolling with sticky footer */
+  scroll-margin-top: var(--sticky-summary-height); /* For smooth scrolling with sticky header */
+  scroll-margin-bottom: var(--sticky-summary-height); /* For smooth scrolling with sticky footer */
 }
 
 .accordion-item:hover {
