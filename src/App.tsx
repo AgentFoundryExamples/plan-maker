@@ -1,12 +1,12 @@
 import React from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import AppLayout from './layout/AppLayout';
-import PlannerInputPage from './pages/PlannerInputPage';
-import PlansListPage from './pages/PlansListPage';
-import PlanDetailPage from './pages/PlanDetailPage';
-import NotFoundPage from './pages/NotFoundPage';
-import ErrorBoundary from './components/ErrorBoundary';
-import './styles/global.css';
+import '@/styles/global.css';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import AppLayout from '@/layout/AppLayout';
+import NotFoundPage from '@/pages/NotFoundPage';
+import PlanDetailPage from '@/pages/PlanDetailPage';
+import PlannerInputPage from '@/pages/PlannerInputPage';
+import PlansListPage from '@/pages/PlansListPage';
 
 const router = createBrowserRouter([
   {

@@ -36,7 +36,9 @@ describe('ErrorBoundary', () => {
 
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
     expect(screen.getByText('Test error')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /go to home/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /go to home/i })
+    ).toBeInTheDocument();
 
     console.error = consoleError;
   });

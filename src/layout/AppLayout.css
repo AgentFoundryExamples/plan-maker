@@ -60,7 +60,9 @@
   font-weight: var(--font-weight-medium);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--border-radius-md);
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }
 
 .nav-list a:hover {

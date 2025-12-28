@@ -32,8 +32,10 @@ describe('Spec Clarifier Client', () => {
   });
 
   function setupEnv() {
-    (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL = 'http://localhost:8080';
-    (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL = 'http://localhost:8081';
+    (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+      'http://localhost:8080';
+    (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+      'http://localhost:8081';
   }
 
   describe('clarifySpecs', () => {
@@ -64,7 +66,9 @@ describe('Spec Clarifier Client', () => {
         },
       };
 
-      const result = await clarifySpecs(request, { fetchImpl: mockFetch as any });
+      const result = await clarifySpecs(request, {
+        fetchImpl: mockFetch as any,
+      });
 
       expect(result).toEqual(mockResponse);
       expect(mockFetch).toHaveBeenCalledWith(
@@ -151,9 +155,9 @@ describe('Spec Clarifier Client', () => {
         json: async () => ({ detail: 'Job not found' }),
       });
 
-      await expect(getClarifierStatus('invalid-id', mockFetch as any)).rejects.toThrow(
-        /Failed to get clarification status/
-      );
+      await expect(
+        getClarifierStatus('invalid-id', mockFetch as any)
+      ).rejects.toThrow(/Failed to get clarification status/);
     });
   });
 

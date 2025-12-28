@@ -31,33 +31,32 @@
  * assumptioins: list of assumptions made in the spec.
  */
 export type SpecItem = {
-    /**
-     * High-level purpose of this specification
-     */
-    purpose: string;
-    /**
-     * Vision or goal statement
-     */
-    vision: string;
-    /**
-     * Must-have requirements
-     */
-    must?: Array<string>;
-    /**
-     * Things to avoid
-     */
-    dont?: Array<string>;
-    /**
-     * Nice-to-have features
-     */
-    nice?: Array<string>;
-    /**
-     * Any clarification that is needed for this specific spec.
-     */
-    open_questions?: Array<string>;
-    /**
-     * Any assumptions made in the plan
-     */
-    assumptions?: Array<string>;
+  /**
+   * High-level purpose of this specification
+   */
+  purpose: string;
+  /**
+   * Vision or goal statement
+   */
+  vision: string;
+  /**
+   * Must-have requirements
+   */
+  must?: Array<string>;
+  /**
+   * Things to avoid
+   */
+  dont?: Array<string>;
+  /**
+   * Nice-to-have features
+   */
+  nice?: Array<string>;
+  /**
+   * Any clarification that is needed for this specific spec.
+   */
+  open_questions?: Array<string>;
+  /**
+   * Any assumptions made in the plan
+   */
+  assumptions?: Array<string>;
 };
-

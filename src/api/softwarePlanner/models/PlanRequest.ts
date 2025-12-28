@@ -28,17 +28,16 @@
  * configured default system prompt.
  */
 export type PlanRequest = {
-    /**
-     * Non-empty project description (max 8192 bytes)
-     */
-    description: string;
-    /**
-     * Optional logical model name (e.g., 'gpt-4-turbo', 'claude-opus'). Must match an enabled model in the registry. Defaults to configured default model.
-     */
-    model?: (string | null);
-    /**
-     * Optional custom system prompt to override the default (max 32768 bytes). Used to customize the planning behavior for this request only.
-     */
-    system_prompt?: (string | null);
+  /**
+   * Non-empty project description (max 8192 bytes)
+   */
+  description: string;
+  /**
+   * Optional logical model name (e.g., 'gpt-4-turbo', 'claude-opus'). Must match an enabled model in the registry. Defaults to configured default model.
+   */
+  model?: string | null;
+  /**
+   * Optional custom system prompt to override the default (max 32768 bytes). Used to customize the planning behavior for this request only.
+   */
+  system_prompt?: string | null;
 };
-

@@ -25,13 +25,12 @@ import type { QuestionAnswer } from './QuestionAnswer';
  * answers: List of answers to open questions (optional, currently ignored)
  */
 export type ClarificationRequest = {
-    /**
-     * The plan input with specifications
-     */
-    plan: PlanInput;
-    /**
-     * List of answers to open questions
-     */
-    answers?: Array<QuestionAnswer>;
+  /**
+   * The plan input with specifications
+   */
+  plan: PlanInput;
+  /**
+   * List of answers to open questions
+   */
+  answers?: Array<QuestionAnswer>;
 };
-

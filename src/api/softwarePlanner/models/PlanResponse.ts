@@ -25,9 +25,8 @@ import type { SpecItem } from './SpecItem';
  * specs: List of specification items.
  */
 export type PlanResponse = {
-    /**
-     * List of specification items (at least one required)
-     */
-    specs: Array<SpecItem>;
+  /**
+   * List of specification items (at least one required)
+   */
+  specs: Array<SpecItem>;
 };
-

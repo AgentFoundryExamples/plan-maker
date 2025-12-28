@@ -30,25 +30,24 @@ import type { JobStatus } from './JobStatus';
  * last_error: Optional error message if job failed
  */
 export type JobSummaryResponse = {
-    /**
-     * Unique identifier for the job
-     */
-    id: string;
-    /**
-     * Current status of the job
-     */
-    status: JobStatus;
-    /**
-     * UTC timestamp when job was created
-     */
-    created_at: string;
-    /**
-     * UTC timestamp when job was last updated
-     */
-    updated_at: string;
-    /**
-     * Optional error message if job failed
-     */
-    last_error?: (string | null);
+  /**
+   * Unique identifier for the job
+   */
+  id: string;
+  /**
+   * Current status of the job
+   */
+  status: JobStatus;
+  /**
+   * UTC timestamp when job was created
+   */
+  created_at: string;
+  /**
+   * UTC timestamp when job was last updated
+   */
+  updated_at: string;
+  /**
+   * Optional error message if job failed
+   */
+  last_error?: string | null;
 };
-

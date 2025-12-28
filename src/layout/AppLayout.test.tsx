@@ -21,8 +21,12 @@ describe('AppLayout', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole('link', { name: /plan input/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /plans list/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /plan input/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /plans list/i })
+    ).toBeInTheDocument();
   });
 
   it('renders skip link for accessibility', () => {
@@ -54,6 +58,8 @@ describe('AppLayout', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole('navigation', { name: /main navigation/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('navigation', { name: /main navigation/i })
+    ).toBeInTheDocument();
   });
 });

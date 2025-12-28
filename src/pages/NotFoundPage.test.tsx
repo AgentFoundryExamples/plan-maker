@@ -21,8 +21,12 @@ describe('NotFoundPage', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole('heading', { name: /page not found/i })).toBeInTheDocument();
-    expect(screen.getByText(/the page you are looking for does not exist/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /page not found/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/the page you are looking for does not exist/i)
+    ).toBeInTheDocument();
   });
 
   it('renders link to home page', () => {

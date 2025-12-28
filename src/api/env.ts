@@ -32,8 +32,8 @@ function requireEnv(key: string, value: string | undefined): string {
   if (!value || value.trim() === '') {
     throw new Error(
       `Missing required environment variable: ${key}\n` +
-      `Please ensure ${key} is set in your .env file.\n` +
-      `Refer to .env.example for configuration examples.`
+        `Please ensure ${key} is set in your .env file.\n` +
+        `Refer to .env.example for configuration examples.`
     );
   }
   return value.trim();

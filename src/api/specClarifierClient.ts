@@ -139,20 +139,31 @@ export async function waitForClarification(
   } = {}
 ): Promise<JobStatusResponse> {
   const { maxAttempts = 60, intervalMs = 2000, fetchImpl } = options;
-  
+
   // Validate polling parameters
-  if (typeof maxAttempts !== 'number' || !Number.isFinite(maxAttempts) || maxAttempts <= 0) {
+  if (
+    typeof maxAttempts !== 'number' ||
+    !Number.isFinite(maxAttempts) ||
+    maxAttempts <= 0
+  ) {
     throw new Error('maxAttempts must be a positive number');
   }
-  if (typeof intervalMs !== 'number' || !Number.isFinite(intervalMs) || intervalMs <= 0) {
+  if (
+    typeof intervalMs !== 'number' ||
+    !Number.isFinite(intervalMs) ||
+    intervalMs <= 0
+  ) {
     throw new Error('intervalMs must be a positive number');
   }
-  
+
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
       const status = await getClarifierStatus(jobId, fetchImpl);
-      
-      if (status.status === JobStatus.SUCCESS || status.status === JobStatus.FAILED) {
+
+      if (
+        status.status === JobStatus.SUCCESS ||
+        status.status === JobStatus.FAILED
+      ) {
         return status;
       }
     } catch (error) {
@@ -162,15 +173,15 @@ export async function waitForClarification(
       }
       // Continue to next attempt for transient errors
     }
-    
+
     // Don't wait on the last attempt
     if (attempt < maxAttempts - 1) {
       await new Promise(resolve => setTimeout(resolve, intervalMs));
     }
   }
-  
+
   throw new Error(
     `Clarification job did not complete within ${maxAttempts} attempts. ` +
-    `Please check the job status or increase maxAttempts if needed.`
+      `Please check the job status or increase maxAttempts if needed.`
   );
 }

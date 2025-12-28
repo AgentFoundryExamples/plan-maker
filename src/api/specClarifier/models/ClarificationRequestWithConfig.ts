@@ -31,17 +31,16 @@ import type { QuestionAnswer } from './QuestionAnswer';
  * config: Optional ClarificationConfig to override defaults for this request
  */
 export type ClarificationRequestWithConfig = {
-    /**
-     * The plan input with specifications
-     */
-    plan: PlanInput;
-    /**
-     * List of answers to open questions
-     */
-    answers?: Array<QuestionAnswer>;
-    /**
-     * Optional config to override defaults
-     */
-    config?: (ClarificationConfig | null);
+  /**
+   * The plan input with specifications
+   */
+  plan: PlanInput;
+  /**
+   * List of answers to open questions
+   */
+  answers?: Array<QuestionAnswer>;
+  /**
+   * Optional config to override defaults
+   */
+  config?: ClarificationConfig | null;
 };
-

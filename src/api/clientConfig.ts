@@ -30,7 +30,9 @@ export interface ApiClientConfig {
  * @param fetchImpl - Optional custom fetch implementation for testing
  * @throws Error if VITE_SOFTWARE_PLANNER_BASE_URL is not configured
  */
-export function getSoftwarePlannerConfig(fetchImpl?: typeof fetch): ApiClientConfig {
+export function getSoftwarePlannerConfig(
+  fetchImpl?: typeof fetch
+): ApiClientConfig {
   const env = getEnvConfig();
   return {
     baseUrl: env.softwarePlannerBaseUrl,
@@ -43,7 +45,9 @@ export function getSoftwarePlannerConfig(fetchImpl?: typeof fetch): ApiClientCon
  * @param fetchImpl - Optional custom fetch implementation for testing
  * @throws Error if VITE_SPEC_CLARIFIER_BASE_URL is not configured
  */
-export function getSpecClarifierConfig(fetchImpl?: typeof fetch): ApiClientConfig {
+export function getSpecClarifierConfig(
+  fetchImpl?: typeof fetch
+): ApiClientConfig {
   const env = getEnvConfig();
   return {
     baseUrl: env.specClarifierBaseUrl,
@@ -66,17 +70,19 @@ function sanitizeHeaderValue(value: string): string {
  * Create headers for API requests
  * @param additionalHeaders - Optional additional headers to include
  */
-export function createHeaders(additionalHeaders?: Record<string, string>): HeadersInit {
+export function createHeaders(
+  additionalHeaders?: Record<string, string>
+): HeadersInit {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
-  
+
   // Sanitize additional headers to prevent injection
   if (additionalHeaders) {
     for (const [key, value] of Object.entries(additionalHeaders)) {
       headers[key] = sanitizeHeaderValue(value);
     }
   }
-  
+
   return headers;
 }

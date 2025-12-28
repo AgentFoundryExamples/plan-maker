@@ -11,7 +11,9 @@ describe('PlannerInputPage', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole('heading', { name: /plan input/i, level: 1 })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /plan input/i, level: 1 })
+    ).toBeInTheDocument();
   });
 
   it('renders welcome message', () => {
@@ -21,7 +23,9 @@ describe('PlannerInputPage', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText(/welcome to the agent foundry plan maker/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/welcome to the agent foundry plan maker/i)
+    ).toBeInTheDocument();
   });
 
   it('renders placeholder content', () => {
