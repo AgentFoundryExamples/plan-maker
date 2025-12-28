@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { usePlanDetail } from '@/api/hooks';
 import { getStatusMetadata } from '@/api/softwarePlannerClient';
 import { formatTimestamp } from '@/utils/dateUtils';
+import SpecAccordion from '@/components/SpecAccordion';
 import '@/styles/PlansListPage.css';
 import '@/styles/PlanDetailPage.css';
 
@@ -140,72 +141,7 @@ const PlanDetailPage: React.FC = () => {
             <p>No specs available yet</p>
           </div>
         ) : (
-          <div>
-            <p className="spec-count">
-              This plan contains {specs.length} specification{specs.length !== 1 ? 's' : ''}.
-            </p>
-            {specs.map((spec, index) => (
-              <div key={index} className="spec-container">
-                <h3>Spec #{index + 1}</h3>
-                <div className="spec-section">
-                  <strong>Purpose:</strong> {spec.purpose}
-                </div>
-                <div className="spec-section">
-                  <strong>Vision:</strong> {spec.vision}
-                </div>
-                {spec.must && spec.must.length > 0 && (
-                  <div className="spec-section">
-                    <strong>Must Have:</strong>
-                    <ul>
-                      {spec.must.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {spec.nice && spec.nice.length > 0 && (
-                  <div className="spec-section">
-                    <strong>Nice to Have:</strong>
-                    <ul>
-                      {spec.nice.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {spec.dont && spec.dont.length > 0 && (
-                  <div className="spec-section">
-                    <strong>Don't:</strong>
-                    <ul>
-                      {spec.dont.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {spec.open_questions && spec.open_questions.length > 0 && (
-                  <div className="spec-section">
-                    <strong>Open Questions:</strong>
-                    <ul>
-                      {spec.open_questions.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {spec.assumptions && spec.assumptions.length > 0 && (
-                  <div className="spec-section">
-                    <strong>Assumptions:</strong>
-                    <ul>
-                      {spec.assumptions.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          <SpecAccordion planId={data.job_id} specs={specs} />
         )}
       </div>
     </div>
