@@ -52,12 +52,30 @@ export function getSpecClarifierConfig(fetchImpl?: typeof fetch): ApiClientConfi
 }
 
 /**
+ * Sanitize header value to prevent injection attacks
+ * @param value - Header value to sanitize
+ * @returns Sanitized header value
+ */
+function sanitizeHeaderValue(value: string): string {
+  // Remove newlines and carriage returns to prevent header injection
+  return value.replace(/[\r\n]/g, '');
+}
+
+/**
  * Create headers for API requests
  * @param additionalHeaders - Optional additional headers to include
  */
 export function createHeaders(additionalHeaders?: Record<string, string>): HeadersInit {
-  return {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...additionalHeaders,
   };
+  
+  // Sanitize additional headers to prevent injection
+  if (additionalHeaders) {
+    for (const [key, value] of Object.entries(additionalHeaders)) {
+      headers[key] = sanitizeHeaderValue(value);
+    }
+  }
+  
+  return headers;
 }

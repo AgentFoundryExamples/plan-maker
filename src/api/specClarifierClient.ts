@@ -54,8 +54,25 @@ export async function clarifySpecs(
   );
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
-    throw new Error(`Failed to create clarification job: ${JSON.stringify(error)}`);
+    let errorMessage = `Request failed with status ${response.status}`;
+    try {
+      const errorBody = await response.json();
+      // Only include sanitized error information
+      if (errorBody.detail && typeof errorBody.detail === 'string') {
+        errorMessage = errorBody.detail;
+      }
+    } catch {
+      // If JSON parsing fails, try to get text
+      try {
+        const errorText = await response.text();
+        if (errorText) {
+          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
+        }
+      } catch {
+        // Ignore text parsing errors
+      }
+    }
+    throw new Error(`Failed to create clarification job: ${errorMessage}`);
   }
 
   return response.json();
@@ -82,8 +99,25 @@ export async function getClarifierStatus(
   );
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
-    throw new Error(`Failed to get clarification status: ${JSON.stringify(error)}`);
+    let errorMessage = `Request failed with status ${response.status}`;
+    try {
+      const errorBody = await response.json();
+      // Only include sanitized error information
+      if (errorBody.detail && typeof errorBody.detail === 'string') {
+        errorMessage = errorBody.detail;
+      }
+    } catch {
+      // If JSON parsing fails, try to get text
+      try {
+        const errorText = await response.text();
+        if (errorText) {
+          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
+        }
+      } catch {
+        // Ignore text parsing errors
+      }
+    }
+    throw new Error(`Failed to get clarification status: ${errorMessage}`);
   }
 
   return response.json();
@@ -94,6 +128,7 @@ export async function getClarifierStatus(
  * @param jobId - The job ID to poll
  * @param options - Polling options
  * @returns Completed job status
+ * @throws Error if polling parameters are invalid or job doesn't complete in time
  */
 export async function waitForClarification(
   jobId: string,
@@ -105,11 +140,27 @@ export async function waitForClarification(
 ): Promise<JobStatusResponse> {
   const { maxAttempts = 60, intervalMs = 2000, fetchImpl } = options;
   
+  // Validate polling parameters
+  if (maxAttempts <= 0) {
+    throw new Error('maxAttempts must be a positive number');
+  }
+  if (intervalMs <= 0) {
+    throw new Error('intervalMs must be a positive number');
+  }
+  
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const status = await getClarifierStatus(jobId, fetchImpl);
-    
-    if (status.status === JobStatus.SUCCESS || status.status === JobStatus.FAILED) {
-      return status;
+    try {
+      const status = await getClarifierStatus(jobId, fetchImpl);
+      
+      if (status.status === JobStatus.SUCCESS || status.status === JobStatus.FAILED) {
+        return status;
+      }
+    } catch (error) {
+      // Log error but continue polling unless it's the last attempt
+      if (attempt === maxAttempts - 1) {
+        throw error;
+      }
+      // Continue to next attempt for transient errors
     }
     
     // Don't wait on the last attempt
@@ -118,5 +169,5 @@ export async function waitForClarification(
     }
   }
   
-  throw new Error(`Clarification job ${jobId} did not complete within ${maxAttempts} attempts`);
+  throw new Error(`Clarification job did not complete within ${maxAttempts} attempts`);
 }

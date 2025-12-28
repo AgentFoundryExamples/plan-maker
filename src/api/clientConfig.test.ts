@@ -104,5 +104,15 @@ describe('Client Configuration', () => {
         'Custom-Header': 'value',
       });
     });
+
+    it('sanitizes header values to prevent injection', () => {
+      const headers = createHeaders({
+        'x-api-key': 'test-key\r\nInjected-Header: malicious',
+      });
+
+      expect(headers['x-api-key']).toBe('test-keyInjected-Header: malicious');
+      expect(headers['x-api-key']).not.toContain('\r');
+      expect(headers['x-api-key']).not.toContain('\n');
+    });
   });
 });

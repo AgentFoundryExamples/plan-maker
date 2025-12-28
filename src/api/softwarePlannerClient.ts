@@ -84,8 +84,25 @@ export async function createPlan(
   );
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(`Failed to create plan: ${JSON.stringify(error)}`);
+    let errorMessage = `Request failed with status ${response.status}`;
+    try {
+      const errorBody = await response.json();
+      // Only include sanitized error information
+      if (errorBody.error && typeof errorBody.error === 'string') {
+        errorMessage = errorBody.error;
+      }
+    } catch {
+      // If JSON parsing fails, try to get text
+      try {
+        const errorText = await response.text();
+        if (errorText) {
+          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
+        }
+      } catch {
+        // Ignore text parsing errors
+      }
+    }
+    throw new Error(`Failed to create plan: ${errorMessage}`);
   }
 
   return response.json();
@@ -116,8 +133,25 @@ export async function createPlanAsync(
   );
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(`Failed to create async plan: ${JSON.stringify(error)}`);
+    let errorMessage = `Request failed with status ${response.status}`;
+    try {
+      const errorBody = await response.json();
+      // Only include sanitized error information
+      if (errorBody.error && typeof errorBody.error === 'string') {
+        errorMessage = errorBody.error;
+      }
+    } catch {
+      // If JSON parsing fails, try to get text
+      try {
+        const errorText = await response.text();
+        if (errorText) {
+          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
+        }
+      } catch {
+        // Ignore text parsing errors
+      }
+    }
+    throw new Error(`Failed to create async plan: ${errorMessage}`);
   }
 
   return response.json();
@@ -144,8 +178,25 @@ export async function getPlanById(
   );
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(`Failed to get plan status: ${JSON.stringify(error)}`);
+    let errorMessage = `Request failed with status ${response.status}`;
+    try {
+      const errorBody = await response.json();
+      // Only include sanitized error information
+      if (errorBody.error && typeof errorBody.error === 'string') {
+        errorMessage = errorBody.error;
+      }
+    } catch {
+      // If JSON parsing fails, try to get text
+      try {
+        const errorText = await response.text();
+        if (errorText) {
+          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
+        }
+      } catch {
+        // Ignore text parsing errors
+      }
+    }
+    throw new Error(`Failed to get plan status: ${errorMessage}`);
   }
 
   return response.json();
@@ -177,8 +228,25 @@ export async function listPlans(
   );
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(`Failed to list plans: ${JSON.stringify(error)}`);
+    let errorMessage = `Request failed with status ${response.status}`;
+    try {
+      const errorBody = await response.json();
+      // Only include sanitized error information
+      if (errorBody.error && typeof errorBody.error === 'string') {
+        errorMessage = errorBody.error;
+      }
+    } catch {
+      // If JSON parsing fails, try to get text
+      try {
+        const errorText = await response.text();
+        if (errorText) {
+          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
+        }
+      } catch {
+        // Ignore text parsing errors
+      }
+    }
+    throw new Error(`Failed to list plans: ${errorMessage}`);
   }
 
   return response.json();

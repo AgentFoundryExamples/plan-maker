@@ -258,5 +258,74 @@ describe('Spec Clarifier Client', () => {
         })
       ).rejects.toThrow(/did not complete within 3 attempts/);
     });
+
+    it('validates maxAttempts is positive', async () => {
+      setupEnv();
+
+      await expect(
+        waitForClarification('test-job-id', {
+          maxAttempts: 0,
+        })
+      ).rejects.toThrow(/maxAttempts must be a positive number/);
+
+      await expect(
+        waitForClarification('test-job-id', {
+          maxAttempts: -1,
+        })
+      ).rejects.toThrow(/maxAttempts must be a positive number/);
+    });
+
+    it('validates intervalMs is positive', async () => {
+      setupEnv();
+
+      await expect(
+        waitForClarification('test-job-id', {
+          intervalMs: 0,
+        })
+      ).rejects.toThrow(/intervalMs must be a positive number/);
+
+      await expect(
+        waitForClarification('test-job-id', {
+          intervalMs: -1,
+        })
+      ).rejects.toThrow(/intervalMs must be a positive number/);
+    });
+
+    it('handles transient errors during polling', async () => {
+      setupEnv();
+
+      let callCount = 0;
+      const mockFetch = vi.fn().mockImplementation(async () => {
+        callCount++;
+        if (callCount === 1) {
+          // First call fails
+          return {
+            ok: false,
+            status: 500,
+            json: async () => ({ detail: 'Server error' }),
+            text: async () => 'Server error',
+          };
+        }
+        // Second call succeeds
+        return {
+          ok: true,
+          json: async () => ({
+            id: 'test-job-id',
+            status: JobStatus.SUCCESS,
+            created_at: '2025-01-01T00:00:00Z',
+            updated_at: '2025-01-01T00:00:05Z',
+          }),
+        };
+      });
+
+      const result = await waitForClarification('test-job-id', {
+        fetchImpl: mockFetch as any,
+        maxAttempts: 10,
+        intervalMs: 10,
+      });
+
+      expect(result.status).toBe(JobStatus.SUCCESS);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
   });
 });
