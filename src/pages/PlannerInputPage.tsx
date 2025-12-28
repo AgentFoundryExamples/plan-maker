@@ -54,12 +54,13 @@ const PlannerInputPage: React.FC = () => {
     {}
   );
   const [submittedPlan, setSubmittedPlan] = useState<AsyncPlanJob | null>(null);
-  const [createdAt] = useState<string>(new Date().toISOString());
+  const [createdAt, setCreatedAt] = useState<string>('');
 
   const createPlan = useCreatePlanAsync({
     onSuccess: (data) => {
       setSubmittedPlan(data);
       setValidationErrors({});
+      setCreatedAt(new Date().toISOString());
     },
   });
 
@@ -87,19 +88,13 @@ const PlannerInputPage: React.FC = () => {
       return;
     }
 
-    const payload: Partial<PlanRequest> = {
+    const payload: PlanRequest = {
       description: formData.description.trim(),
+      model: formData.model.trim() || null,
+      system_prompt: formData.system_prompt.trim() || null,
     };
 
-    if (formData.model.trim()) {
-      payload.model = formData.model.trim();
-    }
-
-    if (formData.system_prompt.trim()) {
-      payload.system_prompt = formData.system_prompt.trim();
-    }
-
-    createPlan.mutate(payload as PlanRequest);
+    createPlan.mutate(payload);
   };
 
   const handleInputChange = (
@@ -131,6 +126,7 @@ const PlannerInputPage: React.FC = () => {
 
   const handleNewPlan = () => {
     setSubmittedPlan(null);
+    setCreatedAt('');
     setFormData({
       description: '',
       model: '',
@@ -149,54 +145,58 @@ const PlannerInputPage: React.FC = () => {
       </p>
 
       {submittedPlan ? (
-        <div className="card mt-lg confirmation-card" role="status">
-          <h2>Plan Created Successfully!</h2>
+        (() => {
+          const statusConfig = getStatusConfig(submittedPlan.status);
+          return (
+            <div className="card mt-lg confirmation-card" role="status">
+              <h2>Plan Created Successfully!</h2>
 
-          <div className="plan-metadata">
-            <div className="metadata-item">
-              <strong>Plan ID:</strong>
-              <span className="plan-id">{submittedPlan.job_id}</span>
+              <div className="plan-metadata">
+                <div className="metadata-item">
+                  <strong>Plan ID:</strong>
+                  <span className="plan-id">{submittedPlan.job_id}</span>
+                </div>
+
+                <div className="metadata-item">
+                  <strong>Status:</strong>
+                  <span
+                    className="status-badge"
+                    style={{
+                      backgroundColor: statusConfig.bgColor,
+                      color: statusConfig.color,
+                    }}
+                  >
+                    {statusConfig.label}
+                  </span>
+                </div>
+
+                <div className="metadata-item">
+                  <strong>Created:</strong>
+                  <span>{new Date(createdAt).toLocaleString()}</span>
+                </div>
+              </div>
+
+              <div className="confirmation-actions">
+                <Link to="/plans" className="btn btn-primary">
+                  View All Plans
+                </Link>
+                <Link
+                  to={`/plans/${submittedPlan.job_id}`}
+                  className="btn btn-primary"
+                >
+                  View Plan Details
+                </Link>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleNewPlan}
+                >
+                  Create Another Plan
+                </button>
+              </div>
             </div>
-
-            <div className="metadata-item">
-              <strong>Status:</strong>
-              <span
-                className="status-badge"
-                style={{
-                  backgroundColor: getStatusConfig(submittedPlan.status)
-                    .bgColor,
-                  color: getStatusConfig(submittedPlan.status).color,
-                }}
-              >
-                {getStatusConfig(submittedPlan.status).label}
-              </span>
-            </div>
-
-            <div className="metadata-item">
-              <strong>Created:</strong>
-              <span>{new Date(createdAt).toLocaleString()}</span>
-            </div>
-          </div>
-
-          <div className="confirmation-actions">
-            <Link to="/plans" className="btn btn-primary">
-              View All Plans
-            </Link>
-            <Link
-              to={`/plans/${submittedPlan.job_id}`}
-              className="btn btn-primary"
-            >
-              View Plan Details
-            </Link>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleNewPlan}
-            >
-              Create Another Plan
-            </button>
-          </div>
-        </div>
+          );
+        })()
       ) : (
         <form onSubmit={handleSubmit} className="plan-form mt-lg" noValidate>
           <div className="card">

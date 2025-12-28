@@ -598,7 +598,11 @@ describe('PlannerInputPage', () => {
 
       const callArgs = mockFetch.mock.calls[0];
       const requestBody = JSON.parse(callArgs[1].body);
-      expect(requestBody).toEqual({ description: 'Build a REST API' });
+      expect(requestBody).toEqual({
+        description: 'Build a REST API',
+        model: null,
+        system_prompt: null,
+      });
     });
 
     it('includes model when provided', async () => {
