@@ -316,6 +316,10 @@
             },
             {
               "type": "file",
+              "name": "PlansListPage.css"
+            },
+            {
+              "type": "file",
               "name": "theme.css"
             }
           ]
