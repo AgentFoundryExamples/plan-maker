@@ -38,6 +38,14 @@
             },
             {
               "type": "file",
+              "name": "file-summaries.json"
+            },
+            {
+              "type": "file",
+              "name": "file-summaries.md"
+            },
+            {
+              "type": "file",
               "name": "SUMMARY.md"
             },
             {
@@ -71,12 +79,148 @@
           "name": "api",
           "children": [
             {
+              "type": "directory",
+              "name": "softwarePlanner",
+              "children": [
+                {
+                  "type": "directory",
+                  "name": "models",
+                  "children": [
+                    {
+                      "type": "file",
+                      "name": "HTTPValidationError.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "PlanRequest.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "PlanResponse.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "SpecItem.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "ValidationError.ts"
+                    }
+                  ]
+                },
+                {
+                  "type": "file",
+                  "name": "index.ts"
+                }
+              ]
+            },
+            {
+              "type": "directory",
+              "name": "specClarifier",
+              "children": [
+                {
+                  "type": "directory",
+                  "name": "models",
+                  "children": [
+                    {
+                      "type": "file",
+                      "name": "ClarificationConfig.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "ClarificationRequest.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "ClarificationRequestWithConfig.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "ClarifiedPlan.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "ClarifiedSpec.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "DefaultsResponse.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "HTTPValidationError.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "JobStatus.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "JobStatusResponse.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "JobSummaryResponse.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "PlanInput.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "QuestionAnswer.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "SpecInput.ts"
+                    },
+                    {
+                      "type": "file",
+                      "name": "ValidationError.ts"
+                    }
+                  ]
+                },
+                {
+                  "type": "file",
+                  "name": "index.ts"
+                }
+              ]
+            },
+            {
+              "type": "file",
+              "name": "clientConfig.test.ts"
+            },
+            {
+              "type": "file",
+              "name": "clientConfig.ts"
+            },
+            {
               "type": "file",
               "name": "env.test.ts"
             },
             {
               "type": "file",
               "name": "env.ts"
+            },
+            {
+              "type": "file",
+              "name": "EXAMPLES.ts"
+            },
+            {
+              "type": "file",
+              "name": "softwarePlannerClient.test.ts"
+            },
+            {
+              "type": "file",
+              "name": "softwarePlannerClient.ts"
+            },
+            {
+              "type": "file",
+              "name": "specClarifierClient.test.ts"
+            },
+            {
+              "type": "file",
+              "name": "specClarifierClient.ts"
             }
           ]
         },

@@ -8,6 +8,8 @@
   ├── repo-analysis-output
     ├── dependencies.json
     ├── dependencies.md
+    ├── file-summaries.json
+    ├── file-summaries.md
     ├── SUMMARY.md
     ├── tree.json
     └── tree.md
@@ -15,8 +17,40 @@
     └── af_maintenance.yml
 ├── src
   ├── api
+    ├── softwarePlanner
+      ├── models
+        ├── HTTPValidationError.ts
+        ├── PlanRequest.ts
+        ├── PlanResponse.ts
+        ├── SpecItem.ts
+        └── ValidationError.ts
+      └── index.ts
+    ├── specClarifier
+      ├── models
+        ├── ClarificationConfig.ts
+        ├── ClarificationRequest.ts
+        ├── ClarificationRequestWithConfig.ts
+        ├── ClarifiedPlan.ts
+        ├── ClarifiedSpec.ts
+        ├── DefaultsResponse.ts
+        ├── HTTPValidationError.ts
+        ├── JobStatus.ts
+        ├── JobStatusResponse.ts
+        ├── JobSummaryResponse.ts
+        ├── PlanInput.ts
+        ├── QuestionAnswer.ts
+        ├── SpecInput.ts
+        └── ValidationError.ts
+      └── index.ts
+    ├── clientConfig.test.ts
+    ├── clientConfig.ts
     ├── env.test.ts
-    └── env.ts
+    ├── env.ts
+    ├── EXAMPLES.ts
+    ├── softwarePlannerClient.test.ts
+    ├── softwarePlannerClient.ts
+    ├── specClarifierClient.test.ts
+    └── specClarifierClient.ts
   ├── components
     ├── ErrorBoundary.test.tsx
     └── ErrorBoundary.tsx

@@ -1,6 +1,35 @@
 {
   "nodes": [
     {
+      "id": "src/api/EXAMPLES.ts",
+      "path": "src/api/EXAMPLES.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/clientConfig.test.ts",
+      "path": "src/api/clientConfig.test.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "vitest"
+        ]
+      }
+    },
+    {
+      "id": "src/api/clientConfig.ts",
+      "path": "src/api/clientConfig.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
       "id": "src/api/env.test.ts",
       "path": "src/api/env.test.ts",
       "type": "file",
@@ -14,6 +43,235 @@
     {
       "id": "src/api/env.ts",
       "path": "src/api/env.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/softwarePlanner/index.ts",
+      "path": "src/api/softwarePlanner/index.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/softwarePlanner/models/HTTPValidationError.ts",
+      "path": "src/api/softwarePlanner/models/HTTPValidationError.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/softwarePlanner/models/PlanRequest.ts",
+      "path": "src/api/softwarePlanner/models/PlanRequest.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/softwarePlanner/models/PlanResponse.ts",
+      "path": "src/api/softwarePlanner/models/PlanResponse.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/softwarePlanner/models/SpecItem.ts",
+      "path": "src/api/softwarePlanner/models/SpecItem.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/softwarePlanner/models/ValidationError.ts",
+      "path": "src/api/softwarePlanner/models/ValidationError.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/softwarePlannerClient.test.ts",
+      "path": "src/api/softwarePlannerClient.test.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "vitest"
+        ]
+      }
+    },
+    {
+      "id": "src/api/softwarePlannerClient.ts",
+      "path": "src/api/softwarePlannerClient.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/index.ts",
+      "path": "src/api/specClarifier/index.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/ClarificationConfig.ts",
+      "path": "src/api/specClarifier/models/ClarificationConfig.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/ClarificationRequest.ts",
+      "path": "src/api/specClarifier/models/ClarificationRequest.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/ClarificationRequestWithConfig.ts",
+      "path": "src/api/specClarifier/models/ClarificationRequestWithConfig.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/ClarifiedPlan.ts",
+      "path": "src/api/specClarifier/models/ClarifiedPlan.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/ClarifiedSpec.ts",
+      "path": "src/api/specClarifier/models/ClarifiedSpec.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/DefaultsResponse.ts",
+      "path": "src/api/specClarifier/models/DefaultsResponse.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/HTTPValidationError.ts",
+      "path": "src/api/specClarifier/models/HTTPValidationError.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/JobStatus.ts",
+      "path": "src/api/specClarifier/models/JobStatus.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/JobStatusResponse.ts",
+      "path": "src/api/specClarifier/models/JobStatusResponse.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/JobSummaryResponse.ts",
+      "path": "src/api/specClarifier/models/JobSummaryResponse.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/PlanInput.ts",
+      "path": "src/api/specClarifier/models/PlanInput.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/QuestionAnswer.ts",
+      "path": "src/api/specClarifier/models/QuestionAnswer.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/SpecInput.ts",
+      "path": "src/api/specClarifier/models/SpecInput.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifier/models/ValidationError.ts",
+      "path": "src/api/specClarifier/models/ValidationError.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/api/specClarifierClient.test.ts",
+      "path": "src/api/specClarifierClient.test.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "vitest"
+        ]
+      }
+    },
+    {
+      "id": "src/api/specClarifierClient.ts",
+      "path": "src/api/specClarifierClient.ts",
       "type": "file",
       "external_dependencies": {
         "stdlib": [],
@@ -69,8 +327,124 @@
   ],
   "edges": [
     {
+      "source": "src/api/EXAMPLES.ts",
+      "target": "src/api/softwarePlannerClient.ts"
+    },
+    {
+      "source": "src/api/EXAMPLES.ts",
+      "target": "src/api/specClarifierClient.ts"
+    },
+    {
+      "source": "src/api/clientConfig.test.ts",
+      "target": "src/api/clientConfig.ts"
+    },
+    {
+      "source": "src/api/clientConfig.test.ts",
+      "target": "src/api/env.ts"
+    },
+    {
+      "source": "src/api/clientConfig.ts",
+      "target": "src/api/env.ts"
+    },
+    {
       "source": "src/api/env.test.ts",
       "target": "src/api/env.ts"
+    },
+    {
+      "source": "src/api/softwarePlanner/models/HTTPValidationError.ts",
+      "target": "src/api/softwarePlanner/models/ValidationError.ts"
+    },
+    {
+      "source": "src/api/softwarePlanner/models/PlanResponse.ts",
+      "target": "src/api/softwarePlanner/models/SpecItem.ts"
+    },
+    {
+      "source": "src/api/softwarePlannerClient.test.ts",
+      "target": "src/api/softwarePlannerClient.ts"
+    },
+    {
+      "source": "src/api/softwarePlannerClient.test.ts",
+      "target": "src/api/env.ts"
+    },
+    {
+      "source": "src/api/softwarePlannerClient.test.ts",
+      "target": "src/api/softwarePlanner/index.ts"
+    },
+    {
+      "source": "src/api/softwarePlannerClient.ts",
+      "target": "src/api/clientConfig.ts"
+    },
+    {
+      "source": "src/api/softwarePlannerClient.ts",
+      "target": "src/api/softwarePlanner/index.ts"
+    },
+    {
+      "source": "src/api/specClarifier/models/ClarificationRequest.ts",
+      "target": "src/api/specClarifier/models/PlanInput.ts"
+    },
+    {
+      "source": "src/api/specClarifier/models/ClarificationRequest.ts",
+      "target": "src/api/specClarifier/models/QuestionAnswer.ts"
+    },
+    {
+      "source": "src/api/specClarifier/models/ClarificationRequestWithConfig.ts",
+      "target": "src/api/specClarifier/models/ClarificationConfig.ts"
+    },
+    {
+      "source": "src/api/specClarifier/models/ClarificationRequestWithConfig.ts",
+      "target": "src/api/specClarifier/models/PlanInput.ts"
+    },
+    {
+      "source": "src/api/specClarifier/models/ClarificationRequestWithConfig.ts",
+      "target": "src/api/specClarifier/models/QuestionAnswer.ts"
+    },
+    {
+      "source": "src/api/specClarifier/models/ClarifiedPlan.ts",
+      "target": "src/api/specClarifier/models/ClarifiedSpec.ts"
+    },
+    {
+      "source": "src/api/specClarifier/models/DefaultsResponse.ts",
+      "target": "src/api/specClarifier/models/ClarificationConfig.ts"
+    },
+    {
+      "source": "src/api/specClarifier/models/HTTPValidationError.ts",
+      "target": "src/api/specClarifier/models/ValidationError.ts"
+    },
+    {
+      "source": "src/api/specClarifier/models/JobStatusResponse.ts",
+      "target": "src/api/specClarifier/models/ClarifiedPlan.ts"
+    },
+    {
+      "source": "src/api/specClarifier/models/JobStatusResponse.ts",
+      "target": "src/api/specClarifier/models/JobStatus.ts"
+    },
+    {
+      "source": "src/api/specClarifier/models/JobSummaryResponse.ts",
+      "target": "src/api/specClarifier/models/JobStatus.ts"
+    },
+    {
+      "source": "src/api/specClarifier/models/PlanInput.ts",
+      "target": "src/api/specClarifier/models/SpecInput.ts"
+    },
+    {
+      "source": "src/api/specClarifierClient.test.ts",
+      "target": "src/api/specClarifierClient.ts"
+    },
+    {
+      "source": "src/api/specClarifierClient.test.ts",
+      "target": "src/api/env.ts"
+    },
+    {
+      "source": "src/api/specClarifierClient.test.ts",
+      "target": "src/api/specClarifier/index.ts"
+    },
+    {
+      "source": "src/api/specClarifierClient.ts",
+      "target": "src/api/clientConfig.ts"
+    },
+    {
+      "source": "src/api/specClarifierClient.ts",
+      "target": "src/api/specClarifier/index.ts"
     }
   ],
   "external_dependencies_summary": {
