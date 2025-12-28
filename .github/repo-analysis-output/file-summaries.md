@@ -65,9 +65,9 @@ Total files: 41
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 11.65 KB  
-**LOC:** 336  
-**TODOs/FIXMEs:** 4  
+**Size:** 13.69 KB  
+**LOC:** 401  
+**TODOs/FIXMEs:** 3  
 
 ## src/api/softwarePlanner/index.ts
 **Language:** TypeScript  
@@ -290,8 +290,8 @@ Total files: 41
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 5.30 KB  
-**LOC:** 148  
+**Size:** 8.10 KB  
+**LOC:** 199  
 **TODOs/FIXMEs:** 0  
 
 ## src/test/setup.ts

@@ -443,11 +443,15 @@
     },
     {
       "source": "src/api/hooks.ts",
-      "target": "src/api/specClarifier/models/JobStatusResponse.ts"
+      "target": "src/api/specClarifier/index.ts"
     },
     {
       "source": "src/api/hooks.ts",
       "target": "src/api/softwarePlannerClient.ts"
+    },
+    {
+      "source": "src/api/hooks.ts",
+      "target": "src/api/specClarifierClient.ts"
     },
     {
       "source": "src/api/softwarePlanner/models/HTTPValidationError.ts",
