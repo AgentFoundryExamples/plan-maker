@@ -103,7 +103,7 @@ describe('PlanDetailPage', () => {
     it('displays generic error message when error has no message', () => {
       mockUsePlanDetail.mockReturnValue({
         data: undefined,
-        error: null,
+        error: {} as Error,
         isLoading: false,
         isError: true,
         isSuccess: false,
@@ -113,6 +113,22 @@ describe('PlanDetailPage', () => {
       renderComponent();
 
       expect(screen.getByText(/unable to fetch plan details/i)).toBeInTheDocument();
+    });
+
+    it('displays invalid plan message when no data and no error (query disabled)', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: undefined,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: false,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent();
+
+      expect(screen.getByText('Invalid Plan')).toBeInTheDocument();
+      expect(screen.getByText(/no plan id provided/i)).toBeInTheDocument();
     });
 
     it('provides back to plans link in error state', () => {
@@ -437,17 +453,17 @@ describe('PlanDetailPage', () => {
     it('handles missing or undefined planId', () => {
       mockUsePlanDetail.mockReturnValue({
         data: undefined,
-        error: new Error('Plan ID is required'),
+        error: null,
         isLoading: false,
-        isError: true,
+        isError: false,
         isSuccess: false,
         refetch: vi.fn(),
       } as any);
 
       renderComponent('invalid-id');
 
-      expect(screen.getByText('Failed to Load Plan')).toBeInTheDocument();
-      expect(screen.getByText('Plan ID is required')).toBeInTheDocument();
+      expect(screen.getByText('Invalid Plan')).toBeInTheDocument();
+      expect(screen.getByText(/no plan id provided/i)).toBeInTheDocument();
     });
 
     it('renders large number of specs without blocking', () => {

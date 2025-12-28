@@ -34,7 +34,7 @@ const PlanDetailPage: React.FC = () => {
   }
 
   // Error state
-  if (error || !data) {
+  if (error) {
     return (
       <div className="container">
         <Link to="/plans" className="back-link">
@@ -43,7 +43,26 @@ const PlanDetailPage: React.FC = () => {
         <h1>Plan Details</h1>
         <div className="error-state" role="alert">
           <h2>Failed to Load Plan</h2>
-          <p>{error?.message || 'Unable to fetch plan details. The plan may not exist or there was a network error.'}</p>
+          <p>{error.message || 'Unable to fetch plan details. The plan may not exist or there was a network error.'}</p>
+          <Link to="/plans" className="btn btn-primary">
+            Back to Plans
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle case where query is disabled (no planId) or data hasn't loaded yet
+  if (!data) {
+    return (
+      <div className="container">
+        <Link to="/plans" className="back-link">
+          ← Back to Plans List
+        </Link>
+        <h1>Plan Details</h1>
+        <div className="error-state" role="alert">
+          <h2>Invalid Plan</h2>
+          <p>No plan ID provided. Please select a plan from the list.</p>
           <Link to="/plans" className="btn btn-primary">
             Back to Plans
           </Link>
