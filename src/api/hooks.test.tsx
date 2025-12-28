@@ -15,7 +15,7 @@ import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
-import { useCreatePlanAsync } from './hooks';
+import { useCreatePlanAsync, usePlansList } from './hooks';
 import { clearEnvCache } from './env';
 import type { AsyncPlanJob } from './softwarePlannerClient';
 
@@ -671,5 +671,295 @@ describe('useCreatePlanAsync', () => {
       // Reset query client for next iteration
       queryClient.clear();
     }
+  });
+});
+
+describe('usePlansList', () => {
+  const originalEnv = { ...import.meta.env };
+  let queryClient: QueryClient;
+
+  function setupEnv() {
+    (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+      'http://localhost:8080';
+    (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+      'http://localhost:8081';
+  }
+
+  beforeEach(() => {
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+  });
+
+  afterEach(() => {
+    clearEnvCache();
+    Object.keys(import.meta.env).forEach(key => {
+      delete (import.meta.env as any)[key];
+    });
+    Object.assign(import.meta.env, originalEnv);
+    vi.restoreAllMocks();
+  });
+
+  it('successfully fetches plans list with default limit', async () => {
+    setupEnv();
+
+    const mockResponse = {
+      jobs: [
+        {
+          job_id: 'job-1',
+          status: 'SUCCEEDED' as const,
+          created_at: '2025-01-01T00:00:00Z',
+          updated_at: '2025-01-01T00:00:05Z',
+        },
+      ],
+      total: 1,
+      limit: 25,
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockResponse,
+    });
+
+    let queryData: any;
+
+    function TestComponent() {
+      const query = usePlansList({ fetchImpl: mockFetch as any });
+
+      React.useEffect(() => {
+        if (query.isSuccess) {
+          queryData = query.data;
+        }
+      }, [query.isSuccess, query.data]);
+
+      return (
+        <div>
+          {query.isLoading && <div>Loading...</div>}
+          {query.isError && <div>Error: {query.error?.message}</div>}
+          {query.isSuccess && <div>Success: {query.data?.total}</div>}
+        </div>
+      );
+    }
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <TestComponent />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Success: 1')).toBeInTheDocument();
+    });
+
+    expect(queryData).toEqual(mockResponse);
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://localhost:8080/api/v1/plans?limit=25',
+      expect.any(Object)
+    );
+  });
+
+  it('respects custom limit parameter', async () => {
+    setupEnv();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ jobs: [], total: 0, limit: 10 }),
+    });
+
+    function TestComponent() {
+      const query = usePlansList({ limit: 10, fetchImpl: mockFetch as any });
+
+      return <div>{query.isSuccess && <div>Success</div>}</div>;
+    }
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <TestComponent />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Success')).toBeInTheDocument();
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://localhost:8080/api/v1/plans?limit=10',
+      expect.any(Object)
+    );
+  });
+
+  it('includes cursor in request when provided', async () => {
+    setupEnv();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ jobs: [], total: 0, limit: 25 }),
+    });
+
+    function TestComponent() {
+      const query = usePlansList({
+        cursor: 'next-page',
+        fetchImpl: mockFetch as any,
+      });
+
+      return <div>{query.isSuccess && <div>Success</div>}</div>;
+    }
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <TestComponent />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Success')).toBeInTheDocument();
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://localhost:8080/api/v1/plans?limit=25&cursor=next-page',
+      expect.any(Object)
+    );
+  });
+
+  it('respects enabled option and does not fetch when disabled', async () => {
+    setupEnv();
+
+    const mockFetch = vi.fn();
+
+    function TestComponent() {
+      const query = usePlansList({
+        enabled: false,
+        fetchImpl: mockFetch as any,
+      });
+
+      return (
+        <div>
+          {query.isLoading && <div>Loading...</div>}
+          {!query.isLoading && !query.isSuccess && <div>Not fetched</div>}
+        </div>
+      );
+    }
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <TestComponent />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Not fetched')).toBeInTheDocument();
+    });
+
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('handles errors properly', async () => {
+    setupEnv();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      json: async () => ({ error: 'Server error' }),
+    });
+
+    function TestComponent() {
+      const query = usePlansList({ fetchImpl: mockFetch as any });
+
+      return (
+        <div>
+          {query.isError && <div>Error: {query.error?.message}</div>}
+        </div>
+      );
+    }
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <TestComponent />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Error:/)).toBeInTheDocument();
+    });
+  });
+
+  it('provides lastUpdated timestamp', async () => {
+    setupEnv();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ jobs: [], total: 0, limit: 25 }),
+    });
+
+    let lastUpdated: number | undefined;
+
+    function TestComponent() {
+      const query = usePlansList({ fetchImpl: mockFetch as any });
+
+      React.useEffect(() => {
+        if (query.isSuccess) {
+          lastUpdated = query.lastUpdated;
+        }
+      }, [query.isSuccess, query.lastUpdated]);
+
+      return <div>{query.isSuccess && <div>Success</div>}</div>;
+    }
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <TestComponent />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Success')).toBeInTheDocument();
+    });
+
+    expect(lastUpdated).toBeGreaterThan(0);
+  });
+
+  it('allows manual refetch', async () => {
+    setupEnv();
+
+    let callCount = 0;
+    const mockFetch = vi.fn().mockImplementation(() => {
+      callCount++;
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ jobs: [], total: callCount, limit: 25 }),
+      });
+    });
+
+    function TestComponent() {
+      const query = usePlansList({ fetchImpl: mockFetch as any });
+
+      return (
+        <div>
+          <button onClick={() => query.refetch()}>Refetch</button>
+          {query.isSuccess && <div>Count: {query.data?.total}</div>}
+        </div>
+      );
+    }
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <TestComponent />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Count: 1')).toBeInTheDocument();
+    });
+
+    const button = screen.getByRole('button');
+    button.click();
+
+    await waitFor(() => {
+      expect(screen.getByText('Count: 2')).toBeInTheDocument();
+    });
+
+    expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 });

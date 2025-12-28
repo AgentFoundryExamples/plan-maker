@@ -27,8 +27,12 @@ export {
   createPlanAsync,
   getPlanById,
   listPlans,
+  getStatusMetadata,
+  PLANNER_STATUS_MAP,
   type AsyncPlanJob,
   type PlanJobStatus,
   type PlanJobsList,
   type CreatePlanOptions,
+  type ListPlansOptions,
+  type StatusMetadata,
 } from '../softwarePlannerClient';

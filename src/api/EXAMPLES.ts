@@ -64,7 +64,7 @@ async function exampleAsyncPlan() {
 
 // Example 3: List recent plans
 async function exampleListPlans() {
-  const plans = await listPlans(10);
+  const plans = await listPlans({ limit: 10 });
 
   console.log(`Found ${plans.total} plans, showing ${plans.jobs.length}`);
 
@@ -75,6 +75,42 @@ async function exampleListPlans() {
       console.log(`  - ${job.result.specs.length} specs`);
     }
   });
+}
+
+// Example 3a: List plans with cursor-based pagination
+async function exampleListPlansWithPagination() {
+  // First page
+  const firstPage = await listPlans({ limit: 25 });
+  console.log(`Page 1: ${firstPage.jobs.length} jobs`);
+
+  // If there's a cursor, fetch next page
+  // Note: The actual pagination implementation depends on the API
+  // This is a placeholder example
+  const nextCursor = 'example-cursor'; // Would come from firstPage
+  if (nextCursor) {
+    const secondPage = await listPlans({ limit: 25, cursor: nextCursor });
+    console.log(`Page 2: ${secondPage.jobs.length} jobs`);
+  }
+}
+
+// Example 3b: Using status mapping
+async function exampleStatusMapping() {
+  const { getStatusMetadata, PLANNER_STATUS_MAP } = await import(
+    './softwarePlannerClient'
+  );
+
+  const plans = await listPlans({ limit: 10 });
+
+  plans.jobs.forEach(job => {
+    const statusMeta = getStatusMetadata(job.status);
+    console.log(
+      `Job ${job.job_id}: ${statusMeta.label} (${statusMeta.description})`
+    );
+    console.log(`  Color: ${statusMeta.color}, Icon: ${statusMeta.icon}`);
+  });
+
+  // Direct access to status map
+  console.log('All known statuses:', Object.keys(PLANNER_STATUS_MAP));
 }
 
 // Example 4: Clarify specifications
@@ -183,6 +219,45 @@ function PlanCreatorComponent() {
 }
 */
 
+// Example 7a: Using usePlansList hook for listing plans
+/*
+import { usePlansList } from './hooks';
+import { getStatusMetadata } from './softwarePlannerClient';
+
+function PlansListComponent() {
+  const { data, error, isLoading, lastUpdated, refetch } = usePlansList({
+    limit: 25,
+    refetchInterval: 5000, // Poll every 5 seconds
+    enabled: true,
+  });
+
+  if (isLoading) return <div>Loading plans...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <div>
+      <h2>Plans ({data?.total})</h2>
+      <p>Last updated: {new Date(lastUpdated).toLocaleString()}</p>
+      <button onClick={() => refetch()}>Refresh</button>
+      
+      <ul>
+        {data?.jobs.map(job => {
+          const statusMeta = getStatusMetadata(job.status);
+          return (
+            <li key={job.job_id}>
+              <span style={{ color: statusMeta.color }}>
+                {statusMeta.icon} {statusMeta.label}
+              </span>
+              : {job.job_id}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+*/
+
 // Example 8: Environment configuration
 // The clients automatically use environment variables:
 // - VITE_SOFTWARE_PLANNER_BASE_URL
@@ -194,6 +269,8 @@ export {
   exampleSyncPlan,
   exampleAsyncPlan,
   exampleListPlans,
+  exampleListPlansWithPagination,
+  exampleStatusMapping,
   exampleClarifySpecs,
   exampleWithApiKey,
   exampleErrorHandling,
