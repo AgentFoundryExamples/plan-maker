@@ -349,7 +349,9 @@
       "path": "vitest.config.ts",
       "type": "file",
       "external_dependencies": {
-        "stdlib": [],
+        "stdlib": [
+          "path"
+        ],
         "third-party": [
           "@vitejs/plugin-react",
           "vitest/config"

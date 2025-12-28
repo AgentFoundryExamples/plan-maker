@@ -501,8 +501,8 @@
       "summary": "TypeScript module for vitest.config",
       "summary_text": "TypeScript module for vitest.config",
       "metrics": {
-        "size_bytes": 832,
-        "loc": 10,
+        "size_bytes": 943,
+        "loc": 16,
         "todo_count": 0
       }
     }
