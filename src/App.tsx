@@ -7,6 +7,7 @@ import NotFoundPage from '@/pages/NotFoundPage';
 import PlanDetailPage from '@/pages/PlanDetailPage';
 import PlannerInputPage from '@/pages/PlannerInputPage';
 import PlansListPage from '@/pages/PlansListPage';
+import { PlanAnswersProvider } from '@/state/planAnswersStore';
 
 const router = createBrowserRouter([
   {
@@ -36,7 +37,9 @@ const router = createBrowserRouter([
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <RouterProvider router={router} />
+      <PlanAnswersProvider>
+        <RouterProvider router={router} />
+      </PlanAnswersProvider>
     </ErrorBoundary>
   );
 };

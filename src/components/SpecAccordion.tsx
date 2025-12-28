@@ -1,24 +1,25 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import type { SpecItem } from '@/api/softwarePlanner/models/SpecItem';
+import { usePlanAnswers } from '@/state/planAnswersStore';
 
 interface SpecAccordionProps {
   planId: string;
   specs: SpecItem[];
-}
-
-interface AnswerState {
-  [key: string]: string; // key format: `${planId}-${specIndex}-${questionIndex}`
+  stickyPosition?: 'top' | 'bottom';
+  showStickySummary?: boolean;
 }
 
 /**
  * SpecAccordion Component
  * 
  * Displays plan specifications as expandable accordions with question indicators
- * and local answer entry.
+ * and answer entry with persistence.
  * 
  * State Management:
- * - Answer state is keyed by `${planId}-${specIndex}-${questionIndex}`
+ * - Answer state is managed by the PlanAnswersStore context
+ * - Answers are keyed by `${planId}-${specIndex}-${questionIndex}`
  * - Uses array indices for specIndex and questionIndex
+ * - Answers persist across accordion toggling, navigation, and page reloads
  * 
  * LIMITATION: Array indices are used as part of the state key. If specs are reordered
  * or filtered in the future, this could cause answers to be associated with the wrong
@@ -29,9 +30,14 @@ interface AnswerState {
  * - Unanswered counts are memoized per spec to avoid O(n²) recalculations
  * - Total unanswered count is derived from memoized per-spec counts
  */
-const SpecAccordion: React.FC<SpecAccordionProps> = ({ planId, specs }) => {
+const SpecAccordion: React.FC<SpecAccordionProps> = ({ 
+  planId, 
+  specs, 
+  stickyPosition = 'bottom',
+  showStickySummary = true 
+}) => {
   const [expandedSpecs, setExpandedSpecs] = useState<Set<number>>(new Set());
-  const [answers, setAnswers] = useState<AnswerState>({});
+  const { getAnswer, setAnswer, isAnswered } = usePlanAnswers();
 
   // Toggle spec expansion
   const toggleSpec = (index: number) => {
@@ -46,29 +52,23 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({ planId, specs }) => {
     });
   };
 
-  // Handle answer change
+  // Handle answer change - delegate to store
   const handleAnswerChange = (
     specIndex: number,
     questionIndex: number,
     value: string
   ) => {
-    const key = `${planId}-${specIndex}-${questionIndex}`;
-    setAnswers((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+    setAnswer(planId, specIndex, questionIndex, value);
   };
 
-  // Check if a question is answered
+  // Check if a question is answered - delegate to store
   const isQuestionAnswered = (specIndex: number, questionIndex: number): boolean => {
-    const key = `${planId}-${specIndex}-${questionIndex}`;
-    return (answers[key] || '').trim().length > 0;
+    return isAnswered(planId, specIndex, questionIndex);
   };
 
-  // Get answer for a question
-  const getAnswer = (specIndex: number, questionIndex: number): string => {
-    const key = `${planId}-${specIndex}-${questionIndex}`;
-    return answers[key] || '';
+  // Get answer for a question - delegate to store
+  const getAnswerValue = (specIndex: number, questionIndex: number): string => {
+    return getAnswer(planId, specIndex, questionIndex);
   };
 
   // Memoize unanswered counts for each spec to avoid recalculation on every render
@@ -77,11 +77,10 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({ planId, specs }) => {
       const questions = spec.open_questions || [];
       if (questions.length === 0) return 0;
       return questions.filter((_, qIndex) => {
-        const key = `${planId}-${specIndex}-${qIndex}`;
-        return (answers[key] || '').trim().length === 0;
+        return !isAnswered(planId, specIndex, qIndex);
       }).length;
     });
-  }, [specs, answers, planId]);
+  }, [specs, planId, isAnswered]);
 
   // Calculate unanswered questions for a spec using memoized counts
   const getUnansweredCount = (_spec: SpecItem, specIndex: number): number => {
@@ -100,9 +99,30 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({ planId, specs }) => {
     }, 0);
   }, [specs]);
 
+  // Get list of spec indices with unanswered questions
+  const specsWithUnanswered = useMemo(() => {
+    return specs
+      .map((spec, idx) => ({ spec, idx, count: unansweredCounts[idx] }))
+      .filter(item => item.count > 0);
+  }, [specs, unansweredCounts]);
+
+  // Scroll to a specific spec
+  const scrollToSpec = useCallback((specIndex: number) => {
+    const element = document.getElementById(`spec-${specIndex}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Expand the spec
+      setExpandedSpecs((prev) => {
+        const next = new Set(prev);
+        next.add(specIndex);
+        return next;
+      });
+    }
+  }, []);
+
   return (
     <div className="spec-accordion-container">
-      {/* Summary Section */}
+      {/* Inline Summary Section */}
       {totalQuestions > 0 && (
         <div className="accordion-summary" role="status" aria-live="polite">
           <h3>Questions Summary</h3>
@@ -118,6 +138,43 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({ planId, specs }) => {
         </div>
       )}
 
+      {/* Sticky Summary Bar */}
+      {showStickySummary && totalQuestions > 0 && (
+        <div 
+          className="sticky-summary-bar" 
+          data-position={stickyPosition}
+          role="region" 
+          aria-label="Questions progress summary"
+        >
+          <div className="sticky-summary-content">
+            <p className={`sticky-summary-text ${totalUnanswered === 0 ? 'all-complete' : 'pending'}`}>
+              {totalUnanswered === 0 ? (
+                <span>✓ All {totalQuestions} question{totalQuestions !== 1 ? 's' : ''} answered</span>
+              ) : (
+                <span>{totalUnanswered} of {totalQuestions} question{totalQuestions !== 1 ? 's' : ''} remaining</span>
+              )}
+            </p>
+            {specsWithUnanswered.length > 0 && (
+              <div className="unanswered-specs-list">
+                {specsWithUnanswered.slice(0, 5).map(({ idx }) => (
+                  <button
+                    key={idx}
+                    className="unanswered-spec-link"
+                    onClick={() => scrollToSpec(idx)}
+                    aria-label={`Go to spec ${idx + 1}`}
+                  >
+                    Spec #{idx + 1}
+                  </button>
+                ))}
+                {specsWithUnanswered.length > 5 && (
+                  <span className="sticky-summary-text">+{specsWithUnanswered.length - 5} more</span>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Specs List */}
       <div className="accordion-list">
         {specs.map((spec, specIndex) => {
@@ -127,7 +184,11 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({ planId, specs }) => {
           const hasQuestions = questions.length > 0;
 
           return (
-            <div key={specIndex} className="accordion-item">
+            <div 
+              key={specIndex} 
+              className={`accordion-item ${hasQuestions && unansweredCount > 0 ? 'has-unanswered' : ''}`}
+              id={`spec-${specIndex}`}
+            >
               {/* Accordion Header */}
               <button
                 className="accordion-header"
@@ -229,7 +290,7 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({ planId, specs }) => {
                       <div className="questions-list">
                         {questions.map((question, qIndex) => {
                           const answered = isQuestionAnswered(specIndex, qIndex);
-                          const answer = getAnswer(specIndex, qIndex);
+                          const answer = getAnswerValue(specIndex, qIndex);
                           
                           return (
                             <div key={qIndex} className="question-item">

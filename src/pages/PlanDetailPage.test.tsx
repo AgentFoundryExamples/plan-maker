@@ -6,6 +6,7 @@ import PlanDetailPage from './PlanDetailPage';
 import * as hooks from '@/api/hooks';
 import type { PlanJobStatus } from '@/api/softwarePlannerClient';
 import type { PlanResponse } from '@/api/softwarePlanner/models/PlanResponse';
+import { PlanAnswersProvider } from '@/state/planAnswersStore';
 
 // Mock the hooks module
 vi.mock('@/api/hooks', async () => {
@@ -36,11 +37,13 @@ describe('PlanDetailPage', () => {
   const renderComponent = (planId = '123') => {
     return render(
       <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={[`/plans/${planId}`]}>
-          <Routes>
-            <Route path="/plans/:id" element={<PlanDetailPage />} />
-          </Routes>
-        </MemoryRouter>
+        <PlanAnswersProvider config={{ enableSessionStorage: false }}>
+          <MemoryRouter initialEntries={[`/plans/${planId}`]}>
+            <Routes>
+              <Route path="/plans/:id" element={<PlanDetailPage />} />
+            </Routes>
+          </MemoryRouter>
+        </PlanAnswersProvider>
       </QueryClientProvider>
     );
   };
