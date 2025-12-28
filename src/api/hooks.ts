@@ -310,8 +310,11 @@ export interface UsePlansListOptions {
 export function usePlansList(options: UsePlansListOptions = {}) {
   const { limit, cursor, refetchInterval, enabled = true, fetchImpl } = options;
 
+  // Normalize limit to the effective value for stable query key
+  const effectiveLimit = Math.min(limit ?? 25, 25);
+
   const queryResult = useQuery({
-    queryKey: ['plans', 'list', { limit, cursor }],
+    queryKey: ['plans', 'list', { limit: effectiveLimit, cursor }],
     queryFn: async () => {
       return listPlans({ limit, cursor, fetchImpl });
     },

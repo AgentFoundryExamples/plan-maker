@@ -289,6 +289,26 @@ describe('Software Planner Client', () => {
       );
     });
 
+    it('does not include cursor parameter when empty string', async () => {
+      setupEnv();
+
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ jobs: [], total: 0, limit: 25 }),
+      });
+
+      await listPlans({
+        cursor: '',
+        fetchImpl: mockFetch as any,
+      });
+
+      // Empty cursor should not be sent
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:8080/api/v1/plans?limit=25',
+        expect.any(Object)
+      );
+    });
+
     it('throws error on failed request', async () => {
       setupEnv();
 

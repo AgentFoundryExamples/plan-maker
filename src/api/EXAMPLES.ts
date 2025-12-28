@@ -83,14 +83,13 @@ async function exampleListPlansWithPagination() {
   const firstPage = await listPlans({ limit: 25 });
   console.log(`Page 1: ${firstPage.jobs.length} jobs`);
 
-  // If there's a cursor, fetch next page
-  // Note: The actual pagination implementation depends on the API
-  // This is a placeholder example
-  const nextCursor = 'example-cursor'; // Would come from firstPage
-  if (nextCursor) {
-    const secondPage = await listPlans({ limit: 25, cursor: nextCursor });
-    console.log(`Page 2: ${secondPage.jobs.length} jobs`);
-  }
+  // Note: The current API response does not include pagination cursors
+  // This example shows how to use the cursor parameter when available
+  // If the API is updated to include next_cursor/prev_cursor in the response:
+  // if (firstPage.next_cursor) {
+  //   const secondPage = await listPlans({ limit: 25, cursor: firstPage.next_cursor });
+  //   console.log(`Page 2: ${secondPage.jobs.length} jobs`);
+  // }
 }
 
 // Example 3b: Using status mapping

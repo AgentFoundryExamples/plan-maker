@@ -283,7 +283,7 @@ export async function listPlans(
   const effectiveLimit = Math.min(limit ?? 25, 25);
   url.searchParams.set('limit', effectiveLimit.toString());
 
-  if (cursor !== undefined) {
+  if (cursor) {
     url.searchParams.set('cursor', cursor);
   }
 
