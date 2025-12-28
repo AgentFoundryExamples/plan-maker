@@ -241,17 +241,12 @@ export function useCreatePlanAsync(
       // Validate payload before making the request
       validatePlanRequest(request);
 
-      // Log request in development mode
-      logInDevelopment('request', {
-        description: request.description,
-        model: request.model,
-        system_prompt: request.system_prompt,
-      });
-
-      // Extract options from request
-      const { description, model, system_prompt, apiKey, fetchImpl } = request;
-      const planRequest: PlanRequest = { description, model, system_prompt };
+      // Separate client options from the API request payload
+      const { apiKey, fetchImpl, ...planRequest } = request;
       const createOptions: CreatePlanOptions = { apiKey, fetchImpl };
+
+      // Log request in development mode
+      logInDevelopment('request', planRequest);
 
       // Call the API client
       const response = await createPlanAsync(planRequest, createOptions);

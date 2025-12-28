@@ -379,10 +379,7 @@ describe('useCreatePlanAsync', () => {
 
   it('logs request and response in development mode', async () => {
     setupEnv();
-    const originalMode = import.meta.env.MODE;
-    const originalDev = import.meta.env.DEV;
-    (import.meta.env as any).MODE = 'development';
-    (import.meta.env as any).DEV = true;
+    vi.stubEnv('DEV', true);
 
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
@@ -432,18 +429,11 @@ describe('useCreatePlanAsync', () => {
 
     // Verify response was logged
     expect(consoleSpy).toHaveBeenCalledWith('[RESPONSE]', mockResponse);
-
-    // Restore environment
-    (import.meta.env as any).MODE = originalMode;
-    (import.meta.env as any).DEV = originalDev;
   });
 
   it('does not log in production mode', async () => {
     setupEnv();
-    const originalMode = import.meta.env.MODE;
-    const originalDev = import.meta.env.DEV;
-    (import.meta.env as any).MODE = 'production';
-    (import.meta.env as any).DEV = false;
+    vi.stubEnv('DEV', false);
 
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
@@ -483,10 +473,6 @@ describe('useCreatePlanAsync', () => {
 
     // Verify no logging occurred
     expect(consoleSpy).not.toHaveBeenCalled();
-
-    // Restore environment
-    (import.meta.env as any).MODE = originalMode;
-    (import.meta.env as any).DEV = originalDev;
   });
 
   it('throws descriptive error when environment variable is missing', async () => {
@@ -623,5 +609,67 @@ describe('useCreatePlanAsync', () => {
         }),
       })
     );
+  });
+
+  it('preserves all status values from response untouched', async () => {
+    setupEnv();
+
+    const statusValues: Array<'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED'> = [
+      'QUEUED',
+      'RUNNING',
+      'SUCCEEDED',
+      'FAILED',
+    ];
+
+    for (const status of statusValues) {
+      const mockResponse: AsyncPlanJob = {
+        job_id: 'test-job',
+        status: status,
+      };
+
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockResponse,
+      });
+
+      let capturedResponse: AsyncPlanJob | undefined;
+
+      function TestComponent() {
+        const mutation = useCreatePlanAsync({
+          onSuccess: data => {
+            capturedResponse = data;
+          },
+        });
+
+        React.useEffect(() => {
+          mutation.mutate({
+            description: 'Test project',
+            fetchImpl: mockFetch as any,
+          });
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, []);
+
+        return <div>{mutation.isSuccess && <div>Success</div>}</div>;
+      }
+
+      const { unmount } = render(
+        <QueryClientProvider client={queryClient}>
+          <TestComponent />
+        </QueryClientProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Success')).toBeInTheDocument();
+      });
+
+      // Verify status value is preserved exactly as received
+      expect(capturedResponse).toBeDefined();
+      expect(capturedResponse?.status).toBe(status);
+
+      unmount();
+
+      // Reset query client for next iteration
+      queryClient.clear();
+    }
   });
 });
