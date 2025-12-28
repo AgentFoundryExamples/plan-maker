@@ -112,7 +112,10 @@ export async function waitForClarification(
       return status;
     }
     
-    await new Promise(resolve => setTimeout(resolve, intervalMs));
+    // Don't wait on the last attempt
+    if (attempt < maxAttempts - 1) {
+      await new Promise(resolve => setTimeout(resolve, intervalMs));
+    }
   }
   
   throw new Error(`Clarification job ${jobId} did not complete within ${maxAttempts} attempts`);
