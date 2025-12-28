@@ -20,8 +20,8 @@ Total files: 36
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 4.61 KB  
-**LOC:** 105  
+**Size:** 5.59 KB  
+**LOC:** 137  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/clientConfig.test.ts
@@ -65,8 +65,8 @@ Total files: 36
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 5.41 KB  
-**LOC:** 142  
+**Size:** 8.05 KB  
+**LOC:** 222  
 **TODOs/FIXMEs:** 4  
 
 ## src/api/softwarePlanner/index.ts
@@ -74,8 +74,8 @@ Total files: 36
 **Role:** entry-point  
 **Role Justification:** common entry point name 'index'  
 **Summary:** TypeScript main entry point (role: entry-point)  
-**Size:** 0.99 KB  
-**LOC:** 8  
+**Size:** 1.22 KB  
+**LOC:** 18  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/softwarePlanner/models/HTTPValidationError.ts

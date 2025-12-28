@@ -395,6 +395,10 @@
       "target": "src/api/specClarifier/models/JobStatusResponse.ts"
     },
     {
+      "source": "src/api/hooks.ts",
+      "target": "src/api/softwarePlannerClient.ts"
+    },
+    {
       "source": "src/api/softwarePlanner/models/HTTPValidationError.ts",
       "target": "src/api/softwarePlanner/models/ValidationError.ts"
     },
