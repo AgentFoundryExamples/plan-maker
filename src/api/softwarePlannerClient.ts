@@ -259,6 +259,19 @@ export async function getPlanById(
 }
 
 /**
+ * Get detailed information about a specific plan
+ * @param planId - The plan ID to fetch
+ * @param fetchImpl - Optional custom fetch implementation
+ * @returns Job status with result containing plan response and specs
+ */
+export async function getPlanDetail(
+  planId: string,
+  fetchImpl?: typeof fetch
+): Promise<PlanJobStatus> {
+  return getPlanById(planId, fetchImpl);
+}
+
+/**
  * Options for listing plans
  */
 export interface ListPlansOptions {
