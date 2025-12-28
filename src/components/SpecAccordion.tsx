@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef } from 'react';
 import type { SpecItem } from '@/api/softwarePlanner/models/SpecItem';
-import { usePlanAnswers } from '@/state/planAnswersStore';
+import { usePlanAnswers, type PlanValidationResult } from '@/state/planAnswersStore';
 
 interface SpecAccordionProps {
   planId: string;
@@ -8,6 +8,8 @@ interface SpecAccordionProps {
   stickyPosition?: 'top' | 'bottom';
   showStickySummary?: boolean;
   maxUnansweredSpecLinks?: number;
+  validationResult?: PlanValidationResult | null;
+  showValidationErrors?: boolean;
 }
 
 /**
@@ -36,10 +38,13 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
   specs, 
   stickyPosition = 'bottom',
   showStickySummary = true,
-  maxUnansweredSpecLinks = 5
+  maxUnansweredSpecLinks = 5,
+  validationResult = null,
+  showValidationErrors = false,
 }) => {
   const [expandedSpecs, setExpandedSpecs] = useState<Set<number>>(new Set());
   const { getAnswer, setAnswer, getAnswersForPlan } = usePlanAnswers();
+  const questionRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
 
   // Get all answers for current plan to use in memoization
   const planAnswers = getAnswersForPlan(planId);
@@ -126,6 +131,63 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
       });
     }
   }, [setExpandedSpecs]);
+
+  /**
+   * Check if a specific question has a validation error
+   */
+  const hasValidationError = useCallback((specIndex: number, questionIndex: number): boolean => {
+    if (!showValidationErrors || !validationResult) return false;
+    return validationResult.errors.some(
+      err => err.specIndex === specIndex && err.questionIndex === questionIndex
+    );
+  }, [showValidationErrors, validationResult]);
+
+  /**
+   * Get validation error message for a specific question
+   */
+  const getValidationError = useCallback((specIndex: number, questionIndex: number): string => {
+    if (!showValidationErrors || !validationResult) return '';
+    const error = validationResult.errors.find(
+      err => err.specIndex === specIndex && err.questionIndex === questionIndex
+    );
+    return error?.error || '';
+  }, [showValidationErrors, validationResult]);
+
+  /**
+   * Scroll to and focus the first invalid question
+   * This is called when submission is attempted with validation errors
+   */
+  const scrollToFirstError = useCallback(() => {
+    if (!validationResult || validationResult.errors.length === 0) return;
+
+    const firstError = validationResult.errors[0];
+    const { specIndex, questionIndex } = firstError;
+
+    // Expand the spec containing the first error
+    setExpandedSpecs((prev) => {
+      const next = new Set(prev);
+      next.add(specIndex);
+      return next;
+    });
+
+    // After a short delay to allow accordion to expand, scroll and focus
+    setTimeout(() => {
+      const key = `${specIndex}-${questionIndex}`;
+      const element = questionRefs.current.get(key);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.focus();
+      }
+    }, 300);
+  }, [validationResult]);
+
+  // Expose scrollToFirstError to parent via imperative handle if needed
+  // For now, we'll call it internally when validationResult changes
+  React.useEffect(() => {
+    if (showValidationErrors && validationResult && !validationResult.isValid) {
+      scrollToFirstError();
+    }
+  }, [showValidationErrors, validationResult, scrollToFirstError]);
 
   return (
     <div className="spec-accordion-container">
@@ -298,6 +360,9 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
                         {questions.map((question, qIndex) => {
                           const answered = isQuestionAnswered(specIndex, qIndex);
                           const answer = getAnswerValue(specIndex, qIndex);
+                          const hasError = hasValidationError(specIndex, qIndex);
+                          const errorMessage = getValidationError(specIndex, qIndex);
+                          const refKey = `${specIndex}-${qIndex}`;
                           
                           return (
                             <div key={qIndex} className="question-item">
@@ -317,7 +382,7 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
                               </div>
                               <textarea
                                 id={`answer-${specIndex}-${qIndex}`}
-                                className="answer-textarea"
+                                className={`answer-textarea ${hasError ? 'invalid' : ''}`}
                                 value={answer}
                                 onChange={(e) =>
                                   handleAnswerChange(specIndex, qIndex, e.target.value)
@@ -325,7 +390,20 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
                                 placeholder="Enter your answer here..."
                                 rows={3}
                                 aria-describedby={`answer-status-${specIndex}-${qIndex}`}
+                                aria-invalid={hasError}
+                                ref={(el) => {
+                                  if (el) {
+                                    questionRefs.current.set(refKey, el);
+                                  } else {
+                                    questionRefs.current.delete(refKey);
+                                  }
+                                }}
                               />
+                              {hasError && errorMessage && (
+                                <div className="validation-error-message" role="alert">
+                                  {errorMessage}
+                                </div>
+                              )}
                               <span
                                 id={`answer-status-${specIndex}-${qIndex}`}
                                 className="visually-hidden"
