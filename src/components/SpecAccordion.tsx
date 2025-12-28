@@ -157,6 +157,8 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
    * Scroll to and focus the first invalid question
    * This is called when submission is attempted with validation errors
    */
+  const VALIDATION_SCROLL_DELAY_MS = 300; // Delay for accordion animation to complete
+  
   const scrollToFirstError = useCallback(() => {
     if (!validationResult || validationResult.errors.length === 0) return;
 
@@ -178,7 +180,7 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         element.focus();
       }
-    }, 300);
+    }, VALIDATION_SCROLL_DELAY_MS);
   }, [validationResult]);
 
   // Expose scrollToFirstError to parent via imperative handle if needed

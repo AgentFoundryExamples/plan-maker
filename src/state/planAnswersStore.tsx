@@ -342,10 +342,9 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
           });
 
           // Track unanswered questions by spec
-          if (!unansweredBySpec.has(specIndex)) {
-            unansweredBySpec.set(specIndex, []);
-          }
-          unansweredBySpec.get(specIndex)!.push(questionIndex);
+          const specUnanswered = unansweredBySpec.get(specIndex) || [];
+          specUnanswered.push(questionIndex);
+          unansweredBySpec.set(specIndex, specUnanswered);
         }
       });
     });
