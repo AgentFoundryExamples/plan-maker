@@ -20,3 +20,15 @@ export type { PlanRequest } from './models/PlanRequest';
 export type { PlanResponse } from './models/PlanResponse';
 export type { SpecItem } from './models/SpecItem';
 export type { ValidationError } from './models/ValidationError';
+
+// Re-export client functions and types
+export {
+  createPlan,
+  createPlanAsync,
+  getPlanById,
+  listPlans,
+  type AsyncPlanJob,
+  type PlanJobStatus,
+  type PlanJobsList,
+  type CreatePlanOptions,
+} from '../softwarePlannerClient';
