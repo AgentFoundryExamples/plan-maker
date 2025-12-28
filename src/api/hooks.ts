@@ -36,8 +36,10 @@ import type { JobStatusResponse } from './specClarifier/models/JobStatusResponse
 import {
   createPlanAsync,
   listPlans,
+  getPlanById,
   type AsyncPlanJob,
   type CreatePlanOptions,
+  type PlanJobStatus,
 } from './softwarePlannerClient';
 
 /**
@@ -69,6 +71,53 @@ export function usePlan(
       );
     },
     enabled: !!planId, // Only run if planId is truthy
+    ...options,
+  });
+}
+
+/**
+ * Hook for fetching detailed information about a specific plan.
+ *
+ * This hook provides a query interface for fetching plan details using the
+ * Software Planner API. It includes:
+ * - Automatic fetching of plan metadata and specs
+ * - Conditional fetching via the enabled option (only runs if planId is valid)
+ * - Typed data, error, and loading states
+ * - Result includes job status, timestamps, and plan specs when available
+ *
+ * Usage:
+ * ```tsx
+ * const { data, error, isLoading } = usePlanDetail(planId);
+ *
+ * if (isLoading) return <Spinner />;
+ * if (error) return <ErrorMessage error={error} />;
+ * if (data?.result) {
+ *   return <PlanDetails plan={data.result} />;
+ * }
+ * ```
+ *
+ * @param planId - The ID of the plan to fetch
+ * @param options - React Query options for customizing behavior
+ * @returns Query result with PlanJobStatus data, error, and loading state
+ */
+export function usePlanDetail(
+  planId: string | undefined,
+  options?: Omit<
+    UseQueryOptions<PlanJobStatus, Error>,
+    'queryKey' | 'queryFn'
+  >
+) {
+  return useQuery<PlanJobStatus, Error>({
+    queryKey: ['plan', 'detail', planId],
+    queryFn: async () => {
+      // Double-check planId exists even though enabled should prevent this
+      if (!planId) {
+        throw new Error('Plan ID is required but was not provided');
+      }
+      return getPlanById(planId);
+    },
+    enabled: !!planId, // Only run if planId is truthy
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
     ...options,
   });
 }
