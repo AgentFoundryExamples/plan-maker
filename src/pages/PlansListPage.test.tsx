@@ -189,7 +189,7 @@ describe('PlansListPage', () => {
 
       const succeededBadge = screen.getByText('Succeeded');
       expect(succeededBadge).toHaveClass('status-badge');
-      expect(succeededBadge).toHaveStyle({ color: '#ffffff' });
+      expect(succeededBadge).toHaveStyle({ color: 'var(--color-background)' });
     });
 
     it('handles missing updated_at gracefully', () => {

@@ -30,9 +30,12 @@ const PlansListPage: React.FC = () => {
 
   // Format last updated timestamp
   useEffect(() => {
-    if (!lastUpdated) return;
-
     const updateDisplay = () => {
+      if (!lastUpdated) {
+        setLastUpdatedDisplay('');
+        return;
+      }
+
       const date = new Date(lastUpdated);
       const now = new Date();
       const diffMs = now.getTime() - date.getTime();
@@ -56,6 +59,9 @@ const PlansListPage: React.FC = () => {
     };
 
     updateDisplay();
+    const intervalId = setInterval(updateDisplay, 10000); // Update every 10 seconds
+
+    return () => clearInterval(intervalId);
   }, [lastUpdated]);
 
   // Handle page visibility changes for polling
@@ -63,6 +69,9 @@ const PlansListPage: React.FC = () => {
     const handleVisibilityChange = () => {
       setIsVisible(!document.hidden);
     };
+
+    // Set the initial state
+    handleVisibilityChange();
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
@@ -153,49 +162,51 @@ const PlansListPage: React.FC = () => {
         {/* Success state with plans */}
         {!isLoading && !isError && data && data.jobs.length > 0 && (
           <div className="plans-grid">
-            {data.jobs.map((job: PlanJobStatus) => {
-              const statusMeta = getStatusMetadata(job.status);
-              return (
-                <Link
-                  key={job.job_id}
-                  to={`/plans/${job.job_id}`}
-                  className="plan-card"
-                  aria-label={`View plan ${job.job_id}`}
-                >
-                  <div className="plan-card-header">
-                    <span className="plan-id" title={job.job_id}>
-                      {job.job_id}
-                    </span>
-                    <span
-                      className="status-badge"
-                      style={{
-                        backgroundColor: statusMeta.color,
-                        color: '#ffffff',
-                      }}
-                      aria-label={`Status: ${statusMeta.label}`}
-                    >
-                      {statusMeta.label}
-                    </span>
-                  </div>
-                  <div className="plan-card-metadata">
-                    <div className="metadata-row">
-                      <span className="metadata-label">Created:</span>
-                      <time dateTime={job.created_at}>
-                        {formatTimestamp(job.created_at)}
-                      </time>
+            {data.jobs
+              .filter((job: PlanJobStatus) => job.job_id)
+              .map((job: PlanJobStatus) => {
+                const statusMeta = getStatusMetadata(job.status);
+                return (
+                  <Link
+                    key={job.job_id}
+                    to={`/plans/${job.job_id}`}
+                    className="plan-card"
+                    aria-label={`View plan ${job.job_id}`}
+                  >
+                    <div className="plan-card-header">
+                      <span className="plan-id" title={job.job_id}>
+                        {job.job_id}
+                      </span>
+                      <span
+                        className="status-badge"
+                        style={{
+                          backgroundColor: statusMeta.color,
+                          color: 'var(--color-background)',
+                        }}
+                        aria-label={`Status: ${statusMeta.label}`}
+                      >
+                        {statusMeta.label}
+                      </span>
                     </div>
-                    {job.updated_at && (
+                    <div className="plan-card-metadata">
                       <div className="metadata-row">
-                        <span className="metadata-label">Updated:</span>
-                        <time dateTime={job.updated_at}>
-                          {formatTimestamp(job.updated_at)}
+                        <span className="metadata-label">Created:</span>
+                        <time dateTime={job.created_at}>
+                          {formatTimestamp(job.created_at)}
                         </time>
                       </div>
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
+                      {job.updated_at && (
+                        <div className="metadata-row">
+                          <span className="metadata-label">Updated:</span>
+                          <time dateTime={job.updated_at}>
+                            {formatTimestamp(job.updated_at)}
+                          </time>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
           </div>
         )}
       </div>
