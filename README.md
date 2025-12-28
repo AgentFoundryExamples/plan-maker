@@ -77,12 +77,32 @@ Run tests in watch mode:
 npm run test:ui
 ```
 
+### API Client Generation
+
+The project uses generated TypeScript clients for backend API communication. To regenerate API clients from OpenAPI specifications:
+
+```bash
+npm run generate:api
+```
+
+This command generates clients for both services:
+- Software Planner API (`src/api/softwarePlanner/`)
+- Spec Clarifier API (`src/api/specClarifier/`)
+
+**Note:** Generated files should not be edited manually. Wrapper utilities in `src/api/softwarePlannerClient.ts` and `src/api/specClarifierClient.ts` provide ergonomic helper functions that won't be overwritten during regeneration.
+
 ## Project Structure
 
 ```
 plan-maker/
 ├── src/
-│   ├── api/              # API utilities and environment config
+│   ├── api/              # API clients and utilities
+│   │   ├── softwarePlanner/    # Generated Software Planner API client
+│   │   ├── specClarifier/      # Generated Spec Clarifier API client
+│   │   ├── clientConfig.ts     # Shared client configuration
+│   │   ├── softwarePlannerClient.ts  # Software Planner wrapper utilities
+│   │   ├── specClarifierClient.ts    # Spec Clarifier wrapper utilities
+│   │   └── env.ts              # Environment variable validation
 │   ├── components/       # Reusable React components
 │   ├── layout/           # Layout components (AppLayout)
 │   ├── pages/            # Page components (routes)
@@ -91,6 +111,8 @@ plan-maker/
 │   ├── App.tsx           # Main app component with routing
 │   ├── main.tsx          # Application entry point
 │   └── vite-env.d.ts     # TypeScript definitions
+├── software-planner.openapi.json    # Software Planner OpenAPI spec
+├── spec-clarifier.openapi.json      # Spec Clarifier OpenAPI spec
 ├── index.html            # HTML entry point
 ├── vite.config.ts        # Vite configuration
 ├── vitest.config.ts      # Vitest configuration
@@ -104,7 +126,76 @@ The application requires the following environment variables:
 - `VITE_SOFTWARE_PLANNER_BASE_URL`: Base URL for the Software Planner API
 - `VITE_SPEC_CLARIFIER_BASE_URL`: Base URL for the Spec Clarifier API
 
+These variables are validated at runtime. If they are missing or empty, the application will throw descriptive errors before making network calls.
+
 See `.env.example` for reference.
+
+## API Clients
+
+The project includes typed API clients generated from OpenAPI specifications, with ergonomic wrapper utilities for easy integration.
+
+### Generated Clients
+
+API clients are automatically generated from OpenAPI specs:
+- `src/api/softwarePlanner/` - Software Planner API models and types
+- `src/api/specClarifier/` - Spec Clarifier API models and types
+
+### Client Wrappers
+
+Wrapper utilities provide typed helper functions:
+
+#### Software Planner Client (`src/api/softwarePlannerClient.ts`)
+
+```typescript
+import { createPlan, createPlanAsync, getPlanById, listPlans } from './api/softwarePlannerClient';
+
+// Synchronous plan creation
+const plan = await createPlan({ description: 'Build a REST API' });
+
+// Asynchronous plan creation
+const job = await createPlanAsync({ description: 'Build a REST API' });
+const status = await getPlanById(job.job_id);
+
+// List recent plans (specs field is optional in response)
+const plans = await listPlans(10);
+```
+
+#### Spec Clarifier Client (`src/api/specClarifierClient.ts`)
+
+```typescript
+import { clarifySpecs, getClarifierStatus, waitForClarification } from './api/specClarifierClient';
+
+// Create clarification job
+const job = await clarifySpecs({
+  plan: { specs: [/* specifications */] }
+});
+
+// Check status
+const status = await getClarifierStatus(job.id);
+
+// Wait for completion with polling
+const result = await waitForClarification(job.id, {
+  maxAttempts: 60,
+  intervalMs: 2000
+});
+```
+
+### Regenerating Clients
+
+If the backend OpenAPI specifications change, regenerate the clients:
+
+```bash
+npm run generate:api
+```
+
+**Important:**
+- Generated files in `src/api/softwarePlanner/` and `src/api/specClarifier/` should **not** be edited manually
+- Wrapper utilities (`softwarePlannerClient.ts`, `specClarifierClient.ts`) are safe from regeneration
+- The generation script is idempotent and can be run multiple times
+
+### Configuration
+
+API clients read base URLs from environment variables at runtime via `src/api/clientConfig.ts`. Missing or malformed URLs throw descriptive errors before network calls are made.
 
 ## Routes
 
@@ -126,6 +217,7 @@ See `.env.example` for reference.
 - **React Router 6.27.0** - Client-side routing
 - **Vitest 2.1.5** - Testing framework
 - **Testing Library** - Component testing utilities
+- **openapi-typescript-codegen 0.30.0** - OpenAPI client generator
 
 
 
