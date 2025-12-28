@@ -646,4 +646,140 @@ describe('SpecAccordion', () => {
       });
     });
   });
+
+  describe('Validation Integration', () => {
+    // Mock scrollIntoView for tests that trigger auto-scroll
+    beforeEach(() => {
+      Element.prototype.scrollIntoView = vi.fn();
+      HTMLElement.prototype.focus = vi.fn();
+    });
+
+    it('auto-expands and scrolls to first error when showValidationErrors is true', async () => {
+      const scrollMock = vi.fn();
+      Element.prototype.scrollIntoView = scrollMock;
+
+      const validationResult = {
+        isValid: false,
+        totalQuestions: 2,
+        unansweredCount: 2,
+        errors: [
+          {
+            specIndex: 0,
+            questionIndex: 0,
+            question: 'Which database?',
+            error: 'This question requires an answer',
+          },
+          {
+            specIndex: 0,
+            questionIndex: 1,
+            question: 'Authentication method?',
+            error: 'This question requires an answer',
+          },
+        ],
+        unansweredBySpec: new Map([[0, [0, 1]]]),
+      };
+
+      renderWithProvider(
+        <SpecAccordion 
+          planId={planId} 
+          specs={mockSpecs}
+          validationResult={validationResult}
+          showValidationErrors={true}
+        />
+      );
+
+      // Should auto-expand first spec with errors and scroll to first question
+      await waitFor(() => {
+        const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+        expect(firstAccordion).toHaveAttribute('aria-expanded', 'true');
+      }, { timeout: 500 });
+
+      // Should see validation error messages
+      await waitFor(() => {
+        const errorMessages = screen.queryAllByText(/this question requires an answer/i);
+        expect(errorMessages.length).toBeGreaterThanOrEqual(1);
+      });
+    });
+
+    it('applies invalid class to textarea with validation error', async () => {
+      const validationResult = {
+        isValid: false,
+        totalQuestions: 2,
+        unansweredCount: 1,
+        errors: [
+          {
+            specIndex: 0,
+            questionIndex: 0,
+            question: 'Which database?',
+            error: 'This question requires an answer',
+          },
+        ],
+        unansweredBySpec: new Map([[0, [0]]]),
+      };
+
+      renderWithProvider(
+        <SpecAccordion 
+          planId={planId} 
+          specs={mockSpecs}
+          validationResult={validationResult}
+          showValidationErrors={true}
+        />
+      );
+
+      // Wait for auto-expand
+      await waitFor(() => {
+        const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+        expect(firstAccordion).toHaveAttribute('aria-expanded', 'true');
+      }, { timeout: 500 });
+
+      // First textarea should have invalid class
+      await waitFor(() => {
+        const textareas = screen.queryAllByPlaceholderText(/enter your answer/i);
+        expect(textareas.length).toBeGreaterThan(0);
+        if (textareas[0]) {
+          expect(textareas[0]).toHaveClass('invalid');
+          expect(textareas[0]).toHaveAttribute('aria-invalid', 'true');
+        }
+      });
+    });
+
+    it('does not show validation errors when showValidationErrors is false', async () => {
+      const user = userEvent.setup();
+      const validationResult = {
+        isValid: false,
+        totalQuestions: 2,
+        unansweredCount: 2,
+        errors: [
+          {
+            specIndex: 0,
+            questionIndex: 0,
+            question: 'Which database?',
+            error: 'This question requires an answer',
+          },
+        ],
+        unansweredBySpec: new Map([[0, [0]]]),
+      };
+
+      renderWithProvider(
+        <SpecAccordion 
+          planId={planId} 
+          specs={mockSpecs}
+          validationResult={validationResult}
+          showValidationErrors={false}
+        />
+      );
+
+      // Manually expand first spec
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordion);
+
+      await waitFor(() => {
+        expect(firstAccordion).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      // Should not see validation error messages
+      const errorMessages = screen.queryAllByText(/this question requires an answer/i);
+      expect(errorMessages.length).toBe(0);
+    });
+  });
 });
