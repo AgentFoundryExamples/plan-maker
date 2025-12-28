@@ -14,6 +14,57 @@
 /**
  * Spec Clarifier API Client Wrapper
  * Provides typed helper functions for interacting with the Spec Clarifier API
+ *
+ * **OpenAPI Contract Reference (spec-clarifier.openapi.json):**
+ *
+ * ## Async Clarification Endpoint
+ * - **Endpoint**: POST /v1/clarifications
+ * - **Description**: Creates an async clarification job and returns immediately with job ID
+ * - **Response Status**: 202 Accepted
+ *
+ * ## Request Schema: ClarificationRequestWithConfig
+ * - `plan` (required): PlanInput object containing:
+ *   - `specs` (required): Array of SpecInput objects with:
+ *     - `purpose` (required): String - purpose of the specification
+ *     - `vision` (required): String - vision statement
+ *     - `must`: Array of strings - must-have requirements
+ *     - `dont`: Array of strings - don't requirements (things to avoid)
+ *     - `nice`: Array of strings - nice-to-have features
+ *     - `open_questions`: Array of strings - questions needing clarification
+ *     - `assumptions`: Array of strings - assumptions made
+ *
+ * - `answers`: Array of QuestionAnswer objects (optional, currently ignored):
+ *   - `spec_index` (required): Number (minimum 0) - index of spec containing question
+ *   - `question_index` (required): Number (minimum 0) - index of question within spec
+ *   - `question` (required): String - the question text
+ *   - `answer` (required): String - the answer provided
+ *
+ * - `config`: Optional ClarificationConfig to override defaults:
+ *   - `provider`: 'openai' | 'anthropic' | 'dummy' | null
+ *   - `model`: String (min length 1) | null
+ *   - `system_prompt_id`: String (min length 1) | null
+ *   - `temperature`: Number (0.0-2.0) | null
+ *   - `max_tokens`: Integer (> 0) | null
+ *
+ * ## Response Schema: JobSummaryResponse (202 Accepted)
+ * - `id` (required): String (UUID format) - unique job identifier
+ * - `status` (required): JobStatus enum - current job status (PENDING, RUNNING, SUCCESS, FAILED)
+ * - `created_at` (required): String (ISO 8601 datetime) - UTC timestamp when job was created
+ * - `updated_at` (required): String (ISO 8601 datetime) - UTC timestamp when job was last updated
+ * - `last_error`: String | null - optional error message if job failed
+ *
+ * ## Error Responses
+ * - **400 Bad Request**: Invalid configuration (provider/model combination not allowed)
+ *   - Example: `{ "detail": "Model 'invalid-model' is not allowed for provider 'openai'..." }`
+ *
+ * - **422 Unprocessable Entity**: Validation error (missing required fields or wrong types)
+ *   - Example: `{ "detail": [{ "type": "missing", "loc": ["body", "plan", "specs", 0, "vision"], "msg": "Field required" }] }`
+ *
+ * ## Important Notes
+ * - Spec objects are sent **unmodified** - no mutations are applied by the client
+ * - Missing or invalid `VITE_SPEC_CLARIFIER_BASE_URL` throws error before POST attempt
+ * - Job processing is asynchronous - use GET /v1/clarifications/{job_id} to poll status
+ * - Empty answers array or omitted sections are allowed per API contract
  */
 
 import { getSpecClarifierConfig, createHeaders } from './clientConfig';

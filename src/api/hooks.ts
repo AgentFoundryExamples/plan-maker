@@ -32,7 +32,11 @@ import {
 } from '@tanstack/react-query';
 import type { PlanRequest } from './softwarePlanner/models/PlanRequest';
 import type { PlanResponse } from './softwarePlanner/models/PlanResponse';
-import type { JobStatusResponse } from './specClarifier/models/JobStatusResponse';
+import type {
+  JobStatusResponse,
+  JobSummaryResponse,
+  ClarificationRequestWithConfig,
+} from './specClarifier';
 import {
   createPlanAsync,
   listPlans,
@@ -41,6 +45,7 @@ import {
   type CreatePlanOptions,
   type PlanJobStatus,
 } from './softwarePlannerClient';
+import { clarifySpecs, getClarifierStatus, type ClarifyOptions } from './specClarifierClient';
 
 /**
  * Example hook stub for fetching a plan by ID.
@@ -185,14 +190,24 @@ export function useCreatePlan(
 }
 
 /**
- * Example hook stub for fetching clarification job status.
+ * Hook for fetching clarification job status.
  *
- * @warning NOT IMPLEMENTED - This hook will throw an error if called.
- * Connect to the actual API client before using in production.
+ * This hook provides a query interface for checking the status of a clarification job
+ * using the Spec Clarifier API as documented in spec-clarifier.openapi.json.
+ *
+ * **OpenAPI Contract Reference:**
+ * - Endpoint: GET /v1/clarifications/{job_id}
+ * - Response (200): JobStatusResponse with id, status, created_at, updated_at, last_error, result
+ * - Status Values: PENDING (queued), RUNNING (processing), SUCCESS (done), FAILED (error)
+ * - Error Responses:
+ *   - 404: Job not found
+ *   - 422: Invalid UUID format
  *
  * Usage:
  * ```tsx
- * const { data: status } = useClarificationStatus(jobId);
+ * const { data: status } = useClarificationStatus(jobId, {
+ *   refetchInterval: 2000, // Poll every 2 seconds
+ * });
  * ```
  *
  * @param jobId - The clarification job ID to fetch
@@ -200,7 +215,7 @@ export function useCreatePlan(
  * @returns React Query result with job status data
  */
 export function useClarificationStatus(
-  jobId: string,
+  jobId: string | undefined,
   options?: Omit<
     UseQueryOptions<JobStatusResponse, Error>,
     'queryKey' | 'queryFn'
@@ -209,11 +224,10 @@ export function useClarificationStatus(
   return useQuery<JobStatusResponse, Error>({
     queryKey: ['clarification', jobId],
     queryFn: async () => {
-      // TODO: Replace with actual API call from specClarifierClient
-      // Example: return await getClarifierStatus(jobId);
-      throw new Error(
-        'useClarificationStatus is not yet implemented. Connect to specClarifierClient before using.'
-      );
+      if (!jobId) {
+        throw new Error('Job ID is required but was not provided');
+      }
+      return getClarifierStatus(jobId);
     },
     enabled: !!jobId,
     ...options,
@@ -381,4 +395,114 @@ export function usePlansList(options: UsePlansListOptions = {}) {
     lastUpdated: queryResult.dataUpdatedAt,
     refetch: queryResult.refetch,
   };
+}
+
+/**
+ * Hook for submitting specifications for asynchronous clarification.
+ *
+ * This hook provides a mutation interface for submitting clarification requests to the
+ * Spec Clarifier API as documented in spec-clarifier.openapi.json. It creates an async
+ * clarification job and returns immediately with a job ID for status polling.
+ *
+ * **OpenAPI Contract Reference:**
+ * - Endpoint: POST /v1/clarifications
+ * - Request: ClarificationRequestWithConfig containing:
+ *   - plan: PlanInput with specs array (purpose, vision, must, dont, nice, open_questions, assumptions)
+ *   - answers: Array of QuestionAnswer objects (spec_index, question_index, question, answer)
+ *   - config: Optional ClarificationConfig (provider, model, system_prompt_id, temperature, max_tokens)
+ * - Response (202 Accepted): JobSummaryResponse with id, status (PENDING), created_at, updated_at
+ * - Error Responses:
+ *   - 400: Invalid configuration (provider/model combination)
+ *   - 422: Validation error (missing required fields or wrong types)
+ *
+ * **Important Notes:**
+ * - This endpoint returns immediately with job_id, not clarified results
+ * - Spec objects are sent unmodified - no mutations are applied
+ * - Uses VITE_SPEC_CLARIFIER_BASE_URL from environment configuration
+ * - Missing or invalid base URL throws an actionable error before attempting POST
+ *
+ * Usage:
+ * ```tsx
+ * const submitClarifications = useSubmitClarifications({
+ *   onSuccess: (data) => {
+ *     console.log('Clarification job created:', data.id);
+ *     // Poll with useClarificationStatus or navigate to status page
+ *   },
+ *   onError: (error) => {
+ *     console.error('Submission failed:', error);
+ *   }
+ * });
+ *
+ * // Submit clarification request
+ * submitClarifications.mutate({
+ *   plan: {
+ *     specs: [{
+ *       purpose: 'Build user auth',
+ *       vision: 'Secure auth system',
+ *       open_questions: ['Which OAuth providers?'],
+ *       must: ['Support OAuth 2.0'],
+ *       dont: ['Store plain text passwords'],
+ *       nice: ['Biometric auth'],
+ *       assumptions: ['Users have email']
+ *     }]
+ *   },
+ *   answers: [{
+ *     spec_index: 0,
+ *     question_index: 0,
+ *     question: 'Which OAuth providers?',
+ *     answer: 'Google and GitHub'
+ *   }],
+ *   config: {
+ *     provider: 'openai',
+ *     model: 'gpt-5.1',
+ *     temperature: 0.1
+ *   }
+ * });
+ *
+ * // Access loading state
+ * if (submitClarifications.isPending) {
+ *   return <Spinner />;
+ * }
+ * ```
+ *
+ * @param options - React Query mutation options for customizing behavior
+ * @returns Mutation object with mutate/mutateAsync, loading state, error, and job data
+ */
+export function useSubmitClarifications(
+  options?: UseMutationOptions<
+    JobSummaryResponse,
+    Error,
+    ClarificationRequestWithConfig & ClarifyOptions
+  >
+) {
+  return useMutation<
+    JobSummaryResponse,
+    Error,
+    ClarificationRequestWithConfig & ClarifyOptions
+  >({
+    mutationFn: async (
+      request: ClarificationRequestWithConfig & ClarifyOptions
+    ) => {
+      // Separate client options from the API request payload
+      const { fetchImpl, ...clarificationRequest } = request;
+      const clarifyOptions: ClarifyOptions = { fetchImpl };
+
+      // Log request in development mode
+      if (import.meta.env.DEV) {
+        console.log('[CLARIFICATION REQUEST]', clarificationRequest);
+      }
+
+      // Call the API client - env validation and base URL checks happen in the client
+      const response = await clarifySpecs(clarificationRequest, clarifyOptions);
+
+      // Log response in development mode
+      if (import.meta.env.DEV) {
+        console.log('[CLARIFICATION RESPONSE]', response);
+      }
+
+      return response;
+    },
+    // Prevent duplicate submissions - only one mutation can be in-flight at a time
+    ...options,
+  });
 }

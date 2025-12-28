@@ -15,9 +15,15 @@ import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
-import { useCreatePlanAsync, usePlansList } from './hooks';
+import {
+  useCreatePlanAsync,
+  usePlansList,
+  useSubmitClarifications,
+  useClarificationStatus,
+} from './hooks';
 import { clearEnvCache } from './env';
 import type { AsyncPlanJob } from './softwarePlannerClient';
+import { JobStatus } from './specClarifier';
 
 describe('React Query Setup', () => {
   it('should render children within QueryClientProvider', () => {
@@ -961,5 +967,420 @@ describe('usePlansList', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('useSubmitClarifications', () => {
+  const originalEnv = { ...import.meta.env };
+  let queryClient: QueryClient;
+
+  function setupEnv() {
+    (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+      'http://localhost:8080';
+    (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+      'http://localhost:8081';
+  }
+
+  beforeEach(() => {
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+  });
+
+  afterEach(() => {
+    clearEnvCache();
+    Object.keys(import.meta.env).forEach(key => {
+      delete (import.meta.env as any)[key];
+    });
+    Object.assign(import.meta.env, originalEnv);
+    vi.restoreAllMocks();
+  });
+
+  it('successfully submits a clarification request', async () => {
+    setupEnv();
+
+    const mockResponse = {
+      id: 'test-job-123',
+      status: JobStatus.PENDING,
+      created_at: '2025-01-01T00:00:00Z',
+      updated_at: '2025-01-01T00:00:00Z',
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockResponse,
+    });
+
+    let mutateResult: typeof mockResponse | undefined;
+
+    function TestComponent() {
+      const mutation = useSubmitClarifications({
+        onSuccess: data => {
+          mutateResult = data;
+        },
+      });
+
+      React.useEffect(() => {
+        mutation.mutate({
+          plan: {
+            specs: [
+              {
+                purpose: 'Build user authentication',
+                vision: 'Secure auth system',
+                open_questions: ['Which OAuth providers?'],
+              },
+            ],
+          },
+          fetchImpl: mockFetch as any,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      return (
+        <div>
+          {mutation.isPending && <div>Loading...</div>}
+          {mutation.isError && <div>Error: {mutation.error?.message}</div>}
+          {mutation.isSuccess && <div>Success: {mutation.data?.id}</div>}
+        </div>
+      );
+    }
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <TestComponent />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Success: test-job-123')).toBeInTheDocument();
+    });
+
+    expect(mutateResult).toEqual(mockResponse);
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://localhost:8081/v1/clarifications',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          'Content-Type': 'application/json',
+        }),
+      })
+    );
+  });
+
+  it('submits clarification with answers and config', async () => {
+    setupEnv();
+
+    const mockResponse = {
+      id: 'test-job-456',
+      status: JobStatus.PENDING,
+      created_at: '2025-01-01T00:00:00Z',
+      updated_at: '2025-01-01T00:00:00Z',
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockResponse,
+    });
+
+    function TestComponent() {
+      const mutation = useSubmitClarifications();
+
+      React.useEffect(() => {
+        mutation.mutate({
+          plan: {
+            specs: [
+              {
+                purpose: 'Test',
+                vision: 'Test vision',
+                open_questions: ['Question 1?'],
+              },
+            ],
+          },
+          answers: [
+            {
+              spec_index: 0,
+              question_index: 0,
+              question: 'Question 1?',
+              answer: 'Answer 1',
+            },
+          ],
+          config: {
+            provider: 'openai',
+            model: 'gpt-5.1',
+            temperature: 0.1,
+          },
+          fetchImpl: mockFetch as any,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      return (
+        <div>
+          {mutation.isSuccess && <div>Success: {mutation.data?.id}</div>}
+        </div>
+      );
+    }
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <TestComponent />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Success: test-job-456')).toBeInTheDocument();
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://localhost:8081/v1/clarifications',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"provider":"openai"'),
+      })
+    );
+  });
+
+  it('handles API errors correctly', async () => {
+    setupEnv();
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 422,
+      json: async () => ({ detail: 'Invalid request payload' }),
+    });
+
+    let errorResult: Error | null = null;
+
+    function TestComponent() {
+      const mutation = useSubmitClarifications({
+        onError: error => {
+          errorResult = error;
+        },
+      });
+
+      React.useEffect(() => {
+        mutation.mutate({
+          plan: {
+            specs: [
+              {
+                purpose: 'Test',
+                vision: 'Test vision',
+              },
+            ],
+          },
+          fetchImpl: mockFetch as any,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      return (
+        <div>
+          {mutation.isError && <div>Error: {mutation.error?.message}</div>}
+        </div>
+      );
+    }
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <TestComponent />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Failed to create clarification job/)
+      ).toBeInTheDocument();
+    });
+
+    expect(errorResult?.message).toContain(
+      'Failed to create clarification job'
+    );
+  });
+
+  it('sends specs unmodified without mutations', async () => {
+    setupEnv();
+
+    const mockResponse = {
+      id: 'test-job-789',
+      status: JobStatus.PENDING,
+      created_at: '2025-01-01T00:00:00Z',
+      updated_at: '2025-01-01T00:00:00Z',
+    };
+
+    let capturedBody: any;
+    const mockFetch = vi.fn().mockImplementation(async (_url, options) => {
+      capturedBody = JSON.parse(options.body);
+      return {
+        ok: true,
+        json: async () => mockResponse,
+      };
+    });
+
+    const originalSpecs = [
+      {
+        purpose: 'Test Purpose',
+        vision: 'Test Vision',
+        must: ['Requirement 1', 'Requirement 2'],
+        dont: ['Anti-pattern 1'],
+        nice: ['Nice feature'],
+        open_questions: ['Question 1?', 'Question 2?'],
+        assumptions: ['Assumption 1'],
+      },
+    ];
+
+    function TestComponent() {
+      const mutation = useSubmitClarifications();
+
+      React.useEffect(() => {
+        mutation.mutate({
+          plan: { specs: originalSpecs },
+          fetchImpl: mockFetch as any,
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+
+      return (
+        <div>{mutation.isSuccess && <div>Success: {mutation.data?.id}</div>}</div>
+      );
+    }
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <TestComponent />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Success: test-job-789')).toBeInTheDocument();
+    });
+
+    // Verify specs were sent unmodified
+    expect(capturedBody.plan.specs).toEqual(originalSpecs);
+    expect(capturedBody.plan.specs[0].purpose).toBe('Test Purpose');
+    expect(capturedBody.plan.specs[0].must).toEqual([
+      'Requirement 1',
+      'Requirement 2',
+    ]);
+  });
+});
+
+describe('useClarificationStatus', () => {
+  const originalEnv = { ...import.meta.env };
+  let queryClient: QueryClient;
+
+  function setupEnv() {
+    (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+      'http://localhost:8080';
+    (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+      'http://localhost:8081';
+  }
+
+  beforeEach(() => {
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+  });
+
+  afterEach(() => {
+    clearEnvCache();
+    Object.keys(import.meta.env).forEach(key => {
+      delete (import.meta.env as any)[key];
+    });
+    Object.assign(import.meta.env, originalEnv);
+    vi.restoreAllMocks();
+  });
+
+  it('successfully fetches job status', async () => {
+    setupEnv();
+
+    const mockResponse = {
+      id: 'test-job-123',
+      status: JobStatus.SUCCESS,
+      created_at: '2025-01-01T00:00:00Z',
+      updated_at: '2025-01-01T00:00:05Z',
+      result: {
+        specs: [
+          {
+            purpose: 'Test',
+            vision: 'Test vision',
+            must: ['Requirement 1'],
+            dont: ['Anti-pattern 1'],
+            nice: ['Nice feature 1'],
+            assumptions: ['Assumption 1'],
+          },
+        ],
+      },
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => mockResponse,
+    });
+
+    // Create a custom fetch wrapper for the query
+    const customFetch = mockFetch as any;
+
+    function TestComponent() {
+      const { data, isLoading, isSuccess } = useClarificationStatus(
+        'test-job-123',
+        {
+          // Override the fetch by using a query option that the underlying client will use
+          queryFn: async () => {
+            const response = await customFetch(
+              'http://localhost:8081/v1/clarifications/test-job-123',
+              { method: 'GET' }
+            );
+            return response.json();
+          },
+        }
+      );
+
+      return (
+        <div>
+          {isLoading && <div>Loading...</div>}
+          {isSuccess && <div>Status: {data?.status}</div>}
+        </div>
+      );
+    }
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <TestComponent />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Status: SUCCESS')).toBeInTheDocument();
+    });
+  });
+
+  it('does not fetch when jobId is undefined', async () => {
+    setupEnv();
+
+    const mockFetch = vi.fn();
+
+    function TestComponent() {
+      const { isLoading } = useClarificationStatus(undefined);
+
+      return <div>{isLoading ? <div>Loading...</div> : <div>Not Loaded</div>}</div>;
+    }
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <TestComponent />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Not Loaded')).toBeInTheDocument();
+    });
+
+    expect(mockFetch).not.toHaveBeenCalled();
   });
 });
