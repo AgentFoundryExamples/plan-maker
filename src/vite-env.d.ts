@@ -16,6 +16,7 @@
 interface ImportMetaEnv {
   readonly VITE_SOFTWARE_PLANNER_BASE_URL: string;
   readonly VITE_SPEC_CLARIFIER_BASE_URL: string;
+  readonly DEV: boolean;
 }
 
 interface ImportMeta {
