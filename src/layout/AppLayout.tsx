@@ -1,18 +1,8 @@
 import React from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet } from 'react-router-dom';
 import './AppLayout.css';
 
 const AppLayout: React.FC = () => {
-  const location = useLocation();
-  
-  // Helper function to check if a route is active
-  const isActive = (path: string): boolean => {
-    if (path === '/') {
-      return location.pathname === '/';
-    }
-    return location.pathname.startsWith(path);
-  };
-
   return (
     <>
       <a href="#main-content" className="skip-link">
@@ -28,22 +18,21 @@ const AppLayout: React.FC = () => {
               <nav className="app-nav" aria-label="Main navigation">
                 <ul className="nav-list">
                   <li>
-                    <Link 
+                    <NavLink 
                       to="/" 
-                      className={isActive('/') ? 'active' : ''}
-                      aria-current={isActive('/') ? 'page' : undefined}
+                      end
+                      className={({ isActive }) => isActive ? 'active' : ''}
                     >
                       Plan Input
-                    </Link>
+                    </NavLink>
                   </li>
                   <li>
-                    <Link 
-                      to="/plans" 
-                      className={isActive('/plans') ? 'active' : ''}
-                      aria-current={isActive('/plans') ? 'page' : undefined}
+                    <NavLink 
+                      to="/plans"
+                      className={({ isActive }) => isActive ? 'active' : ''}
                     >
                       Plans List
-                    </Link>
+                    </NavLink>
                   </li>
                 </ul>
               </nav>
