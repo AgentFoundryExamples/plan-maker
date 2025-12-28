@@ -1,10 +1,89 @@
 {
-  "nodes": [],
-  "edges": [],
+  "nodes": [
+    {
+      "id": "src/api/env.test.ts",
+      "path": "src/api/env.test.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "vitest"
+        ]
+      }
+    },
+    {
+      "id": "src/api/env.ts",
+      "path": "src/api/env.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/test/setup.ts",
+      "path": "src/test/setup.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "@testing-library/jest-dom",
+          "@testing-library/react",
+          "vitest"
+        ]
+      }
+    },
+    {
+      "id": "src/vite-env.d.ts",
+      "path": "src/vite-env.d.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "vite.config.ts",
+      "path": "vite.config.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "@vitejs/plugin-react",
+          "vite"
+        ]
+      }
+    },
+    {
+      "id": "vitest.config.ts",
+      "path": "vitest.config.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "@vitejs/plugin-react",
+          "vitest/config"
+        ]
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "src/api/env.test.ts",
+      "target": "src/api/env.ts"
+    }
+  ],
   "external_dependencies_summary": {
     "stdlib": [],
-    "third-party": [],
+    "third-party": [
+      "@testing-library/jest-dom",
+      "@testing-library/react",
+      "@vitejs/plugin-react",
+      "vite",
+      "vitest",
+      "vitest/config"
+    ],
     "stdlib_count": 0,
-    "third-party_count": 0
+    "third-party_count": 6
   }
 }

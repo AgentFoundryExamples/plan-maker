@@ -13,7 +13,44 @@
     └── tree.md
   └── workflows
     └── af_maintenance.yml
+├── src
+  ├── api
+    ├── env.test.ts
+    └── env.ts
+  ├── components
+    ├── ErrorBoundary.test.tsx
+    └── ErrorBoundary.tsx
+  ├── layout
+    ├── AppLayout.css
+    ├── AppLayout.test.tsx
+    └── AppLayout.tsx
+  ├── pages
+    ├── NotFoundPage.test.tsx
+    ├── NotFoundPage.tsx
+    ├── PlanDetailPage.test.tsx
+    ├── PlanDetailPage.tsx
+    ├── PlannerInputPage.test.tsx
+    ├── PlannerInputPage.tsx
+    ├── PlansListPage.test.tsx
+    └── PlansListPage.tsx
+  ├── styles
+    ├── global.css
+    └── theme.css
+  ├── test
+    └── setup.ts
+  ├── App.tsx
+  ├── main.tsx
+  └── vite-env.d.ts
+├── .env.example
+├── .gitignore
+├── index.html
 ├── LICENSE
+├── package-lock.json
+├── package.json
 ├── README.md
 ├── software-planner.openapi.json
-└── spec-clarifier.openapi.json
+├── spec-clarifier.openapi.json
+├── tsconfig.json
+├── tsconfig.node.json
+├── vite.config.ts
+└── vitest.config.ts
