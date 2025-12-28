@@ -42,36 +42,35 @@
  * Example:
  * >>> # Full config
  * >>> config = ClarificationConfig(
-     * ...     provider="openai",
-     * ...     model="gpt-5.1",
-     * ...     system_prompt_id="default",
-     * ...     temperature=0.1,
-     * ...     max_tokens=2000
-     * ... )
-     * >>>
-     * >>> # Partial config (only override model)
-     * >>> config = ClarificationConfig(model="gpt-4o")
-     */
-    export type ClarificationConfig = {
-        /**
-         * LLM provider identifier (must be 'openai', 'anthropic', or 'dummy')
-         */
-        provider?: ('openai' | 'anthropic' | 'dummy' | null);
-        /**
-         * Model identifier specific to the provider
-         */
-        model?: (string | null);
-        /**
-         * Identifier for the system prompt template to use
-         */
-        system_prompt_id?: (string | null);
-        /**
-         * Sampling temperature for response generation
-         */
-        temperature?: (number | null);
-        /**
-         * Maximum tokens to generate in response
-         */
-        max_tokens?: (number | null);
-    };
-
+ * ...     provider="openai",
+ * ...     model="gpt-5.1",
+ * ...     system_prompt_id="default",
+ * ...     temperature=0.1,
+ * ...     max_tokens=2000
+ * ... )
+ * >>>
+ * >>> # Partial config (only override model)
+ * >>> config = ClarificationConfig(model="gpt-4o")
+ */
+export type ClarificationConfig = {
+  /**
+   * LLM provider identifier (must be 'openai', 'anthropic', or 'dummy')
+   */
+  provider?: 'openai' | 'anthropic' | 'dummy' | null;
+  /**
+   * Model identifier specific to the provider
+   */
+  model?: string | null;
+  /**
+   * Identifier for the system prompt template to use
+   */
+  system_prompt_id?: string | null;
+  /**
+   * Sampling temperature for response generation
+   */
+  temperature?: number | null;
+  /**
+   * Maximum tokens to generate in response
+   */
+  max_tokens?: number | null;
+};

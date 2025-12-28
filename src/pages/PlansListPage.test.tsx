@@ -11,7 +11,9 @@ describe('PlansListPage', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole('heading', { name: /plans list/i, level: 1 })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /plans list/i, level: 1 })
+    ).toBeInTheDocument();
   });
 
   it('renders placeholder content', () => {
@@ -21,7 +23,9 @@ describe('PlansListPage', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText(/view and manage your software development plans/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/view and manage your software development plans/i)
+    ).toBeInTheDocument();
   });
 
   it('renders example plan links', () => {
@@ -31,7 +35,11 @@ describe('PlansListPage', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole('link', { name: /view example plan #1/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /view example plan #2/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /view example plan #1/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /view example plan #2/i })
+    ).toBeInTheDocument();
   });
 });

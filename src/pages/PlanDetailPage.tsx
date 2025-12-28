@@ -6,20 +6,30 @@ const PlanDetailPage: React.FC = () => {
 
   return (
     <div className="container">
-      <Link to="/plans" style={{ display: 'inline-block', marginBottom: 'var(--spacing-md)' }}>
+      <Link
+        to="/plans"
+        style={{ display: 'inline-block', marginBottom: 'var(--spacing-md)' }}
+      >
         ← Back to Plans List
       </Link>
       <h1>Plan Details</h1>
       <div className="card mt-lg">
         <h2>Plan #{id}</h2>
         <p>
-          This placeholder page will display detailed information about the selected plan in future iterations.
+          This placeholder page will display detailed information about the
+          selected plan in future iterations.
         </p>
         <div className="mt-lg">
           <h3>Plan Information</h3>
-          <p><strong>Plan ID:</strong> {id}</p>
-          <p><strong>Status:</strong> Placeholder</p>
-          <p><strong>Created:</strong> N/A</p>
+          <p>
+            <strong>Plan ID:</strong> {id}
+          </p>
+          <p>
+            <strong>Status:</strong> Placeholder
+          </p>
+          <p>
+            <strong>Created:</strong> N/A
+          </p>
         </div>
       </div>
     </div>

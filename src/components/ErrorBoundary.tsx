@@ -38,7 +38,10 @@ class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="error-boundary" style={{ padding: 'var(--spacing-xl)' }}>
+        <div
+          className="error-boundary"
+          style={{ padding: 'var(--spacing-xl)' }}
+        >
           <div className="container">
             <h1>Something went wrong</h1>
             <p className="error">

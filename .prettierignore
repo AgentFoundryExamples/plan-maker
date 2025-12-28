@@ -1,0 +1,21 @@
+# Build artifacts
+dist
+build
+coverage
+
+# Dependencies
+node_modules
+
+# Generated API clients
+src/api/softwarePlanner/models/
+src/api/specClarifier/models/
+
+# Package management
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Environment files
+.env
+.env.local
+.env.*.local

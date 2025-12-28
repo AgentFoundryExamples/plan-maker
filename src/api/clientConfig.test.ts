@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { describe, it, expect, afterEach } from 'vitest';
-import { getSoftwarePlannerConfig, getSpecClarifierConfig, createHeaders } from './clientConfig';
+import {
+  getSoftwarePlannerConfig,
+  getSpecClarifierConfig,
+  createHeaders,
+} from './clientConfig';
 import { clearEnvCache } from './env';
 
 describe('Client Configuration', () => {
@@ -28,8 +32,10 @@ describe('Client Configuration', () => {
 
   describe('getSoftwarePlannerConfig', () => {
     it('returns config with base URL from environment', () => {
-      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL = 'http://localhost:8080';
-      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL = 'http://localhost:8081';
+      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+        'http://localhost:8080';
+      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+        'http://localhost:8081';
 
       const config = getSoftwarePlannerConfig();
 
@@ -38,8 +44,10 @@ describe('Client Configuration', () => {
     });
 
     it('uses custom fetch implementation when provided', () => {
-      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL = 'http://localhost:8080';
-      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL = 'http://localhost:8081';
+      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+        'http://localhost:8080';
+      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+        'http://localhost:8081';
 
       const customFetch = (() => {}) as any;
       const config = getSoftwarePlannerConfig(customFetch);
@@ -50,14 +58,18 @@ describe('Client Configuration', () => {
     it('throws error when base URL is not configured', () => {
       delete (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL;
 
-      expect(() => getSoftwarePlannerConfig()).toThrow(/VITE_SOFTWARE_PLANNER_BASE_URL/);
+      expect(() => getSoftwarePlannerConfig()).toThrow(
+        /VITE_SOFTWARE_PLANNER_BASE_URL/
+      );
     });
   });
 
   describe('getSpecClarifierConfig', () => {
     it('returns config with base URL from environment', () => {
-      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL = 'http://localhost:8080';
-      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL = 'http://localhost:8081';
+      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+        'http://localhost:8080';
+      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+        'http://localhost:8081';
 
       const config = getSpecClarifierConfig();
 
@@ -66,8 +78,10 @@ describe('Client Configuration', () => {
     });
 
     it('uses custom fetch implementation when provided', () => {
-      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL = 'http://localhost:8080';
-      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL = 'http://localhost:8081';
+      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+        'http://localhost:8080';
+      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+        'http://localhost:8081';
 
       const customFetch = (() => {}) as any;
       const config = getSpecClarifierConfig(customFetch);
@@ -76,10 +90,13 @@ describe('Client Configuration', () => {
     });
 
     it('throws error when base URL is not configured', () => {
-      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL = 'http://localhost:8080';
+      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+        'http://localhost:8080';
       delete (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL;
 
-      expect(() => getSpecClarifierConfig()).toThrow(/VITE_SPEC_CLARIFIER_BASE_URL/);
+      expect(() => getSpecClarifierConfig()).toThrow(
+        /VITE_SPEC_CLARIFIER_BASE_URL/
+      );
     });
   });
 

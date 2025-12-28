@@ -29,8 +29,10 @@ describe('Environment Configuration', () => {
 
   describe('getEnvConfig', () => {
     it('returns config when all required env vars are set', () => {
-      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL = 'http://localhost:8080';
-      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL = 'http://localhost:8081';
+      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+        'http://localhost:8080';
+      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+        'http://localhost:8081';
 
       const config = getEnvConfig();
 
@@ -42,13 +44,15 @@ describe('Environment Configuration', () => {
 
     it('throws error when VITE_SOFTWARE_PLANNER_BASE_URL is missing', () => {
       delete (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL;
-      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL = 'http://localhost:8081';
+      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+        'http://localhost:8081';
 
       expect(() => getEnvConfig()).toThrow(/VITE_SOFTWARE_PLANNER_BASE_URL/);
     });
 
     it('throws error when VITE_SPEC_CLARIFIER_BASE_URL is missing', () => {
-      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL = 'http://localhost:8080';
+      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+        'http://localhost:8080';
       delete (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL;
 
       expect(() => getEnvConfig()).toThrow(/VITE_SPEC_CLARIFIER_BASE_URL/);
@@ -56,14 +60,17 @@ describe('Environment Configuration', () => {
 
     it('throws error when env var is empty string', () => {
       (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL = '';
-      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL = 'http://localhost:8081';
+      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+        'http://localhost:8081';
 
       expect(() => getEnvConfig()).toThrow(/VITE_SOFTWARE_PLANNER_BASE_URL/);
     });
 
     it('trims whitespace from env values', () => {
-      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL = '  http://localhost:8080  ';
-      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL = '  http://localhost:8081  ';
+      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+        '  http://localhost:8080  ';
+      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+        '  http://localhost:8081  ';
 
       const config = getEnvConfig();
 
@@ -74,8 +81,10 @@ describe('Environment Configuration', () => {
 
   describe('getSafeEnvConfig', () => {
     it('returns config when env vars are valid', () => {
-      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL = 'http://localhost:8080';
-      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL = 'http://localhost:8081';
+      (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+        'http://localhost:8080';
+      (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+        'http://localhost:8081';
 
       const config = getSafeEnvConfig();
 

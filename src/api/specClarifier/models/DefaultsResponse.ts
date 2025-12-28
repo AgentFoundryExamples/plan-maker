@@ -23,13 +23,12 @@ import type { ClarificationConfig } from './ClarificationConfig';
  * for all providers.
  */
 export type DefaultsResponse = {
-    /**
-     * Current default ClarificationConfig used when no config is provided
-     */
-    default_config: ClarificationConfig;
-    /**
-     * Dictionary mapping provider names to lists of allowed model names
-     */
-    allowed_models: Record<string, Array<string>>;
+  /**
+   * Current default ClarificationConfig used when no config is provided
+   */
+  default_config: ClarificationConfig;
+  /**
+   * Dictionary mapping provider names to lists of allowed model names
+   */
+  allowed_models: Record<string, Array<string>>;
 };
-

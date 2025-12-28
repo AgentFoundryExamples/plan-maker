@@ -25,21 +25,20 @@
  * answer: The answer provided
  */
 export type QuestionAnswer = {
-    /**
-     * Index of the specification containing the question
-     */
-    spec_index: number;
-    /**
-     * Index of the question within the specification
-     */
-    question_index: number;
-    /**
-     * The question text
-     */
-    question: string;
-    /**
-     * The answer provided
-     */
-    answer: string;
+  /**
+   * Index of the specification containing the question
+   */
+  spec_index: number;
+  /**
+   * Index of the question within the specification
+   */
+  question_index: number;
+  /**
+   * The question text
+   */
+  question: string;
+  /**
+   * The answer provided
+   */
+  answer: string;
 };
-

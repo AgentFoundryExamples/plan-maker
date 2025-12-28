@@ -25,8 +25,8 @@
  * FAILED: Job failed with an error
  */
 export enum JobStatus {
-    PENDING = 'PENDING',
-    RUNNING = 'RUNNING',
-    SUCCESS = 'SUCCESS',
-    FAILED = 'FAILED',
+  PENDING = 'PENDING',
+  RUNNING = 'RUNNING',
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
 }

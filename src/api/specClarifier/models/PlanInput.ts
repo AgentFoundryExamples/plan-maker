@@ -23,9 +23,8 @@ import type { SpecInput } from './SpecInput';
  * specs: List of specification inputs
  */
 export type PlanInput = {
-    /**
-     * List of specification inputs
-     */
-    specs: Array<SpecInput>;
+  /**
+   * List of specification inputs
+   */
+  specs: Array<SpecInput>;
 };
-

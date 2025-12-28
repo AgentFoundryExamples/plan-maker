@@ -74,14 +74,11 @@ export async function createPlan(
     options.apiKey ? { 'x-api-key': options.apiKey } : undefined
   );
 
-  const response = await config.fetchImpl(
-    `${config.baseUrl}/api/v1/plan`,
-    {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(request),
-    }
-  );
+  const response = await config.fetchImpl(`${config.baseUrl}/api/v1/plan`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(request),
+  });
 
   if (!response.ok) {
     let errorMessage = `Request failed with status ${response.status}`;
@@ -123,14 +120,11 @@ export async function createPlanAsync(
     options.apiKey ? { 'x-api-key': options.apiKey } : undefined
   );
 
-  const response = await config.fetchImpl(
-    `${config.baseUrl}/api/v1/plans`,
-    {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(request),
-    }
-  );
+  const response = await config.fetchImpl(`${config.baseUrl}/api/v1/plans`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(request),
+  });
 
   if (!response.ok) {
     let errorMessage = `Request failed with status ${response.status}`;
@@ -214,18 +208,15 @@ export async function listPlans(
 ): Promise<PlanJobsList> {
   const config = getSoftwarePlannerConfig(fetchImpl);
   const url = new URL(`${config.baseUrl}/api/v1/plans`);
-  
+
   if (limit !== undefined) {
     url.searchParams.set('limit', limit.toString());
   }
 
-  const response = await config.fetchImpl(
-    url.toString(),
-    {
-      method: 'GET',
-      headers: createHeaders(),
-    }
-  );
+  const response = await config.fetchImpl(url.toString(), {
+    method: 'GET',
+    headers: createHeaders(),
+  });
 
   if (!response.ok) {
     let errorMessage = `Request failed with status ${response.status}`;

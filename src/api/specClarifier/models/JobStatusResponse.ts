@@ -40,29 +40,28 @@ import type { JobStatus } from './JobStatus';
  * development mode only when status is SUCCESS)
  */
 export type JobStatusResponse = {
-    /**
-     * Unique identifier for the job
-     */
-    id: string;
-    /**
-     * Current status of the job
-     */
-    status: JobStatus;
-    /**
-     * UTC timestamp when job was created
-     */
-    created_at: string;
-    /**
-     * UTC timestamp when job was last updated
-     */
-    updated_at: string;
-    /**
-     * Optional error message if job failed
-     */
-    last_error?: (string | null);
-    /**
-     * Optional clarified plan result when job succeeds (development mode only)
-     */
-    result?: (ClarifiedPlan | null);
+  /**
+   * Unique identifier for the job
+   */
+  id: string;
+  /**
+   * Current status of the job
+   */
+  status: JobStatus;
+  /**
+   * UTC timestamp when job was created
+   */
+  created_at: string;
+  /**
+   * UTC timestamp when job was last updated
+   */
+  updated_at: string;
+  /**
+   * Optional error message if job failed
+   */
+  last_error?: string | null;
+  /**
+   * Optional clarified plan result when job succeeds (development mode only)
+   */
+  result?: ClarifiedPlan | null;
 };
-

@@ -12,6 +12,9 @@ A Vite-powered React + TypeScript application for creating and managing software
 - 🛡️ Error boundaries for graceful error handling
 - 🧪 Comprehensive test coverage with Vitest and Testing Library
 - 🔐 Environment variable validation for runtime configuration
+- 🔍 ESLint + Prettier for code quality and consistency
+- 🔄 React Query for intelligent data fetching and caching
+- 🗺️ TypeScript path aliases for cleaner imports
 
 ## Getting Started
 
@@ -76,6 +79,40 @@ Run tests in watch mode:
 ```bash
 npm run test:ui
 ```
+
+### Code Quality
+
+**Linting**
+
+Check code for linting errors:
+```bash
+npm run lint
+```
+
+The project uses ESLint with TypeScript, React, and React Hooks rules to enforce code quality standards.
+
+**Formatting**
+
+Format code with Prettier:
+```bash
+npm run format
+```
+
+Check if code is properly formatted:
+```bash
+npm run format:check
+```
+
+**Before Committing**
+
+Contributors should run both linting and formatting checks before committing:
+```bash
+npm run lint
+npm run format
+npm test
+```
+
+This ensures code quality and consistency across the codebase.
 
 ### API Client Generation
 
@@ -193,6 +230,68 @@ npm run generate:api
 - Wrapper utilities (`softwarePlannerClient.ts`, `specClarifierClient.ts`) are safe from regeneration
 - The generation script is idempotent and can be run multiple times
 
+### Data Fetching with React Query
+
+The application uses **React Query** (TanStack Query) for intelligent data fetching, caching, and state management.
+
+#### QueryClient Provider
+
+The app is wrapped with `QueryClientProvider` in `src/main.tsx`, which provides:
+- **Automatic caching**: Fetched data is cached for 5 minutes by default
+- **Background refetching**: Stale data is automatically refreshed
+- **Request deduplication**: Multiple components requesting the same data trigger only one fetch
+- **Retry logic**: Failed requests are automatically retried once
+
+#### Custom Hooks (`src/api/hooks.ts`)
+
+The project provides React Query hook stubs that wrap the API clients:
+
+```typescript
+import { usePlan, usePlans, useCreatePlan, useClarificationStatus } from './api/hooks';
+
+// Fetch a single plan with caching
+const { data: plan, isLoading, error } = usePlan(planId);
+
+// Fetch multiple plans
+const { data: plans } = usePlans({ limit: 10 });
+
+// Create a plan with mutation
+const createPlan = useCreatePlan({
+  onSuccess: (data) => {
+    console.log('Plan created:', data);
+  }
+});
+createPlan.mutate({ description: 'Build a REST API' });
+
+// Poll for clarification status
+const { data: status } = useClarificationStatus(jobId);
+```
+
+**Note:** The hooks in `src/api/hooks.ts` are currently stubs. Connect them to the actual API client functions from `softwarePlannerClient.ts` and `specClarifierClient.ts` as needed.
+
+### TypeScript Path Aliases
+
+The project uses TypeScript path aliases for cleaner imports:
+
+```typescript
+// Before (relative paths)
+import App from './App';
+import { getSafeEnvConfig } from './api/env';
+
+// After (path alias)
+import App from '@/App';
+import { getSafeEnvConfig } from '@/api/env';
+```
+
+The `@/*` alias maps to `src/*` and is configured in:
+- `tsconfig.json` - TypeScript compiler
+- `vite.config.ts` - Vite bundler
+
+Use path aliases for:
+- Cleaner, more maintainable imports
+- Avoiding deep relative paths (`../../../`)
+- Easier refactoring when moving files
+
 ### Configuration
 
 API clients read base URLs from environment variables at runtime via `src/api/clientConfig.ts`. Missing or malformed URLs throw descriptive errors before network calls are made.
@@ -215,8 +314,11 @@ API clients read base URLs from environment variables at runtime via `src/api/cl
 - **TypeScript 5.6.3** - Type safety
 - **Vite 5.4.11** - Build tool and dev server
 - **React Router 6.27.0** - Client-side routing
+- **React Query (TanStack Query)** - Data fetching, caching, and state management
 - **Vitest 2.1.5** - Testing framework
 - **Testing Library** - Component testing utilities
+- **ESLint 9** - Code linting with TypeScript and React rules
+- **Prettier** - Code formatting
 - **openapi-typescript-codegen 0.30.0** - OpenAPI client generator
 
 

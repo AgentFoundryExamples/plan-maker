@@ -14,7 +14,7 @@
 /**
  * Example usage of API clients
  * This file demonstrates how to use the generated API clients and wrapper utilities
- * 
+ *
  * NOTE: This is for documentation purposes only and is not part of the application
  */
 
@@ -26,17 +26,14 @@ import {
   type PlanJobStatus,
 } from './softwarePlannerClient';
 
-import {
-  clarifySpecs,
-  waitForClarification,
-} from './specClarifierClient';
+import { clarifySpecs, waitForClarification } from './specClarifierClient';
 
 // Example 1: Create a synchronous plan
 async function exampleSyncPlan() {
   const plan = await createPlan({
     description: 'Build a REST API for managing tasks with authentication',
   });
-  
+
   console.log('Plan created:', plan.specs);
   // plan.specs is an array of SpecItem objects with typed fields
 }
@@ -47,17 +44,17 @@ async function exampleAsyncPlan() {
   const job = await createPlanAsync({
     description: 'Build a REST API for managing tasks',
   });
-  
+
   console.log('Job created:', job.job_id);
-  
+
   // Poll for completion
   let status = await getPlanById(job.job_id);
-  
+
   while (status.status === 'QUEUED' || status.status === 'RUNNING') {
     await new Promise(resolve => setTimeout(resolve, 2000));
     status = await getPlanById(job.job_id);
   }
-  
+
   if (status.status === 'SUCCEEDED' && status.result) {
     console.log('Plan generated:', status.result.specs);
   } else if (status.status === 'FAILED') {
@@ -68,9 +65,9 @@ async function exampleAsyncPlan() {
 // Example 3: List recent plans
 async function exampleListPlans() {
   const plans = await listPlans(10);
-  
+
   console.log(`Found ${plans.total} plans, showing ${plans.jobs.length}`);
-  
+
   plans.jobs.forEach((job: PlanJobStatus) => {
     console.log(`Job ${job.job_id}: ${job.status}`);
     // Note: job.result.specs may be undefined in list responses
@@ -98,15 +95,15 @@ async function exampleClarifySpecs() {
       ],
     },
   });
-  
+
   console.log('Clarification job created:', job.id);
-  
+
   // Wait for completion (with automatic polling)
   const result = await waitForClarification(job.id, {
     maxAttempts: 60,
     intervalMs: 2000,
   });
-  
+
   if (result.status === 'SUCCESS' && result.result) {
     console.log('Clarified specs:', result.result.specs);
     // open_questions field will be removed, answers integrated into other fields
@@ -124,7 +121,7 @@ async function exampleWithApiKey() {
       apiKey: 'your-api-key-here',
     }
   );
-  
+
   console.log('Plan created with API key:', plan.specs);
 }
 
@@ -138,7 +135,7 @@ async function exampleErrorHandling() {
     console.error('Failed to create plan:', error);
     // Error message will include descriptive information from the API
   }
-  
+
   try {
     await getPlanById('invalid-job-id');
   } catch (error) {
@@ -151,7 +148,7 @@ async function exampleErrorHandling() {
 // The clients automatically use environment variables:
 // - VITE_SOFTWARE_PLANNER_BASE_URL
 // - VITE_SPEC_CLARIFIER_BASE_URL
-// 
+//
 // If these are not set, descriptive errors are thrown before making API calls
 
 export {

@@ -23,9 +23,8 @@ import type { ClarifiedSpec } from './ClarifiedSpec';
  * specs: List of clarified specifications
  */
 export type ClarifiedPlan = {
-    /**
-     * List of clarified specifications
-     */
-    specs: Array<ClarifiedSpec>;
+  /**
+   * List of clarified specifications
+   */
+  specs: Array<ClarifiedSpec>;
 };
-

@@ -33,8 +33,10 @@ describe('Software Planner Client', () => {
   });
 
   function setupEnv() {
-    (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL = 'http://localhost:8080';
-    (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL = 'http://localhost:8081';
+    (import.meta.env as any).VITE_SOFTWARE_PLANNER_BASE_URL =
+      'http://localhost:8080';
+    (import.meta.env as any).VITE_SPEC_CLARIFIER_BASE_URL =
+      'http://localhost:8081';
   }
 
   describe('createPlan', () => {
@@ -150,7 +152,10 @@ describe('Software Planner Client', () => {
       });
 
       await expect(
-        createPlanAsync({ description: 'Test' }, { fetchImpl: mockFetch as any })
+        createPlanAsync(
+          { description: 'Test' },
+          { fetchImpl: mockFetch as any }
+        )
       ).rejects.toThrow(/Failed to create async plan/);
     });
   });

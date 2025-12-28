@@ -13,7 +13,9 @@ describe('PlanDetailPage', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByRole('heading', { name: /plan details/i, level: 1 })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: /plan details/i, level: 1 })
+    ).toBeInTheDocument();
   });
 
   it('displays the plan ID from URL params', () => {
@@ -52,6 +54,10 @@ describe('PlanDetailPage', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText(/this placeholder page will display detailed information/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /this placeholder page will display detailed information/i
+      )
+    ).toBeInTheDocument();
   });
 });
