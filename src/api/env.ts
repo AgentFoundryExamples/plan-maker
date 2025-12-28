@@ -7,6 +7,8 @@ interface EnvConfig {
   specClarifierBaseUrl: string;
 }
 
+let envConfig: EnvConfig | undefined;
+
 /**
  * Validates that a required environment variable is set
  * @param key - The environment variable key
@@ -25,28 +27,33 @@ function requireEnv(key: string, value: string | undefined): string {
 }
 
 /**
+ * Clears the cached environment configuration (primarily for testing)
+ */
+export function clearEnvCache(): void {
+  envConfig = undefined;
+}
+
+/**
  * Loads and validates environment configuration
  * @returns Validated environment configuration object
  */
 export function getEnvConfig(): EnvConfig {
-  try {
-    return {
-      softwarePlannerBaseUrl: requireEnv(
-        'VITE_SOFTWARE_PLANNER_BASE_URL',
-        import.meta.env.VITE_SOFTWARE_PLANNER_BASE_URL
-      ),
-      specClarifierBaseUrl: requireEnv(
-        'VITE_SPEC_CLARIFIER_BASE_URL',
-        import.meta.env.VITE_SPEC_CLARIFIER_BASE_URL
-      ),
-    };
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error('Environment Configuration Error:', error.message);
-      throw error;
-    }
-    throw new Error('Unknown environment configuration error');
+  if (envConfig) {
+    return envConfig;
   }
+
+  envConfig = {
+    softwarePlannerBaseUrl: requireEnv(
+      'VITE_SOFTWARE_PLANNER_BASE_URL',
+      import.meta.env.VITE_SOFTWARE_PLANNER_BASE_URL
+    ),
+    specClarifierBaseUrl: requireEnv(
+      'VITE_SPEC_CLARIFIER_BASE_URL',
+      import.meta.env.VITE_SPEC_CLARIFIER_BASE_URL
+    ),
+  };
+  
+  return envConfig;
 }
 
 /**

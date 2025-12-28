@@ -1,10 +1,12 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { getEnvConfig, getSafeEnvConfig } from './env';
+import { getEnvConfig, getSafeEnvConfig, clearEnvCache } from './env';
 
 describe('Environment Configuration', () => {
   const originalEnv = { ...import.meta.env };
 
   afterEach(() => {
+    // Clear the cache before restoring env
+    clearEnvCache();
     // Restore original env
     Object.keys(import.meta.env).forEach(key => {
       delete (import.meta.env as any)[key];

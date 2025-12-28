@@ -1,4 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
 interface Props {
   children: ReactNode;
@@ -43,12 +44,9 @@ class ErrorBoundary extends Component<Props, State> {
             <p className="error">
               {this.state.error?.message || 'An unexpected error occurred'}
             </p>
-            <button
-              className="btn btn-primary mt-lg"
-              onClick={() => window.location.reload()}
-            >
-              Reload Page
-            </button>
+            <Link to="/" className="btn btn-primary mt-lg">
+              Go to Home
+            </Link>
           </div>
         </div>
       );
