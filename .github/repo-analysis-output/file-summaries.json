@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0",
-  "total_files": 36,
+  "total_files": 40,
   "files": [
     {
       "schema_version": "2.0",
@@ -466,6 +466,62 @@
     },
     {
       "schema_version": "2.0",
+      "path": "src/utils/localStorage.test.ts",
+      "language": "TypeScript",
+      "role": "implementation",
+      "role_justification": "general implementation file (default classification)",
+      "summary": "TypeScript core implementation",
+      "summary_text": "TypeScript core implementation",
+      "metrics": {
+        "size_bytes": 8056,
+        "loc": 181,
+        "todo_count": 0
+      }
+    },
+    {
+      "schema_version": "2.0",
+      "path": "src/utils/localStorage.ts",
+      "language": "TypeScript",
+      "role": "implementation",
+      "role_justification": "general implementation file (default classification)",
+      "summary": "TypeScript core implementation",
+      "summary_text": "TypeScript core implementation",
+      "metrics": {
+        "size_bytes": 3978,
+        "loc": 116,
+        "todo_count": 0
+      }
+    },
+    {
+      "schema_version": "2.0",
+      "path": "src/utils/textUtils.test.ts",
+      "language": "TypeScript",
+      "role": "implementation",
+      "role_justification": "general implementation file (default classification)",
+      "summary": "TypeScript core implementation",
+      "summary_text": "TypeScript core implementation",
+      "metrics": {
+        "size_bytes": 2012,
+        "loc": 38,
+        "todo_count": 0
+      }
+    },
+    {
+      "schema_version": "2.0",
+      "path": "src/utils/textUtils.ts",
+      "language": "TypeScript",
+      "role": "implementation",
+      "role_justification": "general implementation file (default classification)",
+      "summary": "TypeScript core implementation",
+      "summary_text": "TypeScript core implementation",
+      "metrics": {
+        "size_bytes": 1005,
+        "loc": 13,
+        "todo_count": 0
+      }
+    },
+    {
+      "schema_version": "2.0",
       "path": "src/vite-env.d.ts",
       "language": "TypeScript",
       "role": "implementation",
@@ -473,8 +529,8 @@
       "summary": "TypeScript core implementation",
       "summary_text": "TypeScript core implementation",
       "metrics": {
-        "size_bytes": 815,
-        "loc": 7,
+        "size_bytes": 840,
+        "loc": 8,
         "todo_count": 0
       }
     },

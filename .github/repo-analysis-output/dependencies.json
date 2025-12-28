@@ -322,6 +322,46 @@
       }
     },
     {
+      "id": "src/utils/localStorage.test.ts",
+      "path": "src/utils/localStorage.test.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "vitest"
+        ]
+      }
+    },
+    {
+      "id": "src/utils/localStorage.ts",
+      "path": "src/utils/localStorage.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/utils/textUtils.test.ts",
+      "path": "src/utils/textUtils.test.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "vitest"
+        ]
+      }
+    },
+    {
+      "id": "src/utils/textUtils.ts",
+      "path": "src/utils/textUtils.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
       "id": "src/vite-env.d.ts",
       "path": "src/vite-env.d.ts",
       "type": "file",
@@ -495,6 +535,14 @@
     {
       "source": "src/api/specClarifierClient.ts",
       "target": "src/api/specClarifier/index.ts"
+    },
+    {
+      "source": "src/utils/localStorage.test.ts",
+      "target": "src/utils/localStorage.ts"
+    },
+    {
+      "source": "src/utils/textUtils.test.ts",
+      "target": "src/utils/textUtils.ts"
     }
   ],
   "external_dependencies_summary": {

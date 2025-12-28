@@ -4,7 +4,7 @@ Heuristic summaries of source files based on filenames, extensions, and paths.
 
 Schema Version: 2.0
 
-Total files: 36
+Total files: 40
 
 ## eslint.config.js
 **Language:** JavaScript  
@@ -303,13 +303,49 @@ Total files: 36
 **LOC:** 7  
 **TODOs/FIXMEs:** 0  
 
+## src/utils/localStorage.test.ts
+**Language:** TypeScript  
+**Role:** implementation  
+**Role Justification:** general implementation file (default classification)  
+**Summary:** TypeScript core implementation  
+**Size:** 7.87 KB  
+**LOC:** 181  
+**TODOs/FIXMEs:** 0  
+
+## src/utils/localStorage.ts
+**Language:** TypeScript  
+**Role:** implementation  
+**Role Justification:** general implementation file (default classification)  
+**Summary:** TypeScript core implementation  
+**Size:** 3.88 KB  
+**LOC:** 116  
+**TODOs/FIXMEs:** 0  
+
+## src/utils/textUtils.test.ts
+**Language:** TypeScript  
+**Role:** implementation  
+**Role Justification:** general implementation file (default classification)  
+**Summary:** TypeScript core implementation  
+**Size:** 1.96 KB  
+**LOC:** 38  
+**TODOs/FIXMEs:** 0  
+
+## src/utils/textUtils.ts
+**Language:** TypeScript  
+**Role:** implementation  
+**Role Justification:** general implementation file (default classification)  
+**Summary:** TypeScript core implementation  
+**Size:** 0.98 KB  
+**LOC:** 13  
+**TODOs/FIXMEs:** 0  
+
 ## src/vite-env.d.ts
 **Language:** TypeScript  
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 0.80 KB  
-**LOC:** 7  
+**Size:** 0.82 KB  
+**LOC:** 8  
 **TODOs/FIXMEs:** 0  
 
 ## vite.config.ts

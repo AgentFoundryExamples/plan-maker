@@ -331,6 +331,28 @@
           ]
         },
         {
+          "type": "directory",
+          "name": "utils",
+          "children": [
+            {
+              "type": "file",
+              "name": "localStorage.test.ts"
+            },
+            {
+              "type": "file",
+              "name": "localStorage.ts"
+            },
+            {
+              "type": "file",
+              "name": "textUtils.test.ts"
+            },
+            {
+              "type": "file",
+              "name": "textUtils.ts"
+            }
+          ]
+        },
+        {
           "type": "file",
           "name": "App.tsx"
         },
