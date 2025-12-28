@@ -2,6 +2,7 @@ import React, { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useCreatePlanAsync } from '@/api/hooks';
 import type { AsyncPlanJob } from '@/api/softwarePlannerClient';
+import type { PlanRequest } from '@/api/softwarePlanner/models/PlanRequest';
 import '@/styles/PlannerInputPage.css';
 
 interface FormData {
@@ -40,6 +41,8 @@ const STATUS_CONFIG: Record<
   },
 };
 
+const MAX_DESCRIPTION_LENGTH = 8192;
+
 const PlannerInputPage: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     description: '',
@@ -65,8 +68,8 @@ const PlannerInputPage: React.FC = () => {
 
     if (!formData.description.trim()) {
       errors.description = 'Description is required and cannot be empty';
-    } else if (formData.description.length > 8192) {
-      errors.description = 'Description must not exceed 8192 characters';
+    } else if (formData.description.length > MAX_DESCRIPTION_LENGTH) {
+      errors.description = `Description must not exceed ${MAX_DESCRIPTION_LENGTH} characters`;
     }
 
     setValidationErrors(errors);
@@ -84,7 +87,7 @@ const PlannerInputPage: React.FC = () => {
       return;
     }
 
-    const payload: Record<string, unknown> = {
+    const payload: Partial<PlanRequest> = {
       description: formData.description.trim(),
     };
 
@@ -96,7 +99,7 @@ const PlannerInputPage: React.FC = () => {
       payload.system_prompt = formData.system_prompt.trim();
     }
 
-    createPlan.mutate(payload as any);
+    createPlan.mutate(payload as PlanRequest);
   };
 
   const handleInputChange = (
@@ -203,7 +206,7 @@ const PlannerInputPage: React.FC = () => {
               </label>
               <p className="form-helper-text">
                 Describe your software project in detail. What should it do?
-                What are the key features? (Required, max 8192 characters)
+                What are the key features? (Required, max {MAX_DESCRIPTION_LENGTH} characters)
               </p>
               <textarea
                 id="description"
@@ -232,7 +235,7 @@ const PlannerInputPage: React.FC = () => {
                 </span>
               )}
               <span className="character-count">
-                {formData.description.length} / 8192 characters
+                {formData.description.length} / {MAX_DESCRIPTION_LENGTH} characters
               </span>
             </div>
 
