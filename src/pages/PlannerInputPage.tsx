@@ -75,10 +75,16 @@ const PlannerInputPage: React.FC = () => {
 
   // Auto-save form data to localStorage whenever it changes
   useEffect(() => {
-    // Only save if form has content and no plan has been submitted
-    if (!submittedPlan && (formData.description || formData.model || formData.system_prompt)) {
-      saveDraft(DRAFT_STORAGE_KEY, formData);
-    }
+    const handler = setTimeout(() => {
+      // Only save if form has content and no plan has been submitted
+      if (!submittedPlan && (formData.description || formData.model || formData.system_prompt)) {
+        saveDraft(DRAFT_STORAGE_KEY, formData);
+      }
+    }, 500); // Debounce with a 500ms delay
+
+    return () => {
+      clearTimeout(handler);
+    };
   }, [formData, submittedPlan]);
 
   const validateForm = (): boolean => {

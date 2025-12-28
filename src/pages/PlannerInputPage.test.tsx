@@ -816,6 +816,32 @@ describe('PlannerInputPage', () => {
       expect(localStorage.getItem('plan-maker_planner-input-draft')).toBeNull();
     });
 
+    it('does not clear existing draft when all fields are cleared', async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<PlannerInputPage />);
+
+      const descriptionField = screen.getByLabelText(/project description/i);
+      
+      // Type some text
+      await user.type(descriptionField, 'Test description');
+
+      // Wait for draft to be saved (debounce + some buffer)
+      await waitFor(() => {
+        const stored = localStorage.getItem('plan-maker_planner-input-draft');
+        expect(stored).toBeTruthy();
+      }, { timeout: 1000 });
+
+      // Clear the field
+      await user.clear(descriptionField);
+
+      // Wait a bit for any potential save
+      await new Promise(resolve => setTimeout(resolve, 600));
+
+      // Draft should still exist (not cleared by the save logic)
+      const stored = localStorage.getItem('plan-maker_planner-input-draft');
+      expect(stored).toBeTruthy();
+    });
+
     it('handles localStorage unavailable gracefully', () => {
       const originalSetItem = Storage.prototype.setItem;
       const originalGetItem = Storage.prototype.getItem;

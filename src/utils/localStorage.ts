@@ -12,20 +12,39 @@ export interface StoredDraft<T> {
   timestamp: number;
 }
 
+// Memoize the localStorage availability check to avoid repeated checks
+let cachedAvailability: boolean | null = null;
+
+/**
+ * Reset the cached availability check result.
+ * Used primarily for testing purposes.
+ * @internal
+ */
+export function resetAvailabilityCache(): void {
+  cachedAvailability = null;
+}
+
 /**
  * Check if localStorage is available and accessible.
  * Some browsers block localStorage in private/incognito mode.
+ * Result is cached to avoid repeated checks.
  */
 export function isLocalStorageAvailable(): boolean {
+  if (cachedAvailability !== null) {
+    return cachedAvailability;
+  }
+
   try {
     const testKey = `${STORAGE_PREFIX}_test`;
     localStorage.setItem(testKey, 'test');
     localStorage.removeItem(testKey);
+    cachedAvailability = true;
     return true;
   } catch (e) {
     if (import.meta.env.DEV) {
       console.warn('localStorage is not available:', e);
     }
+    cachedAvailability = false;
     return false;
   }
 }
@@ -51,6 +70,14 @@ export function getDraft<T>(key: string): T | null {
     }
 
     const draft: StoredDraft<T> = JSON.parse(stored);
+
+    // Validate the structure of the parsed object
+    if (typeof draft.timestamp !== 'number' || typeof draft.data === 'undefined') {
+      // Malformed draft, treat as invalid
+      localStorage.removeItem(fullKey);
+      return null;
+    }
+
     const now = Date.now();
     
     // Check if draft has expired

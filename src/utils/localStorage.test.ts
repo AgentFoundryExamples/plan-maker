@@ -4,15 +4,18 @@ import {
   getDraft,
   saveDraft,
   removeDraft,
+  resetAvailabilityCache,
 } from './localStorage';
 
 describe('localStorage utilities', () => {
   beforeEach(() => {
     localStorage.clear();
+    resetAvailabilityCache();
   });
 
   afterEach(() => {
     localStorage.clear();
+    resetAvailabilityCache();
     vi.restoreAllMocks();
   });
 
@@ -30,6 +33,20 @@ describe('localStorage utilities', () => {
       expect(isLocalStorageAvailable()).toBe(false);
 
       Storage.prototype.setItem = originalSetItem;
+    });
+
+    it('memoizes the result and does not check localStorage again', () => {
+      const setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
+      
+      // First call should check localStorage
+      isLocalStorageAvailable();
+      expect(setItemSpy).toHaveBeenCalledTimes(1);
+      
+      // Second call should use cached result
+      isLocalStorageAvailable();
+      expect(setItemSpy).toHaveBeenCalledTimes(1); // Still 1, not 2
+      
+      setItemSpy.mockRestore();
     });
   });
 
@@ -83,6 +100,39 @@ describe('localStorage utilities', () => {
 
       const retrieved = getDraft('invalid-key');
       expect(retrieved).toBeNull();
+    });
+
+    it('returns null and removes malformed draft with missing timestamp', () => {
+      const malformedDraft = { data: { test: 'value' } }; // Missing timestamp
+      localStorage.setItem('plan-maker_malformed-key', JSON.stringify(malformedDraft));
+
+      const retrieved = getDraft('malformed-key');
+      expect(retrieved).toBeNull();
+      
+      // Should remove malformed draft
+      expect(localStorage.getItem('plan-maker_malformed-key')).toBeNull();
+    });
+
+    it('returns null and removes malformed draft with invalid timestamp type', () => {
+      const malformedDraft = { data: { test: 'value' }, timestamp: 'invalid' };
+      localStorage.setItem('plan-maker_malformed-key2', JSON.stringify(malformedDraft));
+
+      const retrieved = getDraft('malformed-key2');
+      expect(retrieved).toBeNull();
+      
+      // Should remove malformed draft
+      expect(localStorage.getItem('plan-maker_malformed-key2')).toBeNull();
+    });
+
+    it('returns null and removes draft with missing data field', () => {
+      const malformedDraft = { timestamp: Date.now() }; // Missing data
+      localStorage.setItem('plan-maker_malformed-key3', JSON.stringify(malformedDraft));
+
+      const retrieved = getDraft('malformed-key3');
+      expect(retrieved).toBeNull();
+      
+      // Should remove malformed draft
+      expect(localStorage.getItem('plan-maker_malformed-key3')).toBeNull();
     });
 
     it('returns null if localStorage is not available', () => {
