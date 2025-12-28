@@ -62,4 +62,81 @@ describe('AppLayout', () => {
       screen.getByRole('navigation', { name: /main navigation/i })
     ).toBeInTheDocument();
   });
+
+  it('marks Plan Input link as active when on home route', () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <AppLayout />
+      </MemoryRouter>
+    );
+
+    const planInputLink = screen.getByRole('link', { name: /plan input/i });
+    expect(planInputLink).toHaveClass('active');
+    expect(planInputLink).toHaveAttribute('aria-current', 'page');
+
+    const plansListLink = screen.getByRole('link', { name: /plans list/i });
+    expect(plansListLink).not.toHaveClass('active');
+    expect(plansListLink).not.toHaveAttribute('aria-current');
+  });
+
+  it('marks Plans List link as active when on /plans route', () => {
+    render(
+      <MemoryRouter initialEntries={['/plans']}>
+        <AppLayout />
+      </MemoryRouter>
+    );
+
+    const plansListLink = screen.getByRole('link', { name: /plans list/i });
+    expect(plansListLink).toHaveClass('active');
+    expect(plansListLink).toHaveAttribute('aria-current', 'page');
+
+    const planInputLink = screen.getByRole('link', { name: /plan input/i });
+    expect(planInputLink).not.toHaveClass('active');
+    expect(planInputLink).not.toHaveAttribute('aria-current');
+  });
+
+  it('marks Plans List link as active when on /plans/:id route', () => {
+    render(
+      <MemoryRouter initialEntries={['/plans/test-123']}>
+        <AppLayout />
+      </MemoryRouter>
+    );
+
+    const plansListLink = screen.getByRole('link', { name: /plans list/i });
+    expect(plansListLink).toHaveClass('active');
+    expect(plansListLink).toHaveAttribute('aria-current', 'page');
+
+    const planInputLink = screen.getByRole('link', { name: /plan input/i });
+    expect(planInputLink).not.toHaveClass('active');
+    expect(planInputLink).not.toHaveAttribute('aria-current');
+  });
+
+  it('navigation links are keyboard accessible', () => {
+    render(
+      <MemoryRouter>
+        <AppLayout />
+      </MemoryRouter>
+    );
+
+    const planInputLink = screen.getByRole('link', { name: /plan input/i });
+    const plansListLink = screen.getByRole('link', { name: /plans list/i });
+
+    // Links should be in the tab order (no negative tabindex)
+    expect(planInputLink).not.toHaveAttribute('tabindex', '-1');
+    expect(plansListLink).not.toHaveAttribute('tabindex', '-1');
+  });
+
+  it('navigation links have correct hrefs', () => {
+    render(
+      <MemoryRouter>
+        <AppLayout />
+      </MemoryRouter>
+    );
+
+    const planInputLink = screen.getByRole('link', { name: /plan input/i });
+    const plansListLink = screen.getByRole('link', { name: /plans list/i });
+
+    expect(planInputLink).toHaveAttribute('href', '/');
+    expect(plansListLink).toHaveAttribute('href', '/plans');
+  });
 });
