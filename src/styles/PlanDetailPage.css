@@ -2,6 +2,14 @@
  * Styles for the Plan Detail Page
  */
 
+/* Configuration for sticky summary bar */
+:root {
+  --sticky-summary-position: bottom; /* Options: top, bottom */
+  --sticky-summary-offset: 0px; /* Offset from edge */
+  --sticky-summary-z-index: 100; /* Z-index for layering */
+  --sticky-summary-height: 80px; /* Approximate height for scroll calculations */
+}
+
 /* Back link styling */
 .back-link {
   display: inline-block;
@@ -60,6 +68,94 @@
   border: 1px solid var(--color-border);
 }
 
+/* Sticky Summary Bar */
+.sticky-summary-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  z-index: var(--sticky-summary-z-index);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Position sticky bar based on configuration */
+.sticky-summary-bar[data-position="top"] {
+  top: var(--sticky-summary-offset);
+  border-top: none;
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+}
+
+.sticky-summary-bar[data-position="bottom"] {
+  bottom: var(--sticky-summary-offset);
+  border-bottom: none;
+  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sticky-summary-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.sticky-summary-text {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
+  margin: 0;
+}
+
+.sticky-summary-text.all-complete {
+  color: var(--color-success);
+}
+
+.sticky-summary-text.pending {
+  color: var(--color-text);
+}
+
+.unanswered-specs-list {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.unanswered-spec-link {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.unanswered-spec-link:hover {
+  background-color: var(--color-primary-hover);
+  text-decoration: none;
+}
+
+.unanswered-spec-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .accordion-summary h3 {
   margin: 0 0 var(--spacing-sm) 0;
   font-size: var(--font-size-lg);
@@ -116,10 +212,22 @@
   background-color: var(--color-background);
   overflow: hidden;
   transition: box-shadow 0.2s ease;
+  scroll-margin-top: var(--sticky-summary-height); /* For smooth scrolling with sticky header */
+  scroll-margin-bottom: var(--sticky-summary-height); /* For smooth scrolling with sticky footer */
 }
 
 .accordion-item:hover {
   box-shadow: var(--shadow-sm);
+}
+
+/* Highlight specs with unanswered questions */
+.accordion-item.has-unanswered {
+  border-color: var(--color-primary);
+  border-width: 2px;
+}
+
+.accordion-item.has-unanswered .accordion-header {
+  background-color: rgba(0, 102, 204, 0.05);
 }
 
 /* Accordion Header */
@@ -135,7 +243,7 @@
   text-align: left;
   transition: background-color 0.2s ease;
   gap: var(--spacing-md);
-  min-height: 60px;
+  min-height: 72px; /* Larger tap target for mobile */
 }
 
 .accordion-header:hover {
@@ -326,6 +434,7 @@
 /* Answer Textarea */
 .answer-textarea {
   width: 100%;
+  max-width: 100%;
   padding: var(--spacing-sm);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
@@ -335,6 +444,7 @@
   resize: vertical;
   min-height: 80px;
   transition: border-color 0.2s ease;
+  box-sizing: border-box;
 }
 
 .answer-textarea:focus {
@@ -352,6 +462,7 @@
 @media (min-width: 768px) {
   .accordion-header {
     padding: var(--spacing-lg);
+    min-height: 60px; /* Smaller on desktop since mouse is more precise */
   }
 
   .accordion-content {
@@ -367,6 +478,15 @@
   .accordion-title {
     flex: 1;
   }
+
+  .sticky-summary-bar {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .sticky-summary-content {
+    flex-wrap: nowrap;
+  }
 }
 
 /* Touch target improvements for mobile */
@@ -379,6 +499,20 @@
   .answer-indicator {
     padding: var(--spacing-sm) var(--spacing-md);
     font-size: var(--font-size-sm);
+  }
+
+  .answer-textarea {
+    font-size: var(--font-size-base);
+    padding: var(--spacing-md);
+  }
+
+  /* Add safe area for sticky summary on mobile */
+  .sticky-summary-bar[data-position="bottom"] {
+    padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom));
+  }
+
+  .sticky-summary-bar[data-position="top"] {
+    padding-top: calc(var(--spacing-md) + env(safe-area-inset-top));
   }
 }
 

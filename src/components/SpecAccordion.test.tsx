@@ -1,8 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SpecAccordion from './SpecAccordion';
 import type { SpecItem } from '@/api/softwarePlanner/models/SpecItem';
+import { PlanAnswersProvider } from '@/state/planAnswersStore';
+import React from 'react';
 
 describe('SpecAccordion', () => {
   const mockSpecs: SpecItem[] = [
@@ -30,21 +32,31 @@ describe('SpecAccordion', () => {
 
   const planId = 'test-plan-123';
 
+  // Helper to render with provider
+  const renderWithProvider = (ui: React.ReactElement) => {
+    return render(
+      <PlanAnswersProvider config={{ enableSessionStorage: false }}>
+        {ui}
+      </PlanAnswersProvider>
+    );
+  };
+
   beforeEach(() => {
     // Reset any persisted state if needed
   });
 
   describe('Summary Section', () => {
     it('shows total unanswered questions when there are questions', () => {
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       expect(screen.getByText('Questions Summary')).toBeInTheDocument();
-      expect(screen.getByText(/3 of 3 questions remaining/i)).toBeInTheDocument();
+      // Both inline and sticky summary show this text
+      expect(screen.getAllByText(/3 of 3 questions remaining/i).length).toBeGreaterThanOrEqual(1);
     });
 
     it('shows all answered when all questions are answered', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       // Expand first spec and answer questions
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
@@ -64,7 +76,7 @@ describe('SpecAccordion', () => {
       await user.type(secondTextarea, 'Chart.js');
 
       await waitFor(() => {
-        expect(screen.getByText(/✓ all questions answered/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/✓ all questions answered/i).length).toBeGreaterThanOrEqual(1);
       });
     });
 
@@ -76,16 +88,16 @@ describe('SpecAccordion', () => {
         },
       ];
 
-      render(<SpecAccordion planId={planId} specs={noQuestionsSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={noQuestionsSpecs} />);
 
       expect(screen.queryByText('Questions Summary')).not.toBeInTheDocument();
     });
 
     it('updates summary in real-time as answers are typed', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
-      expect(screen.getByText(/3 of 3 questions remaining/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/3 of 3 questions remaining/i).length).toBeGreaterThanOrEqual(1);
 
       // Expand first spec and answer one question
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
@@ -95,14 +107,14 @@ describe('SpecAccordion', () => {
       await user.type(textareas[0], 'PostgreSQL');
 
       await waitFor(() => {
-        expect(screen.getByText(/2 of 3 questions remaining/i)).toBeInTheDocument();
+        expect(screen.getAllByText(/2 of 3 questions remaining/i).length).toBeGreaterThanOrEqual(1);
       });
     });
   });
 
   describe('Accordion Behavior', () => {
     it('renders all specs as collapsed by default', () => {
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const accordions = screen.getAllByRole('button', { name: /spec #/i });
       expect(accordions).toHaveLength(3);
@@ -114,7 +126,7 @@ describe('SpecAccordion', () => {
 
     it('expands spec when header is clicked', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(firstAccordion);
@@ -125,7 +137,7 @@ describe('SpecAccordion', () => {
 
     it('collapses spec when header is clicked again', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       
@@ -140,7 +152,7 @@ describe('SpecAccordion', () => {
 
     it('allows multiple specs to be expanded simultaneously', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       const secondAccordion = screen.getByRole('button', { name: /spec #2/i });
@@ -154,7 +166,7 @@ describe('SpecAccordion', () => {
 
     it('preserves answer state when collapsing and re-expanding', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       
@@ -175,7 +187,7 @@ describe('SpecAccordion', () => {
 
     it('handles rapid toggling without losing state', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       
@@ -198,21 +210,21 @@ describe('SpecAccordion', () => {
 
   describe('Question Indicators', () => {
     it('shows unanswered count badge in header', () => {
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       expect(screen.getByText('2 unanswered')).toBeInTheDocument();
       expect(screen.getByText('1 unanswered')).toBeInTheDocument();
     });
 
     it('shows "No questions" badge for specs without questions', () => {
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       expect(screen.getByText('No questions')).toBeInTheDocument();
     });
 
     it('updates badge to "All answered" when all questions are answered', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(firstAccordion);
@@ -229,7 +241,7 @@ describe('SpecAccordion', () => {
 
     it('shows answered/unanswered indicator for each question', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(firstAccordion);
@@ -250,7 +262,7 @@ describe('SpecAccordion', () => {
 
     it('updates indicator immediately as user types', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(firstAccordion);
@@ -268,7 +280,7 @@ describe('SpecAccordion', () => {
 
     it('reverts to unanswered when answer is cleared', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(firstAccordion);
@@ -292,7 +304,7 @@ describe('SpecAccordion', () => {
   describe('Spec Details Display', () => {
     it('displays all spec sections when expanded', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(firstAccordion);
@@ -319,7 +331,7 @@ describe('SpecAccordion', () => {
         },
       ];
 
-      render(<SpecAccordion planId={planId} specs={minimalSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={minimalSpecs} />);
 
       const accordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(accordion);
@@ -331,7 +343,7 @@ describe('SpecAccordion', () => {
 
     it('shows "No questions for this spec" message when no questions', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const thirdAccordion = screen.getByRole('button', { name: /spec #3/i });
       await user.click(thirdAccordion);
@@ -343,7 +355,7 @@ describe('SpecAccordion', () => {
   describe('Question and Answer Interaction', () => {
     it('renders textarea for each question', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(firstAccordion);
@@ -354,7 +366,7 @@ describe('SpecAccordion', () => {
 
     it('displays question text correctly', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(firstAccordion);
@@ -365,7 +377,7 @@ describe('SpecAccordion', () => {
 
     it('allows typing in textarea', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(firstAccordion);
@@ -378,7 +390,7 @@ describe('SpecAccordion', () => {
 
     it('preserves answers across different specs', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       // Answer question in first spec
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
@@ -402,7 +414,7 @@ describe('SpecAccordion', () => {
 
   describe('Edge Cases', () => {
     it('handles empty specs array', () => {
-      render(<SpecAccordion planId={planId} specs={[]} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={[]} />);
 
       expect(screen.queryByRole('button', { name: /spec #/i })).not.toBeInTheDocument();
       expect(screen.queryByText('Questions Summary')).not.toBeInTheDocument();
@@ -420,7 +432,7 @@ describe('SpecAccordion', () => {
         },
       ];
 
-      render(<SpecAccordion planId={planId} specs={longQuestionSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={longQuestionSpecs} />);
 
       const accordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(accordion);
@@ -436,7 +448,7 @@ describe('SpecAccordion', () => {
         open_questions: [`Question ${i + 1}?`],
       }));
 
-      render(<SpecAccordion planId={planId} specs={manySpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={manySpecs} />);
 
       const accordions = screen.getAllByRole('button', { name: /spec #/i });
       expect(accordions).toHaveLength(60);
@@ -444,7 +456,7 @@ describe('SpecAccordion', () => {
 
     it('uses unique keys for answer state', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       // Answer same question index in different specs
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
@@ -467,7 +479,7 @@ describe('SpecAccordion', () => {
 
     it('handles whitespace-only answers as unanswered', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(firstAccordion);
@@ -483,7 +495,7 @@ describe('SpecAccordion', () => {
 
   describe('Accessibility', () => {
     it('uses proper ARIA attributes for accordion', () => {
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const accordions = screen.getAllByRole('button', { name: /spec #/i });
       accordions.forEach((accordion, index) => {
@@ -495,7 +507,7 @@ describe('SpecAccordion', () => {
 
     it('associates labels with textarea inputs', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(firstAccordion);
@@ -511,7 +523,7 @@ describe('SpecAccordion', () => {
     });
 
     it('uses aria-live for summary updates', () => {
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const summary = screen.getByRole('status');
       expect(summary).toHaveAttribute('aria-live', 'polite');
@@ -519,7 +531,7 @@ describe('SpecAccordion', () => {
 
     it('provides visually hidden status text for screen readers', async () => {
       const user = userEvent.setup();
-      render(<SpecAccordion planId={planId} specs={mockSpecs} />);
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
       const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
       await user.click(firstAccordion);
@@ -527,6 +539,111 @@ describe('SpecAccordion', () => {
       // Check for visually hidden status text
       const hiddenStatuses = document.querySelectorAll('.visually-hidden');
       expect(hiddenStatuses.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Answer Persistence', () => {
+    it('persists answers when accordion is collapsed and re-expanded', async () => {
+      const user = userEvent.setup();
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      
+      // Expand and type answer
+      await user.click(firstAccordion);
+      const textarea = screen.getAllByPlaceholderText(/enter your answer/i)[0];
+      await user.type(textarea, 'PostgreSQL database');
+
+      // Collapse
+      await user.click(firstAccordion);
+      expect(firstAccordion).toHaveAttribute('aria-expanded', 'false');
+
+      // Re-expand
+      await user.click(firstAccordion);
+      const textareaAfter = screen.getAllByPlaceholderText(/enter your answer/i)[0];
+      expect(textareaAfter).toHaveValue('PostgreSQL database');
+    });
+
+    it('maintains separate answers for different plans', async () => {
+      const user = userEvent.setup();
+      
+      // Render with plan-1
+      const { unmount } = renderWithProvider(<SpecAccordion planId="plan-1" specs={mockSpecs} />);
+
+      // Answer question in plan-1
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordion);
+      const textarea = screen.getAllByPlaceholderText(/enter your answer/i)[0];
+      await user.type(textarea, 'Plan 1 answer');
+
+      unmount();
+
+      // Render with plan-2
+      renderWithProvider(<SpecAccordion planId="plan-2" specs={mockSpecs} />);
+
+      // Answer should be empty for plan-2
+      const firstAccordionPlan2 = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordionPlan2);
+      const textareaPlan2 = screen.getAllByPlaceholderText(/enter your answer/i)[0];
+      expect(textareaPlan2).toHaveValue('');
+    });
+  });
+
+  describe('Sticky Summary', () => {
+    // Mock scrollIntoView for all tests in this suite
+    beforeEach(() => {
+      Element.prototype.scrollIntoView = vi.fn();
+    });
+
+    it('shows sticky summary bar with progress', () => {
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const stickyBar = screen.getByRole('region', { name: /questions progress summary/i });
+      expect(stickyBar).toBeInTheDocument();
+      expect(stickyBar).toHaveAttribute('data-position', 'bottom');
+    });
+
+    it('shows quick links to unanswered specs', () => {
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const spec1Link = screen.getByRole('button', { name: /go to spec 1/i });
+      const spec2Link = screen.getByRole('button', { name: /go to spec 2/i });
+      
+      expect(spec1Link).toBeInTheDocument();
+      expect(spec2Link).toBeInTheDocument();
+    });
+
+    it('can hide sticky summary via prop', () => {
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} showStickySummary={false} />);
+
+      const stickyBar = screen.queryByRole('region', { name: /questions progress summary/i });
+      expect(stickyBar).not.toBeInTheDocument();
+    });
+
+    it('can change sticky position via prop', () => {
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} stickyPosition="top" />);
+
+      const stickyBar = screen.getByRole('region', { name: /questions progress summary/i });
+      expect(stickyBar).toHaveAttribute('data-position', 'top');
+    });
+
+    it('expands spec when clicking quick link', async () => {
+      const user = userEvent.setup();
+      
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      // Check that spec 1 is not expanded initially
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      expect(firstAccordion).toHaveAttribute('aria-expanded', 'false');
+
+      // Click the quick link
+      const spec1Link = screen.getByRole('button', { name: /go to spec 1/i });
+      await user.click(spec1Link);
+
+      // Check that spec 1 accordion is now expanded
+      await waitFor(() => {
+        expect(firstAccordion).toHaveAttribute('aria-expanded', 'true');
+      });
     });
   });
 });
