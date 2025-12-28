@@ -15,7 +15,19 @@ if (!envConfig) {
   );
 }
 
-// Create a client for React Query
+/**
+ * Create a QueryClient instance for React Query.
+ *
+ * DESIGN DECISION: The QueryClient is created at module scope (outside the React tree)
+ * to prevent recreation on hot module reload during development. This is the recommended
+ * pattern for client-side React applications.
+ *
+ * For SSR or testing environments that require fresh instances per request/test:
+ * - SSR: Create the QueryClient inside a factory function or per-request
+ * - Testing: Use a fresh QueryClient in each test's render wrapper
+ *
+ * See: https://tanstack.com/query/latest/docs/react/guides/advanced-ssr
+ */
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

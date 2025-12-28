@@ -3,6 +3,14 @@
  *
  * This module provides reusable hooks that wrap the generated API clients
  * with React Query for caching, automatic refetching, and optimistic updates.
+ *
+ * @warning These hooks are currently STUBS and will throw errors if used.
+ * They must be connected to the actual API client functions before use in production.
+ *
+ * To implement:
+ * 1. Import the corresponding function from softwarePlannerClient or specClarifierClient
+ * 2. Replace the queryFn/mutationFn implementation with the actual API call
+ * 3. Remove the warning from the JSDoc
  */
 
 import {
@@ -18,10 +26,17 @@ import type { JobStatusResponse } from './specClarifier/models/JobStatusResponse
 /**
  * Example hook stub for fetching a plan by ID.
  *
+ * @warning NOT IMPLEMENTED - This hook will throw an error if called.
+ * Connect to the actual API client before using in production.
+ *
  * Usage:
  * ```tsx
  * const { data, isLoading, error } = usePlan(planId);
  * ```
+ *
+ * @param planId - The ID of the plan to fetch
+ * @param options - React Query options (excluding queryKey and queryFn)
+ * @returns React Query result with data, loading state, and error
  */
 export function usePlan(
   planId: string,
@@ -32,7 +47,9 @@ export function usePlan(
     queryFn: async () => {
       // TODO: Replace with actual API call from softwarePlannerClient
       // Example: return await getPlanById(planId);
-      throw new Error('usePlan not yet implemented - connect to API client');
+      throw new Error(
+        'usePlan is not yet implemented. Connect to softwarePlannerClient before using.'
+      );
     },
     enabled: !!planId, // Only run if planId is truthy
     ...options,
@@ -42,10 +59,17 @@ export function usePlan(
 /**
  * Example hook stub for fetching multiple plans.
  *
+ * @warning NOT IMPLEMENTED - This hook will throw an error if called.
+ * Connect to the actual API client before using in production.
+ *
  * Usage:
  * ```tsx
  * const { data: plans, isLoading } = usePlans({ limit: 10 });
  * ```
+ *
+ * @param params - Query parameters (e.g., limit)
+ * @param options - React Query options (excluding queryKey and queryFn)
+ * @returns React Query result with data, loading state, and error
  */
 export function usePlans(
   params?: { limit?: number },
@@ -56,7 +80,9 @@ export function usePlans(
     queryFn: async () => {
       // TODO: Replace with actual API call from softwarePlannerClient
       // Example: return await listPlans(params?.limit);
-      throw new Error('usePlans not yet implemented - connect to API client');
+      throw new Error(
+        'usePlans is not yet implemented. Connect to softwarePlannerClient before using.'
+      );
     },
     ...options,
   });
@@ -65,11 +91,17 @@ export function usePlans(
 /**
  * Example mutation hook stub for creating a plan.
  *
+ * @warning NOT IMPLEMENTED - This hook will throw an error if called.
+ * Connect to the actual API client before using in production.
+ *
  * Usage:
  * ```tsx
  * const createPlan = useCreatePlan();
  * createPlan.mutate({ description: 'Build a REST API' });
  * ```
+ *
+ * @param options - React Query mutation options
+ * @returns React Query mutation result
  */
 export function useCreatePlan(
   options?: UseMutationOptions<PlanResponse, Error, PlanRequest>
@@ -79,7 +111,7 @@ export function useCreatePlan(
       // TODO: Replace with actual API call from softwarePlannerClient
       // Example: return await createPlan(request);
       throw new Error(
-        'useCreatePlan not yet implemented - connect to API client'
+        'useCreatePlan is not yet implemented. Connect to softwarePlannerClient before using.'
       );
     },
     ...options,
@@ -89,10 +121,17 @@ export function useCreatePlan(
 /**
  * Example hook stub for fetching clarification job status.
  *
+ * @warning NOT IMPLEMENTED - This hook will throw an error if called.
+ * Connect to the actual API client before using in production.
+ *
  * Usage:
  * ```tsx
  * const { data: status } = useClarificationStatus(jobId);
  * ```
+ *
+ * @param jobId - The clarification job ID to fetch
+ * @param options - React Query options (excluding queryKey and queryFn)
+ * @returns React Query result with job status data
  */
 export function useClarificationStatus(
   jobId: string,
@@ -107,7 +146,7 @@ export function useClarificationStatus(
       // TODO: Replace with actual API call from specClarifierClient
       // Example: return await getClarifierStatus(jobId);
       throw new Error(
-        'useClarificationStatus not yet implemented - connect to API client'
+        'useClarificationStatus is not yet implemented. Connect to specClarifierClient before using.'
       );
     },
     enabled: !!jobId,

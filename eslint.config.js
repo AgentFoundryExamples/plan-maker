@@ -45,16 +45,19 @@ export default [
         version: 'detect',
       },
       'import/resolver': {
-        typescript: true,
+        typescript: {
+          alwaysTryTypes: true,
+          project: './tsconfig.json',
+        },
         node: true,
       },
     },
     plugins: {
       '@typescript-eslint': tseslint,
-      'react': react,
+      react: react,
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
-      'import': importPlugin,
+      import: importPlugin,
     },
     rules: {
       ...js.configs.recommended.rules,
@@ -62,7 +65,7 @@ export default [
       ...react.configs.recommended.rules,
       ...react.configs['jsx-runtime'].rules,
       ...reactHooks.configs.recommended.rules,
-      
+
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
@@ -75,7 +78,13 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off', // Allow any in tests and generated code
       'no-control-regex': 'off', // Allow control characters in regex
       'no-undef': 'off', // TypeScript handles this
-      'import/order': 'off', // Disable due to TypeScript resolver issues in ESLint v9
+
+      // Import rules - kept disabled to avoid resolver conflicts in ESLint v9 flat config
+      // The import plugin has known compatibility issues with ESLint v9's flat config format
+      // when used with TypeScript path aliases. TypeScript and Vite handle import resolution,
+      // so these rules are not critical for build/runtime correctness.
+      // See: https://github.com/import-js/eslint-plugin-import/issues/2556
+      'import/order': 'off',
       'import/no-unresolved': 'off',
     },
   },
