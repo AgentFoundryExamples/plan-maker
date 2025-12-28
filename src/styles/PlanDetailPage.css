@@ -458,6 +458,117 @@
   opacity: 0.7;
 }
 
+/* Validation states for textarea */
+.answer-textarea.invalid {
+  border-color: var(--color-danger);
+  border-width: 2px;
+}
+
+.answer-textarea.invalid:focus {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* Validation error message */
+.validation-error-message {
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-xs);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+}
+
+.validation-error-message::before {
+  content: '⚠';
+  flex-shrink: 0;
+}
+
+/* Submission section */
+.submission-section {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.submission-banner {
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-lg);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.submission-banner.error {
+  background-color: rgba(220, 38, 38, 0.1);
+  border: 1px solid var(--color-danger);
+}
+
+.submission-banner.success {
+  background-color: rgba(56, 142, 60, 0.1);
+  border: 1px solid var(--color-success);
+}
+
+.submission-banner-icon {
+  flex-shrink: 0;
+  font-size: var(--font-size-lg);
+}
+
+.submission-banner-content {
+  flex: 1;
+}
+
+.submission-banner-title {
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--spacing-xs) 0;
+}
+
+.submission-banner-message {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.submission-controls {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.btn-submit {
+  min-width: 150px;
+}
+
+.submission-status {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Submission loading state */
+.submission-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.submission-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-primary);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Responsive adjustments */
 @media (min-width: 768px) {
   .accordion-header {

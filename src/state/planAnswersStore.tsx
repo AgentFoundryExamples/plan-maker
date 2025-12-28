@@ -52,6 +52,32 @@ export interface AnswerState {
 }
 
 /**
+ * Validation error for a specific question
+ */
+export interface QuestionValidationError {
+  specIndex: number;
+  questionIndex: number;
+  question: string;
+  error: string;
+}
+
+/**
+ * Validation result for the entire plan
+ */
+export interface PlanValidationResult {
+  /** Whether all required questions are answered */
+  isValid: boolean;
+  /** Total number of questions */
+  totalQuestions: number;
+  /** Number of unanswered questions */
+  unansweredCount: number;
+  /** List of validation errors (one per unanswered question) */
+  errors: QuestionValidationError[];
+  /** Map of spec index to list of unanswered question indices */
+  unansweredBySpec: Map<number, number[]>;
+}
+
+/**
  * Context value provided to consumers
  */
 export interface PlanAnswersContextValue {
@@ -67,6 +93,8 @@ export interface PlanAnswersContextValue {
   clearAnswers: (planId: string) => void;
   /** Get all answers for the current plan */
   getAnswersForPlan: (planId: string) => AnswerState;
+  /** Validate all answers against a plan's questions */
+  validateAnswers: (planId: string, specs: Array<{ open_questions?: string[] }>) => PlanValidationResult;
   /** Current configuration */
   config: PlanAnswersConfig;
 }
@@ -274,6 +302,69 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
     return planAnswers;
   }, [answers]);
 
+  /**
+   * Validate all answers for a specific plan against its questions
+   * 
+   * This function enumerates all questions in the provided specs and checks
+   * if each has a non-empty, non-whitespace answer. It returns a comprehensive
+   * validation result including:
+   * - Overall validity (all questions answered)
+   * - List of validation errors for unanswered questions
+   * - Statistics (total questions, unanswered count)
+   * - Map of unanswered questions grouped by spec
+   * 
+   * Performance optimized: Only iterates over answers for the current plan
+   * instead of depending on getAnswer which triggers on any answer change.
+   * 
+   * @param planId - The plan ID to validate
+   * @param specs - Array of spec items containing open_questions
+   * @returns PlanValidationResult with validation state
+   */
+  const validateAnswers = useCallback((
+    planId: string,
+    specs: Array<{ open_questions?: string[] }>
+  ): PlanValidationResult => {
+    const errors: QuestionValidationError[] = [];
+    const unansweredBySpec = new Map<number, number[]>();
+    let totalQuestions = 0;
+
+    // Get answers for this plan only (performance optimization)
+    const planAnswers = getAnswersForPlan(planId);
+
+    // Enumerate all questions and check if they are answered
+    specs.forEach((spec, specIndex) => {
+      const questions = spec.open_questions || [];
+      totalQuestions += questions.length;
+
+      questions.forEach((question, questionIndex) => {
+        const key = `${planId}-${specIndex}-${questionIndex}`;
+        const answer = planAnswers[key] || '';
+        // Check if answer is empty or contains only whitespace
+        if (!answer.trim()) {
+          errors.push({
+            specIndex,
+            questionIndex,
+            question,
+            error: 'This question requires an answer',
+          });
+
+          // Track unanswered questions by spec
+          const specUnanswered = unansweredBySpec.get(specIndex) || [];
+          specUnanswered.push(questionIndex);
+          unansweredBySpec.set(specIndex, specUnanswered);
+        }
+      });
+    });
+
+    return {
+      isValid: errors.length === 0,
+      totalQuestions,
+      unansweredCount: errors.length,
+      errors,
+      unansweredBySpec,
+    };
+  }, [getAnswersForPlan]);
+
   const value: PlanAnswersContextValue = useMemo(
     () => ({
       answers,
@@ -282,9 +373,10 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
       isAnswered,
       clearAnswers,
       getAnswersForPlan,
+      validateAnswers,
       config,
     }),
-    [answers, setAnswer, getAnswer, isAnswered, clearAnswers, getAnswersForPlan, config]
+    [answers, setAnswer, getAnswer, isAnswered, clearAnswers, getAnswersForPlan, validateAnswers, config]
   );
 
   return (

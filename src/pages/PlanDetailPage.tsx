@@ -1,15 +1,101 @@
-import React from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { usePlanDetail } from '@/api/hooks';
+import { usePlanDetail, useSubmitClarifications } from '@/api/hooks';
 import { getStatusMetadata } from '@/api/softwarePlannerClient';
 import { formatTimestamp } from '@/utils/dateUtils';
 import SpecAccordion from '@/components/SpecAccordion';
+import { usePlanAnswers } from '@/state/planAnswersStore';
+import type { QuestionAnswer } from '@/api/specClarifier/models/QuestionAnswer';
 import '@/styles/PlansListPage.css';
 import '@/styles/PlanDetailPage.css';
 
 const PlanDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error } = usePlanDetail(id);
+  const { validateAnswers, getAnswer } = usePlanAnswers();
+  const [showValidationErrors, setShowValidationErrors] = useState(false);
+  const [submissionBanner, setSubmissionBanner] = useState<{
+    type: 'error' | 'success';
+    title: string;
+    message: string;
+  } | null>(null);
+
+  // Submission mutation
+  const submitClarifications = useSubmitClarifications({
+    onSuccess: (response) => {
+      setSubmissionBanner({
+        type: 'success',
+        title: 'Submission Successful',
+        message: `Your clarifications have been submitted successfully. Job ID: ${response.id}`,
+      });
+      setShowValidationErrors(false);
+    },
+    onError: (error) => {
+      setSubmissionBanner({
+        type: 'error',
+        title: 'Submission Failed',
+        message: error.message || 'Failed to submit clarifications. Please try again.',
+      });
+    },
+  });
+
+  // Calculate validation state
+  const validationResult = useMemo(() => {
+    if (!data?.result?.specs) return null;
+    return validateAnswers(data.job_id, data.result.specs);
+  }, [data, validateAnswers]);
+
+  // Handle submission
+  const handleSubmit = useCallback(() => {
+    if (!data?.result?.specs) return;
+
+    // Revalidate immediately before submission to ensure current state
+    const currentValidation = validateAnswers(data.job_id, data.result.specs);
+    
+    // Check validation
+    if (!currentValidation.isValid) {
+      setShowValidationErrors(true);
+      setSubmissionBanner({
+        type: 'error',
+        title: 'Incomplete Answers',
+        message: `Please answer all ${currentValidation.unansweredCount} remaining question${currentValidation.unansweredCount !== 1 ? 's' : ''} before submitting.`,
+      });
+      return;
+    }
+
+    // Clear any previous error banner
+    setSubmissionBanner(null);
+    setShowValidationErrors(false);
+
+    // Build the answers array - only send answers, not the full plan
+    const answers: QuestionAnswer[] = [];
+    data.result.specs.forEach((spec, specIndex) => {
+      const questions = spec.open_questions || [];
+      questions.forEach((question, questionIndex) => {
+        const answer = getAnswer(data.job_id, specIndex, questionIndex);
+        // Sanitize answer by trimming whitespace
+        answers.push({
+          spec_index: specIndex,
+          question_index: questionIndex,
+          question,
+          answer: answer.trim(),
+        });
+      });
+    });
+
+    // Submit the clarifications with simplified payload
+    submitClarifications.mutate({
+      plan: {
+        specs: data.result.specs,
+      },
+      answers,
+    });
+  }, [data, validateAnswers, getAnswer, submitClarifications]);
+
+  // Clear banner when user starts fixing issues
+  const dismissBanner = useCallback(() => {
+    setSubmissionBanner(null);
+  }, []);
 
   // Loading state
   if (isLoading) {
@@ -76,6 +162,7 @@ const PlanDetailPage: React.FC = () => {
   const statusMeta = getStatusMetadata(data.status);
   const planResult = data.result;
   const specs = planResult?.specs || [];
+  const hasQuestions = specs.some(spec => (spec.open_questions?.length || 0) > 0);
 
   return (
     <div className="container">
@@ -141,7 +228,80 @@ const PlanDetailPage: React.FC = () => {
             <p>No specs available yet</p>
           </div>
         ) : (
-          <SpecAccordion planId={data.job_id} specs={specs} />
+          <>
+            <SpecAccordion 
+              planId={data.job_id} 
+              specs={specs}
+              validationResult={validationResult || undefined}
+              showValidationErrors={showValidationErrors}
+            />
+
+            {/* Submission Section - Only show if there are questions */}
+            {hasQuestions && (
+              <div className="submission-section">
+                {/* Submission Banner */}
+                {submissionBanner && (
+                  <div 
+                    className={`submission-banner ${submissionBanner.type}`}
+                    role="alert"
+                  >
+                    <span className="submission-banner-icon">
+                      {submissionBanner.type === 'error' ? '⚠️' : '✓'}
+                    </span>
+                    <div className="submission-banner-content">
+                      <h3 className="submission-banner-title">
+                        {submissionBanner.title}
+                      </h3>
+                      <p className="submission-banner-message">
+                        {submissionBanner.message}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-text"
+                      onClick={dismissBanner}
+                      aria-label="Dismiss message"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+
+                {/* Submission Controls */}
+                <div className="submission-controls">
+                  {validationResult && (
+                    <span className="submission-status">
+                      {validationResult.isValid ? (
+                        <span style={{ color: 'var(--color-success)' }}>
+                          ✓ All questions answered
+                        </span>
+                      ) : (
+                        <span>
+                          {validationResult.unansweredCount} question{validationResult.unansweredCount !== 1 ? 's' : ''} remaining
+                        </span>
+                      )}
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-submit"
+                    onClick={handleSubmit}
+                    disabled={submitClarifications.isPending || (!!validationResult && !validationResult.isValid)}
+                    aria-busy={submitClarifications.isPending}
+                  >
+                    {submitClarifications.isPending ? (
+                      <span className="submission-loading">
+                        <span className="submission-spinner" aria-hidden="true" />
+                        Submitting...
+                      </span>
+                    ) : (
+                      'Submit Clarifications'
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

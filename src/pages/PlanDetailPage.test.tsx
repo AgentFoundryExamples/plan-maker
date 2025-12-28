@@ -665,4 +665,145 @@ describe('PlanDetailPage', () => {
       expect(screen.queryByText(/this plan contains 1 specification/i)).not.toBeInTheDocument();
     });
   });
+
+  describe('Submission Flow', () => {
+    const mockPlanWithQuestions: PlanJobStatus = {
+      job_id: 'plan-submit',
+      status: 'SUCCEEDED',
+      created_at: '2025-01-15T10:30:00Z',
+      updated_at: '2025-01-15T10:35:00Z',
+      result: {
+        specs: [
+          {
+            purpose: 'Build REST API',
+            vision: 'Create a scalable REST API',
+            open_questions: ['Which database?', 'Authentication method?'],
+          },
+          {
+            purpose: 'Frontend',
+            vision: 'Build UI',
+            open_questions: ['Which framework?'],
+          },
+        ],
+      },
+    };
+
+    it('shows submit button when there are questions', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithQuestions,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-submit');
+
+      expect(screen.getByRole('button', { name: /submit clarifications/i })).toBeInTheDocument();
+    });
+
+    it('does not show submit button when there are no questions', () => {
+      const noQuestionsData: PlanJobStatus = {
+        job_id: 'plan-no-q',
+        status: 'SUCCEEDED',
+        created_at: '2025-01-15T10:30:00Z',
+        updated_at: '2025-01-15T10:35:00Z',
+        result: {
+          specs: [
+            {
+              purpose: 'Simple spec',
+              vision: 'No questions',
+            },
+          ],
+        },
+      };
+
+      mockUsePlanDetail.mockReturnValue({
+        data: noQuestionsData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-no-q');
+
+      expect(screen.queryByRole('button', { name: /submit clarifications/i })).not.toBeInTheDocument();
+    });
+
+    it('disables submit button when questions are not answered', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithQuestions,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-submit');
+
+      const submitButton = screen.getByRole('button', { name: /submit clarifications/i });
+      expect(submitButton).toBeDisabled();
+    });
+
+    it('shows validation status indicating unanswered questions', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithQuestions,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-submit');
+
+      // Should show 3 questions remaining (appears in multiple places)
+      const remainingTexts = screen.getAllByText(/3.*questions?.*remaining/i);
+      expect(remainingTexts.length).toBeGreaterThan(0);
+    });
+
+    it('enables submit button when all questions are answered', async () => {
+      const user = (await import('@testing-library/user-event')).default.setup();
+      
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithQuestions,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-submit');
+
+      // Expand first spec and answer questions
+      const spec1Button = screen.getByRole('button', { name: /spec #1.*build rest api/i });
+      await user.click(spec1Button);
+
+      const textareas = screen.getAllByPlaceholderText(/enter your answer/i);
+      await user.type(textareas[0], 'PostgreSQL');
+      await user.type(textareas[1], 'JWT tokens');
+
+      // Expand second spec and answer question
+      const spec2Button = screen.getByRole('button', { name: /spec #2.*frontend/i });
+      await user.click(spec2Button);
+
+      const allTextareas = screen.getAllByPlaceholderText(/enter your answer/i);
+      await user.type(allTextareas[allTextareas.length - 1], 'React');
+
+      // Submit button should now be enabled
+      const submitButton = screen.getByRole('button', { name: /submit clarifications/i });
+      
+      // Wait for validation to update
+      await import('@testing-library/react').then(({ waitFor }) => 
+        waitFor(() => {
+          expect(submitButton).not.toBeDisabled();
+        })
+      );
+    });
+  });
 });
