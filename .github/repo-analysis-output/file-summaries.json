@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0",
-  "total_files": 40,
+  "total_files": 41,
   "files": [
     {
       "schema_version": "2.0",
@@ -95,8 +95,8 @@
       "summary": "TypeScript core implementation",
       "summary_text": "TypeScript core implementation",
       "metrics": {
-        "size_bytes": 10375,
-        "loc": 289,
+        "size_bytes": 11932,
+        "loc": 336,
         "todo_count": 4
       }
     },
@@ -461,6 +461,20 @@
       "metrics": {
         "size_bytes": 827,
         "loc": 7,
+        "todo_count": 0
+      }
+    },
+    {
+      "schema_version": "2.0",
+      "path": "src/utils/dateUtils.ts",
+      "language": "TypeScript",
+      "role": "implementation",
+      "role_justification": "general implementation file (default classification)",
+      "summary": "TypeScript core implementation",
+      "summary_text": "TypeScript core implementation",
+      "metrics": {
+        "size_bytes": 1222,
+        "loc": 20,
         "todo_count": 0
       }
     },

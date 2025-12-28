@@ -312,6 +312,10 @@
             },
             {
               "type": "file",
+              "name": "PlanDetailPage.css"
+            },
+            {
+              "type": "file",
               "name": "PlannerInputPage.css"
             },
             {
@@ -338,6 +342,10 @@
           "type": "directory",
           "name": "utils",
           "children": [
+            {
+              "type": "file",
+              "name": "dateUtils.ts"
+            },
             {
               "type": "file",
               "name": "localStorage.test.ts"

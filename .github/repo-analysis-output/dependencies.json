@@ -322,6 +322,15 @@
       }
     },
     {
+      "id": "src/utils/dateUtils.ts",
+      "path": "src/utils/dateUtils.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
       "id": "src/utils/localStorage.test.ts",
       "path": "src/utils/localStorage.test.ts",
       "type": "file",

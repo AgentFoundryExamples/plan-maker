@@ -71,12 +71,14 @@
     └── PlansListPage.tsx
   ├── styles
     ├── global.css
+    ├── PlanDetailPage.css
     ├── PlannerInputPage.css
     ├── PlansListPage.css
     └── theme.css
   ├── test
     └── setup.ts
   ├── utils
+    ├── dateUtils.ts
     ├── localStorage.test.ts
     ├── localStorage.ts
     ├── textUtils.test.ts
