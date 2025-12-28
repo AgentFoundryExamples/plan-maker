@@ -76,6 +76,12 @@
   outline-offset: 2px;
 }
 
+.nav-list a.active {
+  color: var(--color-primary);
+  background-color: rgba(0, 102, 204, 0.15);
+  font-weight: var(--font-weight-bold);
+}
+
 .app-main {
   flex: 1;
   padding: var(--spacing-lg) 0;

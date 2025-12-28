@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet } from 'react-router-dom';
 import './AppLayout.css';
 
 const AppLayout: React.FC = () => {
@@ -18,10 +18,21 @@ const AppLayout: React.FC = () => {
               <nav className="app-nav" aria-label="Main navigation">
                 <ul className="nav-list">
                   <li>
-                    <Link to="/">Plan Input</Link>
+                    <NavLink 
+                      to="/" 
+                      end
+                      className={({ isActive }) => isActive ? 'active' : ''}
+                    >
+                      Plan Input
+                    </NavLink>
                   </li>
                   <li>
-                    <Link to="/plans">Plans List</Link>
+                    <NavLink 
+                      to="/plans"
+                      className={({ isActive }) => isActive ? 'active' : ''}
+                    >
+                      Plans List
+                    </NavLink>
                   </li>
                 </ul>
               </nav>

@@ -298,10 +298,24 @@ API clients read base URLs from environment variables at runtime via `src/api/cl
 
 ## Routes
 
-- `/` - Plan Input page (home)
-- `/plans` - Plans List page
-- `/plans/:id` - Plan Detail page
-- `*` - 404 Not Found page (catch-all)
+The application provides the following routes, accessible via the top navigation bar:
+
+- `/` - **Plan Input** page (home) - Create new software development plans by entering specifications
+- `/plans` - **Plans List** page - View all your created plans with their status (queued, running, succeeded, failed)
+- `/plans/:id` - **Plan Detail** page - View detailed information for a specific plan
+- `*` - **404 Not Found** page (catch-all) - Displays when navigating to non-existent routes
+
+### Navigation
+
+The application header includes a persistent navigation bar with links to:
+- **Plan Input** - Returns to the home page for creating new plans
+- **Plans List** - Navigate to the plans overview page to see all your plans
+
+Navigation features:
+- Active route indication with visual highlighting and `aria-current` attribute
+- Keyboard accessible with visible focus indicators
+- Responsive design that adapts to mobile, tablet, and desktop viewports
+- On mobile devices, navigation links stack vertically for easier touch interaction
 
 ## Browser Support
 
