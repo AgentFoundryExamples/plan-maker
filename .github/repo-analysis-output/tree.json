@@ -72,6 +72,10 @@
     },
     {
       "type": "file",
+      "name": "software-planner.openapi.json"
+    },
+    {
+      "type": "file",
       "name": "spec-clarifier.openapi.json"
     }
   ]

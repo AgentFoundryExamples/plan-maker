@@ -15,4 +15,5 @@
     └── af_maintenance.yml
 ├── LICENSE
 ├── README.md
+├── software-planner.openapi.json
 └── spec-clarifier.openapi.json
