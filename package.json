@@ -8,7 +8,10 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "generate:api": "npm run generate:api:software-planner && npm run generate:api:spec-clarifier",
+    "generate:api:software-planner": "npx openapi-typescript-codegen --input software-planner.openapi.json --output src/api/softwarePlanner --client fetch --useOptions --exportCore false --exportServices false --exportModels true",
+    "generate:api:spec-clarifier": "npx openapi-typescript-codegen --input spec-clarifier.openapi.json --output src/api/specClarifier --client fetch --useOptions --exportCore false --exportServices false --exportModels true"
   },
   "keywords": [],
   "author": "Created by Agent Foundry and John Brosnihan",
@@ -25,6 +28,7 @@
     "@types/react-dom": "18.3.1",
     "@vitejs/plugin-react": "4.3.3",
     "jsdom": "25.0.1",
+    "openapi-typescript-codegen": "0.30.0",
     "typescript": "5.6.3",
     "vite": "5.4.11",
     "vitest": "2.1.5"
