@@ -1,4 +1,4 @@
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useCreatePlanAsync } from '@/api/hooks';
 import type { AsyncPlanJob } from '@/api/softwarePlannerClient';
@@ -136,6 +136,11 @@ const PlannerInputPage: React.FC = () => {
     createPlan.reset();
   };
 
+  const statusConfig = useMemo(
+    () => (submittedPlan ? getStatusConfig(submittedPlan.status) : null),
+    [submittedPlan]
+  );
+
   return (
     <div className="container">
       <h1>Create Software Plan</h1>
@@ -144,59 +149,56 @@ const PlannerInputPage: React.FC = () => {
         comprehensive development plan.
       </p>
 
-      {submittedPlan ? (
-        (() => {
-          const statusConfig = getStatusConfig(submittedPlan.status);
-          return (
-            <div className="card mt-lg confirmation-card" role="status">
-              <h2>Plan Created Successfully!</h2>
+      {submittedPlan && statusConfig ? (
+        <div className="card mt-lg confirmation-card" role="status">
+          <h2>Plan Created Successfully!</h2>
 
-              <div className="plan-metadata">
-                <div className="metadata-item">
-                  <strong>Plan ID:</strong>
-                  <span className="plan-id">{submittedPlan.job_id}</span>
-                </div>
-
-                <div className="metadata-item">
-                  <strong>Status:</strong>
-                  <span
-                    className="status-badge"
-                    style={{
-                      backgroundColor: statusConfig.bgColor,
-                      color: statusConfig.color,
-                    }}
-                  >
-                    {statusConfig.label}
-                  </span>
-                </div>
-
-                <div className="metadata-item">
-                  <strong>Created:</strong>
-                  <span>{new Date(createdAt).toLocaleString()}</span>
-                </div>
-              </div>
-
-              <div className="confirmation-actions">
-                <Link to="/plans" className="btn btn-primary">
-                  View All Plans
-                </Link>
-                <Link
-                  to={`/plans/${submittedPlan.job_id}`}
-                  className="btn btn-primary"
-                >
-                  View Plan Details
-                </Link>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={handleNewPlan}
-                >
-                  Create Another Plan
-                </button>
-              </div>
+          <div className="plan-metadata">
+            <div className="metadata-item">
+              <strong>Plan ID:</strong>
+              <span className="plan-id">{submittedPlan.job_id}</span>
             </div>
-          );
-        })()
+
+            <div className="metadata-item">
+              <strong>Status:</strong>
+              <span
+                className="status-badge"
+                style={{
+                  backgroundColor: statusConfig.bgColor,
+                  color: statusConfig.color,
+                }}
+              >
+                {statusConfig.label}
+              </span>
+            </div>
+
+            <div className="metadata-item">
+              <strong>Created:</strong>
+              <span>
+                {createdAt ? new Date(createdAt).toLocaleString() : 'N/A'}
+              </span>
+            </div>
+          </div>
+
+          <div className="confirmation-actions">
+            <Link to="/plans" className="btn btn-primary">
+              View All Plans
+            </Link>
+            <Link
+              to={`/plans/${submittedPlan.job_id}`}
+              className="btn btn-primary"
+            >
+              View Plan Details
+            </Link>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleNewPlan}
+            >
+              Create Another Plan
+            </button>
+          </div>
+        </div>
       ) : (
         <form onSubmit={handleSubmit} className="plan-form mt-lg" noValidate>
           <div className="card">
