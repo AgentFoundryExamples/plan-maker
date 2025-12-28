@@ -10,6 +10,25 @@ interface AnswerState {
   [key: string]: string; // key format: `${planId}-${specIndex}-${questionIndex}`
 }
 
+/**
+ * SpecAccordion Component
+ * 
+ * Displays plan specifications as expandable accordions with question indicators
+ * and local answer entry.
+ * 
+ * State Management:
+ * - Answer state is keyed by `${planId}-${specIndex}-${questionIndex}`
+ * - Uses array indices for specIndex and questionIndex
+ * 
+ * LIMITATION: Array indices are used as part of the state key. If specs are reordered
+ * or filtered in the future, this could cause answers to be associated with the wrong
+ * questions. For future versions, consider using stable identifiers from the spec data
+ * (e.g., spec.id, question.id) if available in the API response.
+ * 
+ * Performance:
+ * - Unanswered counts are memoized per spec to avoid O(n²) recalculations
+ * - Total unanswered count is derived from memoized per-spec counts
+ */
 const SpecAccordion: React.FC<SpecAccordionProps> = ({ planId, specs }) => {
   const [expandedSpecs, setExpandedSpecs] = useState<Set<number>>(new Set());
   const [answers, setAnswers] = useState<AnswerState>({});
@@ -52,28 +71,27 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({ planId, specs }) => {
     return answers[key] || '';
   };
 
-  // Calculate unanswered questions for a spec
-  const getUnansweredCount = (spec: SpecItem, specIndex: number): number => {
-    const questions = spec.open_questions || [];
-    if (questions.length === 0) return 0;
-    
-    return questions.filter((_, qIndex) => !isQuestionAnswered(specIndex, qIndex)).length;
-  };
-
-  // Calculate total unanswered questions across all specs
-  const totalUnanswered = useMemo(() => {
-    return specs.reduce((total, spec, specIndex) => {
+  // Memoize unanswered counts for each spec to avoid recalculation on every render
+  const unansweredCounts = useMemo(() => {
+    return specs.map((spec, specIndex) => {
       const questions = spec.open_questions || [];
-      if (questions.length === 0) return total;
-      
-      const unanswered = questions.filter((_, qIndex) => {
+      if (questions.length === 0) return 0;
+      return questions.filter((_, qIndex) => {
         const key = `${planId}-${specIndex}-${qIndex}`;
         return (answers[key] || '').trim().length === 0;
       }).length;
-      
-      return total + unanswered;
-    }, 0);
+    });
   }, [specs, answers, planId]);
+
+  // Calculate unanswered questions for a spec using memoized counts
+  const getUnansweredCount = (_spec: SpecItem, specIndex: number): number => {
+    return unansweredCounts[specIndex];
+  };
+
+  // Calculate total unanswered questions from the memoized counts
+  const totalUnanswered = useMemo(() => {
+    return unansweredCounts.reduce((sum, count) => sum + count, 0);
+  }, [unansweredCounts]);
 
   // Calculate total questions across all specs
   const totalQuestions = useMemo(() => {
