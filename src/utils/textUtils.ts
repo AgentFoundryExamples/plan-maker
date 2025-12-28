@@ -11,6 +11,6 @@ export function countWords(text: string): number {
     return 0;
   }
   
-  // Split by whitespace and filter empty strings
-  return text.trim().split(/\s+/).filter(word => word.length > 0).length;
+  // Split by whitespace - no need to filter as trimmed non-empty text won't produce empty strings
+  return text.trim().split(/\s+/).length;
 }

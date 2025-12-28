@@ -226,9 +226,7 @@ const PlannerInputPage: React.FC = () => {
                 Project Description
               </label>
               <p className="form-helper-text">
-                Describe your software project in detail. Include key features, 
-                requirements, and constraints. Be specific about what the software 
-                should do and any technical requirements. (Required, max {MAX_DESCRIPTION_LENGTH} characters)
+                {`Describe your software project in detail. Include key features, requirements, and constraints. Be specific about what the software should do and any technical requirements. (Required, max ${MAX_DESCRIPTION_LENGTH} characters)`}
               </p>
               <textarea
                 id="description"
@@ -291,9 +289,7 @@ const PlannerInputPage: React.FC = () => {
                 Custom System Prompt (Optional)
               </label>
               <p className="form-helper-text">
-                Override the default system prompt to customize planning behavior. 
-                You can adjust the tone, focus areas, or add specific instructions 
-                for the AI planner. (Optional, max 32768 characters)
+                {`Override the default system prompt to customize planning behavior. You can adjust the tone, focus areas, or add specific instructions for the AI planner. (Optional, max 32768 characters)`}
               </p>
               <textarea
                 id="system_prompt"
