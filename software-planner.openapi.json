@@ -142,6 +142,12 @@
                       ],
                       "nice": [
                         "Add rate limiting"
+                      ],
+                      "open_questions": [
+                        "What programming language should this use?"
+                      ],
+                      "assumptions": [
+                        "Validation will be done via api keys and secrets."
                       ]
                     }
                   ]
@@ -525,6 +531,12 @@
                             ],
                             "nice": [
                               "Add rate limiting"
+                            ],
+                            "open_questions": [
+                              "What programming language should this use?"
+                            ],
+                            "assumptions": [
+                              "Validation will be done via api keys and secrets."
                             ]
                           }
                         ]
@@ -716,6 +728,22 @@
             "type": "array",
             "title": "Nice",
             "description": "Nice-to-have features"
+          },
+          "open_questions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Open Questions",
+            "description": "Any clarification that is needed for this specific spec."
+          },
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Assumptions",
+            "description": "Any assumptions made in the plan"
           }
         },
         "type": "object",
@@ -724,7 +752,7 @@
           "vision"
         ],
         "title": "SpecItem",
-        "description": "Individual specification item in the plan response.\n\nThis model represents an immutable contract for specification structure.\nField names and types should not be modified.\n\nAttributes:\n    purpose: High-level purpose of this specification.\n    vision: Vision or goal statement.\n    must: List of must-have requirements.\n    dont: List of things to avoid.\n    nice: List of nice-to-have features."
+        "description": "Individual specification item in the plan response.\n\nThis model represents an immutable contract for specification structure.\nField names and types should not be modified.\n\nAttributes:\n    purpose: High-level purpose of this specification.\n    vision: Vision or goal statement.\n    must: List of must-have requirements.\n    dont: List of things to avoid.\n    nice: List of nice-to-have features.\n open_questions: List of open questions for this spec.\n assumptioins: list of assumptions made in the spec."
       },
       "ValidationError": {
         "properties": {
