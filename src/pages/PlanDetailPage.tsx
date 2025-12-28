@@ -14,10 +14,7 @@ const PlanDetailPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="container">
-        <Link
-          to="/plans"
-          style={{ display: 'inline-block', marginBottom: 'var(--spacing-md)' }}
-        >
+        <Link to="/plans" className="back-link">
           ← Back to Plans List
         </Link>
         <h1>Plan Details</h1>
@@ -40,10 +37,7 @@ const PlanDetailPage: React.FC = () => {
   if (error || !data) {
     return (
       <div className="container">
-        <Link
-          to="/plans"
-          style={{ display: 'inline-block', marginBottom: 'var(--spacing-md)' }}
-        >
+        <Link to="/plans" className="back-link">
           ← Back to Plans List
         </Link>
         <h1>Plan Details</h1>
@@ -65,10 +59,7 @@ const PlanDetailPage: React.FC = () => {
 
   return (
     <div className="container">
-      <Link
-        to="/plans"
-        style={{ display: 'inline-block', marginBottom: 'var(--spacing-md)' }}
-      >
+      <Link to="/plans" className="back-link">
         ← Back to Plans List
       </Link>
       <h1>Plan Details</h1>

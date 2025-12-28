@@ -2,6 +2,12 @@
  * Styles for the Plan Detail Page
  */
 
+/* Back link styling */
+.back-link {
+  display: inline-block;
+  margin-bottom: var(--spacing-md);
+}
+
 /* Error container for failed jobs */
 .plan-error-container {
   margin-top: var(--spacing-md);
@@ -39,3 +45,4 @@
 .plan-header h2 {
   margin: 0;
 }
+
