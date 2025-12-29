@@ -8,8 +8,8 @@ Includes classification of external dependencies as stdlib vs third-party.
 
 ## Statistics
 
-- **Total files**: 45
-- **Intra-repo dependencies**: 42
+- **Total files**: 47
+- **Intra-repo dependencies**: 45
 - **External stdlib dependencies**: 1
 - **External third-party dependencies**: 16
 
@@ -50,10 +50,10 @@ Total: 16 unique packages
 - `src/api/clientConfig.ts` (3 dependents)
 - `src/api/specClarifier/index.ts` (3 dependents)
 - `src/utils/validators.ts` (3 dependents)
+- `src/utils/localStorage.ts` (3 dependents)
 - `src/api/softwarePlanner/index.ts` (2 dependents)
 - `src/utils/statusMappings.ts` (2 dependents)
 - `src/api/specClarifier/models/PlanInput.ts` (2 dependents)
-- `src/api/specClarifier/models/QuestionAnswer.ts` (2 dependents)
 
 ## Files with Most Dependencies (Intra-Repo)
 

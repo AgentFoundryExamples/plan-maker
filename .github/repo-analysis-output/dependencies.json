@@ -322,6 +322,26 @@
       }
     },
     {
+      "id": "src/utils/clarifierStorage.test.ts",
+      "path": "src/utils/clarifierStorage.test.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "vitest"
+        ]
+      }
+    },
+    {
+      "id": "src/utils/clarifierStorage.ts",
+      "path": "src/utils/clarifierStorage.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
       "id": "src/utils/dateUtils.ts",
       "path": "src/utils/dateUtils.ts",
       "type": "file",
@@ -600,6 +620,18 @@
     {
       "source": "src/api/specClarifierClient.ts",
       "target": "src/utils/validators.ts"
+    },
+    {
+      "source": "src/utils/clarifierStorage.test.ts",
+      "target": "src/utils/clarifierStorage.ts"
+    },
+    {
+      "source": "src/utils/clarifierStorage.test.ts",
+      "target": "src/utils/localStorage.ts"
+    },
+    {
+      "source": "src/utils/clarifierStorage.ts",
+      "target": "src/utils/localStorage.ts"
     },
     {
       "source": "src/utils/localStorage.test.ts",

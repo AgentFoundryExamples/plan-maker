@@ -238,11 +238,27 @@
           "children": [
             {
               "type": "file",
+              "name": "ClarifierPanel.test.tsx"
+            },
+            {
+              "type": "file",
+              "name": "ClarifierPanel.tsx"
+            },
+            {
+              "type": "file",
               "name": "ErrorBoundary.test.tsx"
             },
             {
               "type": "file",
               "name": "ErrorBoundary.tsx"
+            },
+            {
+              "type": "file",
+              "name": "PlanTimeline.test.tsx"
+            },
+            {
+              "type": "file",
+              "name": "PlanTimeline.tsx"
             },
             {
               "type": "file",
@@ -380,6 +396,14 @@
           "type": "directory",
           "name": "utils",
           "children": [
+            {
+              "type": "file",
+              "name": "clarifierStorage.test.ts"
+            },
+            {
+              "type": "file",
+              "name": "clarifierStorage.ts"
+            },
             {
               "type": "file",
               "name": "dateUtils.ts"

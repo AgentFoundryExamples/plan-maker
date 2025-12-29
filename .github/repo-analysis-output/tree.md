@@ -54,8 +54,12 @@
     ├── specClarifierClient.test.ts
     └── specClarifierClient.ts
   ├── components
+    ├── ClarifierPanel.test.tsx
+    ├── ClarifierPanel.tsx
     ├── ErrorBoundary.test.tsx
     ├── ErrorBoundary.tsx
+    ├── PlanTimeline.test.tsx
+    ├── PlanTimeline.tsx
     ├── SpecAccordion.test.tsx
     ├── SpecAccordion.tsx
     ├── StatusBadge.test.tsx
@@ -87,6 +91,8 @@
   ├── test
     └── setup.ts
   ├── utils
+    ├── clarifierStorage.test.ts
+    ├── clarifierStorage.ts
     ├── dateUtils.ts
     ├── localStorage.test.ts
     ├── localStorage.ts

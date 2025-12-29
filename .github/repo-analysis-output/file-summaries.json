@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0",
-  "total_files": 45,
+  "total_files": 47,
   "files": [
     {
       "schema_version": "2.0",
@@ -461,6 +461,34 @@
       "metrics": {
         "size_bytes": 827,
         "loc": 7,
+        "todo_count": 0
+      }
+    },
+    {
+      "schema_version": "2.0",
+      "path": "src/utils/clarifierStorage.test.ts",
+      "language": "TypeScript",
+      "role": "implementation",
+      "role_justification": "general implementation file (default classification)",
+      "summary": "TypeScript core implementation",
+      "summary_text": "TypeScript core implementation",
+      "metrics": {
+        "size_bytes": 9306,
+        "loc": 200,
+        "todo_count": 0
+      }
+    },
+    {
+      "schema_version": "2.0",
+      "path": "src/utils/clarifierStorage.ts",
+      "language": "TypeScript",
+      "role": "implementation",
+      "role_justification": "general implementation file (default classification)",
+      "summary": "TypeScript core implementation",
+      "summary_text": "TypeScript core implementation",
+      "metrics": {
+        "size_bytes": 5118,
+        "loc": 137,
         "todo_count": 0
       }
     },
