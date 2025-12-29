@@ -322,7 +322,7 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--input-focus-border-color);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
+  box-shadow: var(--focus-box-shadow);
 }
 
 .input:disabled,
@@ -353,7 +353,7 @@ textarea.error {
 input.error:focus,
 textarea.error:focus {
   border-color: var(--color-error);
-  box-shadow: 0 0 0 3px var(--color-error-light);
+  box-shadow: var(--focus-box-shadow-error);
 }
 
 .input-success,

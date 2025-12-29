@@ -159,6 +159,8 @@
   --focus-ring-offset: 2px;
   --focus-ring-color: var(--color-primary);
   --focus-ring: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
+  --focus-box-shadow: 0 0 0 3px var(--color-primary-light);
+  --focus-box-shadow-error: 0 0 0 3px var(--color-error-light);
 
   /* Container widths */
   --container-max-width: 1200px;

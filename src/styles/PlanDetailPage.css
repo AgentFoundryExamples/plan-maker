@@ -504,7 +504,7 @@
 .answer-textarea:focus {
   outline: none;
   border-color: var(--input-focus-border-color);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
+  box-shadow: var(--focus-box-shadow);
 }
 
 .answer-textarea::placeholder {
@@ -520,7 +520,7 @@
 
 .answer-textarea.invalid:focus {
   border-color: var(--color-error);
-  box-shadow: 0 0 0 3px var(--color-error-light);
+  box-shadow: var(--focus-box-shadow-error);
 }
 
 /* Validation error message */
@@ -897,7 +897,7 @@
 .clarifier-input:focus {
   outline: none;
   border-color: var(--input-focus-border-color);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
+  box-shadow: var(--focus-box-shadow);
 }
 
 .clarifier-banner {
