@@ -409,6 +409,8 @@ const PlanDetailPage: React.FC = () => {
                     spec={selectedSpecIndex !== null ? specs[selectedSpecIndex] : null}
                     specIndex={selectedSpecIndex}
                     planId={data.job_id}
+                    totalSpecs={specs.length}
+                    onNavigateSpec={handleSelectSpec}
                     hasValidationError={(specIndex, questionIndex) => {
                       if (!showValidationErrors || !validationResult) return false;
                       return validationResult.errors.some(
