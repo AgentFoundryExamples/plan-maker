@@ -755,7 +755,7 @@ describe('PlanDetailPage', () => {
 
       renderComponent('plan-submit');
 
-      expect(screen.getByRole('button', { name: /submit clarifications/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /submit for clarification/i })).toBeInTheDocument();
     });
 
     it('does not show submit button when there are no questions', () => {
@@ -785,7 +785,7 @@ describe('PlanDetailPage', () => {
 
       renderComponent('plan-no-q');
 
-      expect(screen.queryByRole('button', { name: /submit clarifications/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /submit for clarification/i })).not.toBeInTheDocument();
     });
 
     it('disables submit button when questions are not answered', () => {
@@ -800,7 +800,7 @@ describe('PlanDetailPage', () => {
 
       renderComponent('plan-submit');
 
-      const submitButton = screen.getByRole('button', { name: /submit clarifications/i });
+      const submitButton = screen.getByRole('button', { name: /submit for clarification/i });
       expect(submitButton).toBeDisabled();
     });
 
@@ -851,7 +851,7 @@ describe('PlanDetailPage', () => {
       await user.type(allTextareas[allTextareas.length - 1], 'React');
 
       // Submit button should now be enabled
-      const submitButton = screen.getByRole('button', { name: /submit clarifications/i });
+      const submitButton = screen.getByRole('button', { name: /submit for clarification/i });
       
       // Wait for validation to update
       await import('@testing-library/react').then(({ waitFor }) => 
@@ -1014,7 +1014,7 @@ describe('PlanDetailPage', () => {
       renderComponent('plan-123');
 
       expect(screen.getByText('Clarification')).toBeInTheDocument();
-      expect(screen.getByText('Start New Clarification')).toBeInTheDocument();
+      expect(screen.getByText('Track Existing Job')).toBeInTheDocument();
     });
 
     it('renders PlanTimeline component for non-QUEUED plans', () => {
@@ -1067,7 +1067,7 @@ describe('PlanDetailPage', () => {
       renderComponent('plan-123');
 
       // Verify clarifier panel is present and can be interacted with
-      expect(screen.getByText('Start New Clarification')).toBeInTheDocument();
+      expect(screen.getByText('Track Existing Job')).toBeInTheDocument();
     });
 
     it('displays plan metadata with proper formatting', () => {
