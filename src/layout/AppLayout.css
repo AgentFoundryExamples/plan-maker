@@ -114,6 +114,17 @@
 .app-main {
   flex: 1;
   padding: var(--spacing-lg) 0;
+  /* Allow natural scrolling - no max-height on mobile */
+  overflow: visible;
+}
+
+/* Enable smooth scrolling for the entire page */
+@media (max-width: 767px) {
+  .app-main {
+    /* Remove any height constraints on mobile */
+    min-height: auto;
+    padding: var(--spacing-md) 0;
+  }
 }
 
 /* ===========================

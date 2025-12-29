@@ -4,6 +4,42 @@
 
 This document outlines the mobile and touch-first optimizations implemented across the Plan Maker application to ensure optimal user experience on phones and tablets.
 
+## Responsive Layout Design
+
+### PlanDetailPage Layout Modes
+
+The Plan Detail page implements a dual-mode responsive layout:
+
+**Mobile Mode (< 768px):**
+- **Collapsible Spec List**: A sticky, top-docked drawer showing all specifications
+  - Toggle button to expand/collapse the list
+  - Auto-collapses when a spec is selected for optimal viewing space
+  - Sticky positioned below the header for easy access
+- **Detail Pane**: Stacked below the spec list
+  - Shows the currently selected specification's content and Q&A
+  - Natural full-page vertical scrolling
+  - No fixed heights or nested scrollbars
+
+**Desktop Mode (≥ 768px):**
+- **Dual-Pane Layout**: Side-by-side spec list and detail pane
+  - Fixed-width left pane (320px) with scrollable spec list
+  - Flexible-width right pane with scrollable detail content
+  - Fixed maximum height with internal scrolling
+
+### Breakpoints
+
+Responsive breakpoints are configured via CSS custom properties:
+
+```css
+:root {
+  --dual-pane-breakpoint: 768px;
+}
+```
+
+The layout switches at this breakpoint:
+- **<768px**: Stacked mobile layout with collapsible spec list
+- **≥768px**: Side-by-side dual-pane layout
+
 ## Key Features
 
 ### 1. Touch Targets
@@ -12,8 +48,24 @@ All interactive elements meet or exceed the minimum 44×44px touch target requir
 
 - **Buttons**: Minimum 44px height on mobile, 48px for primary actions
 - **Form inputs**: Minimum 44px height with increased padding on mobile
-- **Cards**: Minimum 88px height for adequate touch surface
+- **Spec list items**: Minimum 88px height for adequate touch surface
+- **Toggle button**: 44×44px minimum for easy interaction
 - **Checkboxes/Radio buttons**: Minimum 24×24px
+
+Mobile-specific touch target improvements:
+```css
+@media (max-width: 767px) {
+  .spec-list-item {
+    min-height: 88px;
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+  
+  .btn-submit {
+    width: 100%;
+    min-height: 48px;
+  }
+}
+```
 
 ### 2. Safe Area Support
 
@@ -44,18 +96,49 @@ Optimized for common device sizes:
 
 ### 4. Smooth Scrolling
 
-Momentum scrolling enabled for iOS devices:
+#### Page-Level Scrolling
+On mobile, the entire page uses natural vertical scrolling - no nested scrollbars or fixed-height containers that could trap content.
 
-```css
--webkit-overflow-scrolling: touch;
-scroll-behavior: smooth;
+**Mobile (<768px):**
+- Spec list is collapsible and sticky at the top
+- Detail pane scrolls naturally with page content
+- No `max-height` constraints
+- Single scroll context for the entire page
+
+**Desktop (≥768px):**
+- Dual-pane layout with fixed max-height
+- Each pane has independent scrolling
+- Spec list scrolls within its 320px width
+- Detail pane scrolls within remaining space
+
+#### Momentum Scrolling
+
+**Modern iOS (13+)** handles momentum scrolling automatically without requiring `-webkit-overflow-scrolling: touch`. This property has been deprecated and is no longer needed.
+
+The application relies on native browser scrolling behavior which provides:
+- Smooth inertia scrolling on iOS Safari
+- Natural momentum on all mobile browsers
+- Better performance without legacy CSS properties
+
+**Note:** The deprecated `-webkit-overflow-scrolling: touch` property has been removed from all stylesheets as modern browsers handle this automatically.
+
+#### Collapsible Spec List (Mobile)
+
+The spec list on mobile features:
+- **Sticky positioning** below the header
+- **Toggle button** (▼/▲) to expand/collapse
+- **Auto-collapse** when a spec is selected
+- **Smooth animation** for expand/collapse transitions
+- **Accessible** with ARIA labels and keyboard support
+
+```tsx
+// Auto-collapse behavior
+useEffect(() => {
+  if (isMobile && selectedIndex !== null) {
+    setIsCollapsed(true);
+  }
+}, [selectedIndex, isMobile]);
 ```
-
-Applied to:
-- Accordion lists
-- Timeline containers
-- Clarifier panels
-- All scrollable regions
 
 ### 5. Sticky Action Bars
 
@@ -133,36 +216,110 @@ All automatically disabled for users who prefer reduced motion.
 
 ## Implementation Details
 
-### PlannerInputPage
-
-**Mobile Optimizations:**
-- Full-width submit button (48px height)
-- Increased font size for inputs (18px)
-- Safe area padding for all form fields
-- Reduced motion for spinner animations
-
-**Breakpoint: 320px**
-- Compact padding (8px → 12px)
-- Maintains minimum touch targets
-
 ### PlanDetailPage
 
+The PlanDetailPage implements responsive layout switching based on viewport width:
+
+```tsx
+// Detect viewport size
+const [isDesktop, setIsDesktop] = useState(false);
+
+useEffect(() => {
+  setIsDesktop(window.innerWidth >= 768);
+}, []);
+
+useEffect(() => {
+  const handleResize = () => {
+    setIsDesktop(window.innerWidth >= 768);
+  };
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
+```
+
+**Layout Rendering:**
+```tsx
+{isDesktop ? (
+  // Desktop: Dual-pane layout
+  <div className="dual-pane-container">
+    <SpecListPane ... />
+    <SpecDetailPane ... />
+  </div>
+) : (
+  // Mobile: Accordion layout (legacy) or Stacked layout (new)
+  <div className="dual-pane-container">
+    <SpecListPane ... />  {/* Collapsible */}
+    <SpecDetailPane ... /> {/* Stacked below */}
+  </div>
+)}
+```
+
 **Mobile Optimizations:**
-- Sticky submission controls at bottom
-- Momentum scrolling for accordion lists
-- 6rem minimum height for text areas
-- Timeline animations with reduced motion support
-- Bottom padding to prevent content hiding behind sticky bar
+- Collapsible spec list with toggle button
+- Natural page-level scrolling (no fixed heights)
+- Full-width submit buttons (48px height)
+- Safe area padding for all form fields
+- Reduced motion for animations
+- 88px minimum height for spec list items
+- Increased font sizes for readability
 
-**Accordion:**
-- 72px minimum header height on mobile
-- Single scroll container (no nested scrollbars)
-- Smooth expand/collapse animations
+**Breakpoints:**
+- **320px**: Compact padding, maintains minimum touch targets
+- **480px**: Standard mobile spacing
+- **768px+**: Desktop dual-pane layout activated
 
-**Submission Section:**
-- Full-width submit button (48px height)
-- Sticky positioning with keyboard offset
-- Safe area padding for bottom inset
+### SpecListPane (Mobile Behavior)
+
+The SpecListPane component adapts for mobile:
+
+```tsx
+const [isCollapsed, setIsCollapsed] = React.useState(false);
+const [isMobile, setIsMobile] = React.useState(false);
+
+// Auto-collapse when spec is selected on mobile
+useEffect(() => {
+  if (isMobile && selectedIndex !== null) {
+    setIsCollapsed(true);
+  }
+}, [selectedIndex, isMobile]);
+```
+
+**CSS Implementation:**
+```css
+@media (max-width: 767px) {
+  .spec-list-pane {
+    position: sticky;
+    top: calc(var(--header-height) + var(--spacing-sm));
+    z-index: calc(var(--z-index-sticky) - 1);
+  }
+
+  .spec-list-pane.collapsed .spec-list-items {
+    display: none;
+  }
+}
+```
+
+### SpecDetailPane (Mobile Scrolling)
+
+On mobile, the detail pane allows natural scrolling:
+
+```css
+@media (max-width: 767px) {
+  .spec-detail-pane {
+    /* Allow natural scrolling */
+    overflow: visible;
+    min-height: 300px;
+  }
+}
+
+@media (min-width: 768px) {
+  .spec-detail-pane {
+    /* Fixed height with internal scrolling */
+    overflow-y: auto;
+    height: 100%;
+  }
+}
+```
 
 ### PlansListPage
 
@@ -188,38 +345,120 @@ All automatically disabled for users who prefer reduced motion.
 
 ### Visual Testing
 
-- [ ] Test on 320px width (iPhone SE)
-- [ ] Test on 375px width (iPhone 13)
-- [ ] Test on 768px width (iPad)
-- [ ] Test on desktop (1200px+)
+Test the application at these common viewport widths:
+
+- [ ] **320px width** - iPhone SE (1st gen), very small phones
+  - Spec list should be collapsible
+  - All content should fit without horizontal scroll
+  - Touch targets should be at least 44px
+  - Text should be readable without zooming
+
+- [ ] **375px width** - iPhone 13/14, common phone size
+  - Spec list toggle button should be visible
+  - Detail pane should display full content
+  - Buttons should be full-width
+  - No layout overflow
+
+- [ ] **768px width** - iPad Mini, small tablets
+  - Should show dual-pane layout (desktop mode)
+  - Spec list should be 320px fixed width
+  - Detail pane should scroll independently
+  - No toggle button visible
+
+- [ ] **1024px+ width** - Desktop
+  - Dual-pane layout fully visible
+  - Optimal viewing experience
+  - No mobile styles applied
 
 ### Touch Testing
 
-- [ ] All buttons have adequate touch targets (44px+)
-- [ ] Form inputs are easy to tap
-- [ ] Cards are easy to tap
+Verify touch interactions on actual mobile devices:
+
+- [ ] Spec list toggle button is easy to tap (44×44px minimum)
+- [ ] Spec list items are easy to tap (88px minimum height)
+- [ ] Submit buttons are easy to tap (48px minimum height)
+- [ ] Form inputs are easy to tap (44px minimum height)
 - [ ] No accidental taps on adjacent elements
+- [ ] Touch targets have adequate spacing
 
 ### Scrolling Testing
 
-- [ ] No nested scrollbars
-- [ ] Momentum scrolling works on iOS
-- [ ] Sticky elements don't hide content
-- [ ] Virtual keyboard doesn't hide inputs
+Test scrolling behavior across devices:
+
+- [ ] **Mobile**: Page scrolls naturally from top to bottom
+- [ ] **Mobile**: No nested scrollbars (one scroll context only)
+- [ ] **Mobile**: Momentum scrolling works smoothly on iOS
+- [ ] **Mobile**: Virtual keyboard doesn't hide inputs or buttons
+- [ ] **Mobile**: Spec list auto-collapses when spec selected
+- [ ] **Desktop**: Dual panes scroll independently
+- [ ] **Desktop**: No page-level scroll, only pane scrolling
 
 ### Accessibility Testing
 
+Ensure mobile accessibility:
+
 - [ ] Reduced motion preference disables animations
-- [ ] Focus indicators are visible
-- [ ] Screen reader announces interactive elements
-- [ ] Keyboard navigation works properly
+- [ ] Focus indicators are visible on all interactive elements
+- [ ] Screen reader announces spec list toggle state
+- [ ] Screen reader announces selected spec
+- [ ] Keyboard navigation works on mobile (with external keyboard)
+- [ ] Touch targets meet WCAG 2.1 AA requirements (44×44px)
 
 ### Edge Cases
 
-- [ ] Very small viewports (<=320px) work without horizontal scroll
-- [ ] Soft keyboard doesn't hide sticky actions
-- [ ] Long text wraps without breaking layout
-- [ ] Safe areas respected on devices with notches
+Test these scenarios:
+
+- [ ] **Device Rotation**: Rotate from portrait to landscape and back
+  - Selected spec should remain selected
+  - Scroll position should be preserved reasonably
+  - Layout should adapt without breaking
+  
+- [ ] **Very Long Specs**: Test with specs that have long titles and many questions
+  - Text should wrap without breaking layout
+  - Scroll should work smoothly
+  - No horizontal overflow
+  
+- [ ] **Virtual Keyboard**: Open keyboard in spec detail inputs
+  - Sticky elements should not hide content
+  - Submit button should remain accessible
+  - Keyboard offset should be handled properly
+  
+- [ ] **Slow Network**: Simulate slow 3G connection
+  - Skeleton states should display correctly
+  - Layout should not jump when content loads
+  - Mobile-appropriate sizes for loading states
+
+### Browser Compatibility
+
+Test on these mobile browsers:
+
+- [ ] **iOS Safari** 14+
+  - Momentum scrolling works
+  - Safe area insets respected
+  - No layout issues with notch
+  
+- [ ] **Chrome Mobile** (Android)
+  - Scrolling is smooth
+  - Touch interactions work
+  - No performance issues
+  
+- [ ] **Firefox Mobile**
+  - All features functional
+  - Layout displays correctly
+  
+- [ ] **Samsung Internet**
+  - Compatible with all features
+  - No browser-specific bugs
+
+### Performance Testing
+
+Verify performance on mobile devices:
+
+- [ ] **Animations**: Should be smooth 60fps or disabled with reduced motion
+- [ ] **Scroll Performance**: No jank or lag when scrolling
+- [ ] **Touch Response**: Immediate feedback on touch
+- [ ] **Page Load**: Loads quickly on mobile networks
+- [ ] **Memory**: No memory leaks with prolonged use
 
 ## Browser Compatibility
 
@@ -255,25 +494,113 @@ All automatically disabled for users who prefer reduced motion.
 
 ## Configuration
 
-All mobile behavior is configurable via CSS custom properties:
+All mobile behavior is configurable via CSS custom properties in `src/styles/PlanDetailPage.css`:
+
+### Layout Configuration
 
 ```css
 :root {
-  /* Touch targets */
-  --accordion-header-min-height-mobile: 4.5rem; /* 72px */
+  /* Dual-pane layout settings */
+  --dual-pane-enabled: true;
+  --dual-pane-breakpoint: 768px;  /* Switch point between mobile/desktop */
+  --dual-pane-gap: var(--spacing-lg);
+  --spec-list-width: 320px;       /* Desktop spec list width */
+  --spec-list-min-width: 280px;
+  --spec-list-max-width: 400px;
+  --detail-pane-min-width: 400px;
+  --dual-pane-min-height: 500px;
+  --dual-pane-max-height: calc(100vh - 200px);
+}
+```
+
+### Touch Target Configuration
+
+```css
+:root {
+  /* Accordion on mobile (if used) */
+  --accordion-header-min-height-mobile: 4.5rem;   /* 72px */
   --accordion-header-min-height-desktop: 3.75rem; /* 60px */
   
-  /* Sticky elements */
-  --sticky-summary-position: bottom;
+  /* Buttons minimum heights */
+  --button-min-height-mobile: 48px;
+  --button-min-height-desktop: 44px;
+  
+  /* Input minimum heights */
+  --input-height: 44px;
+}
+```
+
+### Sticky Elements Configuration
+
+```css
+:root {
+  /* Sticky summary bar (if used) */
+  --sticky-summary-position: bottom; /* top or bottom */
   --sticky-summary-height: 5rem;
+  --sticky-summary-offset: 0px;
   --sticky-summary-z-index: var(--z-index-sticky);
   
-  /* Animations */
+  /* Keyboard offset for virtual keyboards */
+  --keyboard-offset: 0px;  /* Update via JS when keyboard appears */
+}
+```
+
+### Animation Configuration
+
+```css
+:root {
+  /* Transition durations */
   --transition-duration-fast: 150ms;
   --transition-duration-base: 200ms;
   --transition-duration-slow: 300ms;
+  
+  /* Easing functions */
+  --transition-timing-ease-in-out: ease-in-out;
+  --transition-timing-ease-out: ease-out;
 }
 ```
+
+### Modifying Breakpoint
+
+To change the mobile/desktop breakpoint:
+
+1. Update the CSS variable:
+```css
+:root {
+  --dual-pane-breakpoint: 900px;  /* New breakpoint */
+}
+```
+
+2. Update the JavaScript detection in `SpecListPane.tsx`:
+```tsx
+const checkMobile = () => {
+  setIsMobile(window.innerWidth < 900);  /* Match CSS breakpoint */
+};
+```
+
+3. Update the PlanDetailPage responsive logic:
+```tsx
+setIsDesktop(window.innerWidth >= 900);  /* Match CSS breakpoint */
+```
+
+### Virtual Keyboard Handling
+
+To handle virtual keyboards on mobile:
+
+```javascript
+// Add to your app initialization
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => {
+    const keyboardHeight = window.innerHeight - window.visualViewport.height;
+    document.documentElement.style.setProperty(
+      '--keyboard-offset',
+      `${Math.max(0, keyboardHeight)}px`
+    );
+  });
+}
+```
+
+This updates the `--keyboard-offset` CSS variable to adjust sticky element positioning when the virtual keyboard appears.
 
 ## Best Practices
 

@@ -17,6 +17,9 @@ import type { QuestionAnswer } from '@/api/specClarifier/models/QuestionAnswer';
 import '@/styles/PlansListPage.css';
 import '@/styles/PlanDetailPage.css';
 
+// Shared breakpoint constant - must match CSS --dual-pane-breakpoint
+const MOBILE_BREAKPOINT = 768;
+
 const PlanDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -41,18 +44,25 @@ const PlanDetailPage: React.FC = () => {
   // Track if spec selection has been initialized to prevent race conditions
   const [isSpecInitialized, setIsSpecInitialized] = useState(false);
 
-  // Initialize viewport detection after mount
-  useEffect(() => {
-    setIsDesktop(window.innerWidth >= 768);
-  }, []);
-
-  // Handle viewport resize
+  // Handle viewport resize with debouncing (consolidated with initial check)
   useEffect(() => {
     const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 768);
+      setIsDesktop(window.innerWidth >= MOBILE_BREAKPOINT);
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    handleResize(); // Initial check
+
+    let resizeTimeout: ReturnType<typeof setTimeout>;
+    const debouncedResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(handleResize, 150);
+    };
+    
+    window.addEventListener('resize', debouncedResize);
+    return () => {
+      clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', debouncedResize);
+    };
   }, []);
 
   // Initialize selected spec from URL or default
