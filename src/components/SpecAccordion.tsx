@@ -288,10 +288,10 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
                     className={`question-badge ${!hasQuestions ? 'badge-complete' : unansweredCount === 0 ? 'badge-complete' : 'badge-pending'}`}
                     aria-label={
                       !hasQuestions
-                        ? 'No questions'
+                        ? 'Checkmark: No questions'
                         : unansweredCount === 0
-                        ? 'All questions answered'
-                        : `${unansweredCount} question${unansweredCount !== 1 ? 's' : ''} remaining`
+                        ? 'Checkmark: All questions answered'
+                        : `Warning: ${unansweredCount} question${unansweredCount !== 1 ? 's' : ''} remaining`
                     }
                   >
                     {!hasQuestions

@@ -253,7 +253,7 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
             <span className="clarifier-readiness-icon">⚠️</span>
             <div className="clarifier-readiness-content">
               <p className="clarifier-readiness-text">
-                <strong>Not ready to submit:</strong> {formatQuestionCount(validationResult.unansweredCount)} still {validationResult.unansweredCount === 1 ? 'needs' : 'need'} an answer.
+                <strong>Not ready to submit:</strong> {formatQuestionCount(validationResult.unansweredCount)} still {validationResult.unansweredCount === 1 ? 'needs' : 'need'} answers.
               </p>
               <p className="clarifier-readiness-helper">
                 Please scroll up and answer all {getQuestionText(validationResult.unansweredCount)} in the specifications before starting clarification.
@@ -278,8 +278,13 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
           type="button"
           className="btn btn-primary"
           onClick={handleStartClarification}
-          disabled={!canClarify || submitClarification.isPending}
+          disabled={!canClarify || submitClarification.isPending || (validationResult !== null && !validationResult.isValid)}
           aria-busy={submitClarification.isPending}
+          title={
+            validationResult && !validationResult.isValid
+              ? `Please answer ${formatQuestionCount(validationResult.unansweredCount, ' remaining')} before starting clarification`
+              : undefined
+          }
         >
           {submitClarification.isPending ? 'Creating...' : 'Start Clarification'}
         </button>
