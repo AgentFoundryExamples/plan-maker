@@ -35,10 +35,13 @@ All layout behavior is adjustable via CSS variables in `src/styles/PlanDetailPag
 ### Pane Heights (Viewport-Relative)
 
 ```css
---pane-row-height: calc(100vh - 400px); /* Height for top row */
+--pane-viewport-offset: 400px; /* Offset for header, metadata, and clarifier space - adjust as needed */
+--pane-row-height: calc(100vh - var(--pane-viewport-offset)); /* Height for top row */
 --pane-min-height: 400px; /* Minimum height for panes */
 --pane-max-height: calc(100vh - 350px); /* Maximum height for panes */
 ```
+
+**Note**: The viewport offset is now configurable via `--pane-viewport-offset` variable, making it easier to adjust for different layouts or header/footer heights. The grid height uses `max()` to ensure panes never fall below the minimum height.
 
 ### Clarifier Panel (Bottom, Full Width)
 
@@ -139,10 +142,9 @@ text-overflow: ellipsis;
 All text content uses:
 ```css
 overflow-wrap: break-word;
-hyphens: auto;
 ```
 
-This ensures extremely long words or URLs wrap gracefully without horizontal overflow.
+This ensures extremely long words or URLs wrap gracefully without horizontal overflow. Note: `hyphens: auto` was removed as it can be unreliable across browsers.
 
 ## Edge Cases Handled
 
@@ -181,7 +183,7 @@ This ensures extremely long words or URLs wrap gracefully without horizontal ove
 ✅ **Content wraps without overlap and clamps long titles**
    - CSS line-clamp applied to titles (2-3 lines)
    - `overflow-wrap: break-word` for all text
-   - `hyphens: auto` for natural word breaks
+   - Unreliable `hyphens: auto` removed for better cross-browser compatibility
 
 ✅ **Tests assert layout structure and scrollable containers**
    - 53 tests for PlanDetailPage (includes new layout tests)

@@ -31,7 +31,8 @@
   --detail-pane-min-width: 400px; /* Minimum width for detail pane */
   
   /* Pane height configuration - fixed to viewport */
-  --pane-row-height: calc(100vh - 400px); /* Height for top row (viewport - metadata/clarifier space) */
+  --pane-viewport-offset: 400px; /* Offset for header, metadata, and clarifier space - adjust as needed */
+  --pane-row-height: calc(100vh - var(--pane-viewport-offset)); /* Height for top row (viewport - offset) */
   --pane-min-height: 400px; /* Minimum height for panes */
   --pane-max-height: calc(100vh - 350px); /* Maximum height for panes */
   
@@ -142,7 +143,7 @@
     display: grid;
     grid-template-columns: var(--spec-list-width-percent) 1fr;
     gap: var(--pane-gap);
-    height: var(--pane-row-height);
+    height: max(var(--pane-min-height), var(--pane-row-height));
     min-height: var(--pane-min-height);
     max-height: var(--pane-max-height);
   }
@@ -818,7 +819,6 @@
   font-size: var(--font-size-base);
   /* Allow long paragraphs to wrap gracefully */
   overflow-wrap: break-word;
-  hyphens: auto;
 }
 
 .spec-details .spec-section ul {
@@ -834,7 +834,6 @@
   font-size: var(--font-size-base);
   /* Allow long list items to wrap gracefully */
   overflow-wrap: break-word;
-  hyphens: auto;
 }
 
 /* Questions Section */
@@ -888,7 +887,6 @@
   font-size: var(--font-size-base);
   /* Allow long questions to wrap naturally */
   overflow-wrap: break-word;
-  hyphens: auto;
 }
 
 /* Answer Indicator */
