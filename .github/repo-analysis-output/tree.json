@@ -538,6 +538,10 @@
     },
     {
       "type": "file",
+      "name": "LAYOUT_REFACTOR.md"
+    },
+    {
+      "type": "file",
       "name": "LICENSE"
     },
     {

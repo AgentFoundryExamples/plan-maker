@@ -124,6 +124,7 @@
 ├── .prettierrc
 ├── eslint.config.js
 ├── index.html
+├── LAYOUT_REFACTOR.md
 ├── LICENSE
 ├── package-lock.json
 ├── package.json
