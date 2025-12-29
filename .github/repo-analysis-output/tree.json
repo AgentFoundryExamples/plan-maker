@@ -251,6 +251,14 @@
             {
               "type": "file",
               "name": "SpecAccordion.tsx"
+            },
+            {
+              "type": "file",
+              "name": "StatusBadge.test.tsx"
+            },
+            {
+              "type": "file",
+              "name": "StatusBadge.tsx"
             }
           ]
         },

@@ -57,7 +57,9 @@
     ├── ErrorBoundary.test.tsx
     ├── ErrorBoundary.tsx
     ├── SpecAccordion.test.tsx
-    └── SpecAccordion.tsx
+    ├── SpecAccordion.tsx
+    ├── StatusBadge.test.tsx
+    └── StatusBadge.tsx
   ├── layout
     ├── AppLayout.css
     ├── AppLayout.test.tsx
