@@ -137,6 +137,7 @@ export const SubmissionMetadataProvider: React.FC<SubmissionMetadataProviderProp
   });
 
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isInitialMount = useRef(true);
 
   /**
    * Debounced save to localStorage
@@ -156,19 +157,22 @@ export const SubmissionMetadataProvider: React.FC<SubmissionMetadataProviderProp
 
   // Save to storage whenever metadata changes
   useEffect(() => {
-    if (Object.keys(metadata).length > 0) {
-      saveToStorage(metadata);
+    // Don't save on initial hydration, only on subsequent changes
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
     }
+    saveToStorage(metadata);
   }, [metadata, saveToStorage]);
 
-  // Cleanup timeout on unmount
+  // Cleanup timeout on unmount and when saveToStorage dependencies change
   useEffect(() => {
     return () => {
       if (saveTimeoutRef.current !== null) {
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, []);
+  }, [saveToStorage]);
 
   /**
    * Get submission metadata for a plan
@@ -192,8 +196,7 @@ export const SubmissionMetadataProvider: React.FC<SubmissionMetadataProviderProp
    */
   const clearSubmission = useCallback((planId: string) => {
     setMetadata((prev) => {
-      const next = { ...prev };
-      delete next[planId];
+      const { [planId]: _, ...next } = prev;
       return next;
     });
   }, []);
