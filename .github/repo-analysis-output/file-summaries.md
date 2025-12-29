@@ -128,7 +128,7 @@ Total files: 48
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 11.79 KB  
+**Size:** 11.77 KB  
 **LOC:** 346  
 **TODOs/FIXMEs:** 0  
 
@@ -362,7 +362,7 @@ Total files: 48
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 7.46 KB  
+**Size:** 7.42 KB  
 **LOC:** 188  
 **TODOs/FIXMEs:** 0  
 
@@ -371,8 +371,8 @@ Total files: 48
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 5.49 KB  
-**LOC:** 182  
+**Size:** 6.67 KB  
+**LOC:** 221  
 **TODOs/FIXMEs:** 0  
 
 ## src/utils/textUtils.test.ts
@@ -389,8 +389,8 @@ Total files: 48
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 1.53 KB  
-**LOC:** 31  
+**Size:** 2.51 KB  
+**LOC:** 59  
 **TODOs/FIXMEs:** 0  
 
 ## src/utils/validators.test.ts
