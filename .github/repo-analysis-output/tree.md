@@ -57,6 +57,7 @@
     ├── specClarifierClient.test.ts
     └── specClarifierClient.ts
   ├── components
+    ├── Breadcrumb.tsx
     ├── ClarifierPanel.test.tsx
     ├── ClarifierPanel.tsx
     ├── ErrorBoundary.test.tsx
