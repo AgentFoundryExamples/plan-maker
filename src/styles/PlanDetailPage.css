@@ -158,9 +158,16 @@
     display: none;
   }
 
-  /* Add animation for expand/collapse */
+  /* Add transition for expand/collapse (using max-height for smooth animation) */
   .spec-list-pane .spec-list-items {
-    animation: slideDown var(--transition-duration-base) var(--transition-timing-ease-out);
+    overflow: hidden;
+    transition: max-height var(--transition-duration-base) var(--transition-timing-ease-out);
+    max-height: 600px; /* Reasonable max for expanded state */
+  }
+
+  .spec-list-pane.collapsed .spec-list-items {
+    max-height: 0;
+    transition: max-height var(--transition-duration-base) var(--transition-timing-ease-out);
   }
 }
 
@@ -169,8 +176,6 @@
   .spec-list-pane {
     overflow-y: auto;
     height: 100%;
-    /* Enable momentum scrolling on iOS */
-    -webkit-overflow-scrolling: touch;
     overflow: hidden;
   }
 }
@@ -243,14 +248,6 @@
   flex-direction: column;
   padding: var(--spacing-sm);
   gap: var(--spacing-xs);
-}
-
-/* Enable momentum scrolling on desktop for spec list */
-@media (min-width: 768px) {
-  .spec-list-items {
-    /* Enable smooth momentum scrolling on iOS */
-    -webkit-overflow-scrolling: touch;
-  }
 }
 
 /* Individual spec list item */
@@ -353,8 +350,6 @@
     overflow-y: auto;
     overflow-x: hidden;
     height: 100%;
-    /* Enable momentum scrolling on iOS */
-    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -400,19 +395,14 @@
   overflow-y: visible;
 }
 
-/* Enable momentum scrolling on desktop for detail pane */
 @media (min-width: 768px) {
   .spec-detail-content {
-    /* Enable smooth momentum scrolling on iOS */
-    -webkit-overflow-scrolling: touch;
   }
 }
 
 /* On mobile, ensure adequate padding for touch interaction */
 @media (max-width: 767px) {
   .spec-detail-content {
-    /* Enable smooth momentum scrolling for page-level scroll */
-    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -492,7 +482,6 @@
   gap: var(--spacing-sm);
   animation: slideIn var(--transition-duration-slow) var(--transition-timing-ease-out);
   /* Smooth scrolling behavior for mobile */
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Position sticky bar based on configuration */
@@ -600,8 +589,6 @@
   max-height: var(--accordion-list-max-height);
   overflow-y: auto;
   padding-right: var(--spacing-xs);
-  /* Enable momentum scrolling on iOS */
-  -webkit-overflow-scrolling: touch;
   /* Smooth scrolling behavior */
   scroll-behavior: smooth;
 }
@@ -1596,8 +1583,6 @@
   overflow-x: auto;
   max-height: var(--debug-output-max-height);
   overflow-y: auto;
-  /* Enable momentum scrolling on iOS */
-  -webkit-overflow-scrolling: touch;
 }
 
 .clarifier-debug-error {

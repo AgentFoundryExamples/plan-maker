@@ -112,19 +112,15 @@ On mobile, the entire page uses natural vertical scrolling - no nested scrollbar
 - Detail pane scrolls within remaining space
 
 #### Momentum Scrolling
-Momentum scrolling enabled for iOS devices:
 
-```css
--webkit-overflow-scrolling: touch;
-scroll-behavior: smooth;
-```
+**Modern iOS (13+)** handles momentum scrolling automatically without requiring `-webkit-overflow-scrolling: touch`. This property has been deprecated and is no longer needed.
 
-Applied to:
-- Spec list pane (desktop only)
-- Detail pane (desktop only)
-- Timeline containers
-- Clarifier panels
-- All scrollable regions
+The application relies on native browser scrolling behavior which provides:
+- Smooth inertia scrolling on iOS Safari
+- Natural momentum on all mobile browsers
+- Better performance without legacy CSS properties
+
+**Note:** The deprecated `-webkit-overflow-scrolling: touch` property has been removed from all stylesheets as modern browsers handle this automatically.
 
 #### Collapsible Spec List (Mobile)
 

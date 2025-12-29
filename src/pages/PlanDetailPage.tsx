@@ -17,6 +17,9 @@ import type { QuestionAnswer } from '@/api/specClarifier/models/QuestionAnswer';
 import '@/styles/PlansListPage.css';
 import '@/styles/PlanDetailPage.css';
 
+// Shared breakpoint constant - must match CSS --dual-pane-breakpoint
+const MOBILE_BREAKPOINT = 768;
+
 const PlanDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -43,16 +46,24 @@ const PlanDetailPage: React.FC = () => {
 
   // Initialize viewport detection after mount
   useEffect(() => {
-    setIsDesktop(window.innerWidth >= 768);
+    setIsDesktop(window.innerWidth >= MOBILE_BREAKPOINT);
   }, []);
 
-  // Handle viewport resize
+  // Handle viewport resize with debouncing
   useEffect(() => {
+    let resizeTimeout: ReturnType<typeof setTimeout>;
     const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 768);
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        setIsDesktop(window.innerWidth >= MOBILE_BREAKPOINT);
+      }, 150);
     };
+    
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   // Initialize selected spec from URL or default

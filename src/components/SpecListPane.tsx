@@ -1,6 +1,9 @@
 import React from 'react';
 import type { SpecItem } from '@/api/softwarePlanner/models/SpecItem';
 
+// Shared breakpoint constant - must match CSS --dual-pane-breakpoint
+const MOBILE_BREAKPOINT = 768;
+
 export interface SpecListPaneProps {
   specs: SpecItem[];
   selectedIndex: number | null;
@@ -39,12 +42,23 @@ export const SpecListPane: React.FC<SpecListPaneProps> = ({
 
   React.useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     };
     
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    
+    // Debounced resize handler to avoid excessive re-renders
+    let resizeTimeout: ReturnType<typeof setTimeout>;
+    const debouncedResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(checkMobile, 150);
+    };
+    
+    window.addEventListener('resize', debouncedResize);
+    return () => {
+      clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', debouncedResize);
+    };
   }, []);
 
   // Ensure refs array matches specs length
