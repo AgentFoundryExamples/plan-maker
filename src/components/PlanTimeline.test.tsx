@@ -337,5 +337,41 @@ describe('PlanTimeline', () => {
       // Should still render even with bad timestamps
       expect(screen.getByText('Plan Created')).toBeInTheDocument();
     });
+
+    it('sorts events with invalid timestamps to the end', () => {
+      const invalidTimestampJob: PlanJobStatus = {
+        job_id: 'plan-123',
+        status: 'SUCCEEDED',
+        created_at: 'invalid-date',
+        updated_at: '2025-01-15T10:05:00Z',
+      };
+
+      const clarifierJob: JobStatusResponse = {
+        id: 'clarifier-456',
+        status: JobStatus.SUCCESS,
+        created_at: '2025-01-15T10:10:00Z',
+        updated_at: '2025-01-15T10:15:00Z',
+        last_error: null,
+        result: null,
+      };
+
+      render(
+        <PlanTimeline
+          planJob={invalidTimestampJob}
+          clarifierJob={clarifierJob}
+          clarifierCreatedAt={clarifierJob.created_at}
+        />
+      );
+
+      const listItems = screen.getAllByRole('listitem');
+      
+      // Valid timestamps should appear before invalid ones
+      // Most recent valid event (clarifier success at 10:15) should be first
+      expect(listItems[0]).toHaveTextContent('Clarification Success');
+      
+      // Invalid timestamp event (plan created with 'invalid-date') should be last
+      const lastItem = listItems[listItems.length - 1];
+      expect(lastItem).toHaveTextContent('Plan Created');
+    });
   });
 });

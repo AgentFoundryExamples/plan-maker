@@ -929,6 +929,47 @@ describe('PlanDetailPage', () => {
       await user.click(copyButton);
 
       expect(writeTextMock).toHaveBeenCalledWith('plan-123');
+      
+      // Should show success message
+      await import('@testing-library/react').then(({ waitFor }) =>
+        waitFor(() => {
+          expect(screen.getByText(/copied!/i)).toBeInTheDocument();
+        })
+      );
+    });
+
+    it('shows error message when clipboard copy fails', async () => {
+      const user = (await import('@testing-library/user-event')).default.setup();
+      const writeTextMock = vi.fn().mockRejectedValue(new Error('Clipboard error'));
+
+      Object.defineProperty(navigator, 'clipboard', {
+        value: {
+          writeText: writeTextMock,
+        },
+        writable: true,
+        configurable: true,
+      });
+
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-123');
+
+      const copyButton = screen.getByRole('button', { name: /copy plan id to clipboard/i });
+      await user.click(copyButton);
+
+      // Should show error message
+      await import('@testing-library/react').then(({ waitFor }) =>
+        waitFor(() => {
+          expect(screen.getByText(/copy failed/i)).toBeInTheDocument();
+        })
+      );
     });
 
     it('renders ClarifierPanel component', () => {

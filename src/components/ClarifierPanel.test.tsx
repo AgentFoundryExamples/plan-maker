@@ -443,7 +443,7 @@ describe('ClarifierPanel', () => {
     it('copies job ID to clipboard', async () => {
       const user = userEvent.setup();
       const validUUID = '550e8400-e29b-41d4-a716-446655440000';
-      const writeTextMock = vi.fn();
+      const writeTextMock = vi.fn().mockResolvedValue(undefined);
       
       // Mock clipboard using defineProperty
       Object.defineProperty(navigator, 'clipboard', {
@@ -466,6 +466,41 @@ describe('ClarifierPanel', () => {
       });
 
       expect(writeTextMock).toHaveBeenCalledWith(validUUID);
+      
+      // Should show success message
+      await waitFor(() => {
+        expect(screen.getByText(/job id copied to clipboard/i)).toBeInTheDocument();
+      });
+    });
+
+    it('shows error when clipboard copy fails', async () => {
+      const user = userEvent.setup();
+      const validUUID = '550e8400-e29b-41d4-a716-446655440000';
+      const writeTextMock = vi.fn().mockRejectedValue(new Error('Clipboard error'));
+      
+      Object.defineProperty(navigator, 'clipboard', {
+        value: {
+          writeText: writeTextMock,
+        },
+        writable: true,
+        configurable: true,
+      });
+
+      renderComponent();
+
+      const input = screen.getByPlaceholderText(/enter job id/i);
+      await user.type(input, validUUID);
+      await user.keyboard('{Enter}');
+
+      await waitFor(async () => {
+        const copyButton = screen.getByRole('button', { name: /copy job id/i });
+        await user.click(copyButton);
+      });
+
+      // Should show error message
+      await waitFor(() => {
+        expect(screen.getByText(/failed to copy job id/i)).toBeInTheDocument();
+      });
     });
   });
 

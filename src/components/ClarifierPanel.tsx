@@ -136,8 +136,8 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
       return;
     }
 
-    // Basic UUID validation
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    // UUID validation - accepts both uppercase and lowercase with proper hex digit ranges
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
     if (!uuidRegex.test(trimmedId)) {
       setBannerMessage({
         type: 'error',
@@ -297,11 +297,21 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
                 type="button"
                 className="btn btn-text btn-copy"
                 onClick={() => {
-                  navigator.clipboard.writeText(currentJobId);
-                  setBannerMessage({
-                    type: 'info',
-                    message: 'Job ID copied to clipboard',
-                  });
+                  if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(currentJobId)
+                      .then(() => {
+                        setBannerMessage({
+                          type: 'info',
+                          message: 'Job ID copied to clipboard',
+                        });
+                      })
+                      .catch(() => {
+                        setBannerMessage({
+                          type: 'error',
+                          message: 'Failed to copy Job ID to clipboard',
+                        });
+                      });
+                  }
                 }}
                 aria-label="Copy job ID to clipboard"
                 title="Copy to clipboard"

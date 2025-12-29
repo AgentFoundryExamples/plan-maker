@@ -145,11 +145,23 @@ const PlanDetailPage: React.FC = () => {
   // Handle copy job ID to clipboard
   const handleCopyJobId = useCallback((jobId: string) => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(jobId).catch(() => {
-        // Failed silently
-      });
+      navigator.clipboard.writeText(jobId)
+        .then(() => {
+          setSubmissionBanner({
+            type: 'success',
+            title: 'Copied!',
+            message: 'Plan ID copied to clipboard.',
+          });
+        })
+        .catch(() => {
+          setSubmissionBanner({
+            type: 'error',
+            title: 'Copy Failed',
+            message: 'Could not copy Plan ID to clipboard.',
+          });
+        });
     }
-  }, []);
+  }, [setSubmissionBanner]);
 
   // Handle clarification created callback
   const handleClarificationCreated = useCallback((jobId: string) => {

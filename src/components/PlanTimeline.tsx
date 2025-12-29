@@ -120,9 +120,16 @@ function buildTimelineEvents(
   }
 
   // Sort events chronologically (most recent first)
+  // Handle invalid timestamps by treating them as earliest possible time
   events.sort((a, b) => {
     const timeA = new Date(a.timestamp).getTime();
     const timeB = new Date(b.timestamp).getTime();
+    
+    // If either timestamp is invalid (NaN), push it to the end
+    if (isNaN(timeA) && isNaN(timeB)) return 0;
+    if (isNaN(timeA)) return 1;
+    if (isNaN(timeB)) return -1;
+    
     return timeB - timeA;
   });
 
