@@ -4,6 +4,7 @@ import { getClarifierDebug, type ClarifierDebugResponse } from '@/api/specClarif
 import { formatTimestamp } from '@/utils/dateUtils';
 import StatusBadge from './StatusBadge';
 import type { PlanJobStatus } from '@/api/softwarePlannerClient';
+import type { PlanValidationResult } from '@/state/planAnswersStore';
 import { getClarifierJobId, setClarifierJobId } from '@/utils/clarifierStorage';
 
 /**
@@ -16,6 +17,8 @@ export interface ClarifierPanelProps {
   onClarificationCreated?: (jobId: string) => void;
   /** Optional CSS class name */
   className?: string;
+  /** Validation result from plan answers - used to show readiness state */
+  validationResult?: PlanValidationResult | null;
 }
 
 /**
@@ -46,6 +49,7 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
   planJob,
   onClarificationCreated,
   className = '',
+  validationResult = null,
 }) => {
   // Local state
   const [manualJobId, setManualJobId] = useState('');
@@ -242,6 +246,32 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
               ? 'Clarification is only available for successfully completed plans.'
               : 'This plan has no specifications to clarify.'}
           </p>
+        )}
+        {canClarify && validationResult && !validationResult.isValid && (
+          <div className="clarifier-readiness-message clarifier-not-ready" role="status">
+            <span className="clarifier-readiness-icon">⚠️</span>
+            <div className="clarifier-readiness-content">
+              <p className="clarifier-readiness-text">
+                <strong>Not ready to submit:</strong> {validationResult.unansweredCount} question{validationResult.unansweredCount !== 1 ? 's' : ''} still need{validationResult.unansweredCount === 1 ? 's' : ''} an answer.
+              </p>
+              <p className="clarifier-readiness-helper">
+                Please scroll up and answer all questions in the specifications before starting clarification.
+              </p>
+            </div>
+          </div>
+        )}
+        {canClarify && validationResult && validationResult.isValid && (
+          <div className="clarifier-readiness-message clarifier-ready" role="status" aria-live="polite">
+            <span className="clarifier-readiness-icon">✓</span>
+            <div className="clarifier-readiness-content">
+              <p className="clarifier-readiness-text">
+                <strong>Ready to submit:</strong> All {validationResult.totalQuestions} question{validationResult.totalQuestions !== 1 ? 's have' : ' has'} been answered.
+              </p>
+              <p className="clarifier-readiness-helper">
+                Click below to start the clarification process. Your answers will be processed and used to refine the specifications.
+              </p>
+            </div>
+          </div>
         )}
         <button
           type="button"

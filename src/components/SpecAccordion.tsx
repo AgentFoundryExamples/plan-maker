@@ -295,10 +295,10 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
                     }
                   >
                     {!hasQuestions
-                      ? 'No questions'
+                      ? '✓ No questions'
                       : unansweredCount === 0
                       ? '✓ All answered'
-                      : `${unansweredCount} unanswered`}
+                      : `⚠ ${unansweredCount} unanswered`}
                   </span>
                 </div>
                 <span className="accordion-icon" aria-hidden="true">

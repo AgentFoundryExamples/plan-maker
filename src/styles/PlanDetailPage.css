@@ -583,6 +583,44 @@
   position: relative;
 }
 
+/* Readiness Banner - Displayed when all questions are answered */
+.readiness-banner {
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: var(--spacing-lg);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  background: linear-gradient(135deg, var(--color-success-light) 0%, rgba(46, 125, 50, 0.05) 100%);
+  border: var(--border-width-medium) solid var(--color-success);
+  animation: fadeInUp var(--transition-duration-slow) var(--transition-timing-ease-out);
+  box-shadow: var(--shadow-sm);
+}
+
+.readiness-banner-icon {
+  flex-shrink: 0;
+  font-size: var(--font-size-3xl);
+  line-height: 1;
+}
+
+.readiness-banner-content {
+  flex: 1;
+}
+
+.readiness-banner-title {
+  font-weight: var(--font-weight-bold);
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: var(--font-size-lg);
+  color: var(--color-success);
+}
+
+.readiness-banner-message {
+  margin: 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  line-height: var(--line-height-normal);
+}
+
 /* Sticky submission controls for mobile */
 @media (max-width: 767px) {
   .submission-section {
@@ -658,6 +696,12 @@
 .submission-status {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+}
+
+.submission-helper-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-style: italic;
 }
 
 .last-submitted {
@@ -936,6 +980,51 @@
   margin: 0 0 var(--spacing-sm) 0;
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+}
+
+/* Clarifier readiness messages */
+.clarifier-readiness-message {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-md);
+  border: var(--border-width-thin) solid;
+}
+
+.clarifier-readiness-message.clarifier-not-ready {
+  background-color: var(--color-warning-light);
+  border-color: var(--color-warning);
+}
+
+.clarifier-readiness-message.clarifier-ready {
+  background-color: var(--color-success-light);
+  border-color: var(--color-success);
+}
+
+.clarifier-readiness-icon {
+  flex-shrink: 0;
+  font-size: var(--font-size-xl);
+  line-height: 1;
+}
+
+.clarifier-readiness-content {
+  flex: 1;
+}
+
+.clarifier-readiness-text {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  line-height: var(--line-height-normal);
+}
+
+.clarifier-readiness-helper {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
 }
 
 .clarifier-input-group {

@@ -330,6 +330,20 @@ const PlanDetailPage: React.FC = () => {
                 showValidationErrors={showValidationErrors}
               />
 
+              {/* Readiness Banner - Show when all questions are answered */}
+              {hasQuestions && validationResult && validationResult.isValid && (
+                <div className="readiness-banner" role="status" aria-live="polite">
+                  <span className="readiness-banner-icon">🎉</span>
+                  <div className="readiness-banner-content">
+                    <h3 className="readiness-banner-title">Ready to Submit!</h3>
+                    <p className="readiness-banner-message">
+                      All {validationResult.totalQuestions} question{validationResult.totalQuestions !== 1 ? 's have' : ' has'} been answered. 
+                      You can now submit your clarifications for processing.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Submission Section - Only show if there are questions */}
               {hasQuestions && (
                 <div className="submission-section">
@@ -365,17 +379,24 @@ const PlanDetailPage: React.FC = () => {
                   <div className="submission-controls">
                     <div className="submission-info">
                       {validationResult && (
-                        <span className="submission-status">
-                          {validationResult.isValid ? (
-                            <span style={{ color: 'var(--color-success)' }}>
-                              ✓ All questions answered
-                            </span>
-                          ) : (
-                            <span>
-                              {validationResult.unansweredCount} question{validationResult.unansweredCount !== 1 ? 's' : ''} remaining
+                        <>
+                          <span className="submission-status">
+                            {validationResult.isValid ? (
+                              <span style={{ color: 'var(--color-success)' }}>
+                                ✓ All questions answered
+                              </span>
+                            ) : (
+                              <span>
+                                ⚠ {validationResult.unansweredCount} question{validationResult.unansweredCount !== 1 ? 's' : ''} remaining
+                              </span>
+                            )}
+                          </span>
+                          {!validationResult.isValid && (
+                            <span className="submission-helper-text">
+                              Please answer all questions before submitting.
                             </span>
                           )}
-                        </span>
+                        </>
                       )}
                       {submissionMetadata && (
                         <span className="last-submitted">
@@ -394,6 +415,11 @@ const PlanDetailPage: React.FC = () => {
                       onClick={handleSubmit}
                       disabled={submitClarifications.isPending || (!!validationResult && !validationResult.isValid)}
                       aria-busy={submitClarifications.isPending}
+                      title={
+                        validationResult && !validationResult.isValid
+                          ? `Please answer ${validationResult.unansweredCount} remaining question${validationResult.unansweredCount !== 1 ? 's' : ''}`
+                          : 'Submit your answers for clarification'
+                      }
                     >
                       {submitClarifications.isPending ? (
                         <span className="submission-loading">
@@ -427,6 +453,7 @@ const PlanDetailPage: React.FC = () => {
           <ClarifierPanel
             planJob={data}
             onClarificationCreated={handleClarificationCreated}
+            validationResult={hasQuestions ? (validationResult || null) : null}
           />
         </div>
       </>
