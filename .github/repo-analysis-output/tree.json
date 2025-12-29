@@ -288,6 +288,10 @@
             },
             {
               "type": "file",
+              "name": "SpecDetailPane.test.tsx"
+            },
+            {
+              "type": "file",
               "name": "SpecDetailPane.tsx"
             },
             {
