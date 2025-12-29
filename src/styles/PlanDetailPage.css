@@ -15,6 +15,17 @@
    * Example: document.documentElement.style.setProperty('--keyboard-offset', `${keyboardHeight}px`)
    */
   --keyboard-offset: 0px;
+
+  /* Dual-pane layout configuration */
+  --dual-pane-enabled: true; /* Enable dual-pane layout on desktop */
+  --dual-pane-breakpoint: 768px; /* Minimum width for dual-pane layout */
+  --dual-pane-gap: var(--spacing-lg); /* Gap between list and detail panes */
+  --spec-list-width: 320px; /* Fixed width for spec list on desktop */
+  --spec-list-min-width: 280px; /* Minimum width for spec list */
+  --spec-list-max-width: 400px; /* Maximum width for spec list */
+  --detail-pane-min-width: 400px; /* Minimum width for detail pane */
+  --dual-pane-min-height: 500px; /* Minimum height for panes */
+  --dual-pane-max-height: calc(100vh - 200px); /* Maximum height (viewport - header/footer space) */
 }
 
 /* Plan header with actions */
@@ -91,6 +102,254 @@
   margin-bottom: var(--spacing-md);
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+}
+
+/* ===========================
+   DUAL-PANE LAYOUT STYLES
+   =========================== */
+
+/* Container for dual-pane layout */
+.dual-pane-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--dual-pane-gap);
+  width: 100%;
+  min-height: var(--dual-pane-min-height);
+}
+
+/* Desktop: Enable dual-pane layout */
+@media (min-width: 768px) {
+  .dual-pane-container {
+    grid-template-columns: var(--spec-list-width) 1fr;
+    max-height: var(--dual-pane-max-height);
+  }
+}
+
+/* Spec list pane (left column on desktop) */
+.spec-list-pane {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  border: var(--border-width-thin) solid var(--color-border);
+  overflow: hidden;
+}
+
+/* Desktop: Make spec list scrollable */
+@media (min-width: 768px) {
+  .spec-list-pane {
+    overflow-y: auto;
+    height: 100%;
+    /* Enable momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Spec list header */
+.spec-list-header {
+  padding: var(--spacing-md);
+  background-color: var(--color-surface);
+  border-bottom: var(--border-width-thin) solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-index-sticky);
+}
+
+.spec-list-header h3 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+/* Spec list items container */
+.spec-list-items {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-sm);
+  gap: var(--spacing-xs);
+}
+
+/* Individual spec list item */
+.spec-list-item {
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  border: var(--border-width-thin) solid var(--color-border);
+  background-color: var(--color-background);
+  cursor: pointer;
+  transition: var(--transition-colors), var(--transition-transform);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.spec-list-item:hover {
+  background-color: var(--color-surface);
+  border-color: var(--color-primary);
+  transform: translateX(2px);
+}
+
+.spec-list-item:focus {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Selected spec list item */
+.spec-list-item.selected {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  border-width: var(--border-width-medium);
+}
+
+.spec-list-item.selected:hover {
+  background-color: var(--color-primary-light);
+}
+
+/* Spec list item content */
+.spec-list-item-number {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.spec-list-item-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  line-height: var(--line-height-normal);
+  margin: 0;
+  word-wrap: break-word;
+}
+
+.spec-list-item-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--badge-border-radius);
+  font-size: var(--badge-font-size);
+  font-weight: var(--badge-font-weight);
+  white-space: nowrap;
+  align-self: flex-start;
+}
+
+.spec-list-item-badge.complete {
+  background-color: var(--color-success-light);
+  color: var(--color-success);
+  border: var(--border-width-thin) solid var(--color-success-border);
+}
+
+.spec-list-item-badge.pending {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  border: var(--border-width-thin) solid var(--color-primary-border);
+}
+
+/* Detail pane (right column on desktop) */
+.spec-detail-pane {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background);
+  border-radius: var(--border-radius-md);
+  border: var(--border-width-thin) solid var(--color-border);
+  overflow: hidden;
+}
+
+/* Desktop: Make detail pane scrollable */
+@media (min-width: 768px) {
+  .spec-detail-pane {
+    overflow-y: auto;
+    height: 100%;
+    /* Enable momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Detail pane header */
+.spec-detail-header {
+  padding: var(--spacing-lg);
+  background-color: var(--color-surface);
+  border-bottom: var(--border-width-thin) solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-index-sticky);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+}
+
+.spec-detail-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.spec-detail-title h3 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  word-wrap: break-word;
+}
+
+.spec-detail-number {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+/* Detail pane content */
+.spec-detail-content {
+  padding: var(--spacing-lg);
+  flex: 1;
+  overflow-y: visible;
+}
+
+/* Empty state for detail pane */
+.spec-detail-empty {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.spec-detail-empty-icon {
+  font-size: var(--font-size-4xl);
+  margin-bottom: var(--spacing-md);
+  opacity: 0.5;
+}
+
+.spec-detail-empty-message {
+  margin: 0;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+}
+
+/* Custom scrollbar for dual panes */
+@media (min-width: 768px) {
+  .spec-list-pane::-webkit-scrollbar,
+  .spec-detail-pane::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+
+  .spec-list-pane::-webkit-scrollbar-track,
+  .spec-detail-pane::-webkit-scrollbar-track {
+    background: var(--color-surface);
+    border-radius: var(--border-radius-sm);
+  }
+
+  .spec-list-pane::-webkit-scrollbar-thumb,
+  .spec-detail-pane::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: var(--border-radius-sm);
+  }
+
+  .spec-list-pane::-webkit-scrollbar-thumb:hover,
+  .spec-detail-pane::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-secondary);
+  }
 }
 
 /* ===========================
