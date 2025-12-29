@@ -5,6 +5,28 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agent Foundry Plan Maker</title>
+    <script>
+      // Initialize theme before first paint to prevent flash of unstyled content
+      (function() {
+        try {
+          const THEME_STORAGE_KEY = 'plan-maker-theme';
+          const stored = localStorage.getItem(THEME_STORAGE_KEY);
+          const theme = (stored === 'light' || stored === 'dark' || stored === 'auto') ? stored : 'auto';
+          
+          let resolvedTheme = 'light';
+          if (theme === 'auto') {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            resolvedTheme = mediaQuery.matches ? 'dark' : 'light';
+          } else {
+            resolvedTheme = theme;
+          }
+          
+          document.documentElement.setAttribute('data-theme', resolvedTheme);
+        } catch (e) {
+          // Fail silently if localStorage is unavailable
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

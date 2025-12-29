@@ -16,6 +16,11 @@ export type ResolvedTheme = 'light' | 'dark';
 const THEME_STORAGE_KEY = 'plan-maker-theme';
 
 /**
+ * Custom event name for theme changes
+ */
+const THEME_CHANGE_EVENT = 'plan-maker-theme-change';
+
+/**
  * Get system color scheme preference
  */
 function getSystemTheme(): ResolvedTheme {
@@ -85,8 +90,19 @@ function applyTheme(theme: ResolvedTheme): void {
 }
 
 /**
+ * Dispatch custom event to notify all hook instances of theme change
+ */
+function dispatchThemeChangeEvent(theme: ThemeMode): void {
+  if (typeof window === 'undefined') return;
+  
+  window.dispatchEvent(
+    new CustomEvent(THEME_CHANGE_EVENT, { detail: { theme } })
+  );
+}
+
+/**
  * Initialize theme before first paint to prevent flash
- * This should be called in a script tag in index.html or at app initialization
+ * This is called in index.html script tag before React renders
  */
 export function initializeTheme(): void {
   const storedTheme = getStoredTheme() || 'auto';
@@ -134,6 +150,20 @@ export function useTheme() {
     applyTheme(resolved);
   }, [theme]);
 
+  // Listen for theme changes from other hook instances
+  useEffect(() => {
+    const handleThemeChange = (event: Event) => {
+      const customEvent = event as CustomEvent<{ theme: ThemeMode }>;
+      const newTheme = customEvent.detail.theme;
+      
+      // Update state to sync with other instances
+      setThemeState(newTheme);
+    };
+
+    window.addEventListener(THEME_CHANGE_EVENT, handleThemeChange);
+    return () => window.removeEventListener(THEME_CHANGE_EVENT, handleThemeChange);
+  }, []);
+
   // Listen for OS theme changes when in auto mode
   useEffect(() => {
     if (theme !== 'auto') return;
@@ -161,6 +191,8 @@ export function useTheme() {
   const setTheme = useCallback((newTheme: ThemeMode) => {
     setThemeState(newTheme);
     setStoredTheme(newTheme);
+    // Notify all other hook instances of the theme change
+    dispatchThemeChangeEvent(newTheme);
   }, []);
 
   return {
