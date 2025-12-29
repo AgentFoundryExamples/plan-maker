@@ -4,7 +4,7 @@ Heuristic summaries of source files based on filenames, extensions, and paths.
 
 Schema Version: 2.0
 
-Total files: 41
+Total files: 45
 
 ## eslint.config.js
 **Language:** JavaScript  
@@ -65,9 +65,9 @@ Total files: 41
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 13.69 KB  
-**LOC:** 401  
-**TODOs/FIXMEs:** 3  
+**Size:** 14.10 KB  
+**LOC:** 414  
+**TODOs/FIXMEs:** 1  
 
 ## src/api/softwarePlanner/index.ts
 **Language:** TypeScript  
@@ -128,8 +128,8 @@ Total files: 41
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 10.37 KB  
-**LOC:** 308  
+**Size:** 11.79 KB  
+**LOC:** 346  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/softwarePlannerClient.ts
@@ -137,8 +137,8 @@ Total files: 41
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 8.53 KB  
-**LOC:** 264  
+**Size:** 8.00 KB  
+**LOC:** 228  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/specClarifier/index.ts
@@ -281,8 +281,8 @@ Total files: 41
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 9.63 KB  
-**LOC:** 293  
+**Size:** 13.76 KB  
+**LOC:** 395  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/specClarifierClient.ts
@@ -290,8 +290,8 @@ Total files: 41
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 8.10 KB  
-**LOC:** 199  
+**Size:** 10.30 KB  
+**LOC:** 260  
 **TODOs/FIXMEs:** 0  
 
 ## src/test/setup.ts
@@ -330,6 +330,24 @@ Total files: 41
 **LOC:** 116  
 **TODOs/FIXMEs:** 0  
 
+## src/utils/statusMappings.test.ts
+**Language:** TypeScript  
+**Role:** implementation  
+**Role Justification:** general implementation file (default classification)  
+**Summary:** TypeScript core implementation  
+**Size:** 7.46 KB  
+**LOC:** 188  
+**TODOs/FIXMEs:** 0  
+
+## src/utils/statusMappings.ts
+**Language:** TypeScript  
+**Role:** implementation  
+**Role Justification:** general implementation file (default classification)  
+**Summary:** TypeScript core implementation  
+**Size:** 5.49 KB  
+**LOC:** 182  
+**TODOs/FIXMEs:** 0  
+
 ## src/utils/textUtils.test.ts
 **Language:** TypeScript  
 **Role:** implementation  
@@ -346,6 +364,24 @@ Total files: 41
 **Summary:** TypeScript core implementation  
 **Size:** 0.98 KB  
 **LOC:** 13  
+**TODOs/FIXMEs:** 0  
+
+## src/utils/validators.test.ts
+**Language:** TypeScript  
+**Role:** implementation  
+**Role Justification:** general implementation file (default classification)  
+**Summary:** TypeScript core implementation  
+**Size:** 3.91 KB  
+**LOC:** 71  
+**TODOs/FIXMEs:** 0  
+
+## src/utils/validators.ts
+**Language:** TypeScript  
+**Role:** implementation  
+**Role Justification:** general implementation file (default classification)  
+**Summary:** TypeScript core implementation  
+**Size:** 1.37 KB  
+**LOC:** 24  
 **TODOs/FIXMEs:** 0  
 
 ## src/vite-env.d.ts

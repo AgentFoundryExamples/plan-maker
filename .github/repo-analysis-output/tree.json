@@ -386,11 +386,27 @@
             },
             {
               "type": "file",
+              "name": "statusMappings.test.ts"
+            },
+            {
+              "type": "file",
+              "name": "statusMappings.ts"
+            },
+            {
+              "type": "file",
               "name": "textUtils.test.ts"
             },
             {
               "type": "file",
               "name": "textUtils.ts"
+            },
+            {
+              "type": "file",
+              "name": "validators.test.ts"
+            },
+            {
+              "type": "file",
+              "name": "validators.ts"
             }
           ]
         },

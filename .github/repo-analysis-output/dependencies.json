@@ -351,6 +351,26 @@
       }
     },
     {
+      "id": "src/utils/statusMappings.test.ts",
+      "path": "src/utils/statusMappings.test.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "vitest"
+        ]
+      }
+    },
+    {
+      "id": "src/utils/statusMappings.ts",
+      "path": "src/utils/statusMappings.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
       "id": "src/utils/textUtils.test.ts",
       "path": "src/utils/textUtils.test.ts",
       "type": "file",
@@ -364,6 +384,26 @@
     {
       "id": "src/utils/textUtils.ts",
       "path": "src/utils/textUtils.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": []
+      }
+    },
+    {
+      "id": "src/utils/validators.test.ts",
+      "path": "src/utils/validators.test.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "vitest"
+        ]
+      }
+    },
+    {
+      "id": "src/utils/validators.ts",
+      "path": "src/utils/validators.ts",
       "type": "file",
       "external_dependencies": {
         "stdlib": [],
@@ -482,6 +522,14 @@
       "target": "src/api/softwarePlanner/index.ts"
     },
     {
+      "source": "src/api/softwarePlannerClient.ts",
+      "target": "src/utils/statusMappings.ts"
+    },
+    {
+      "source": "src/api/softwarePlannerClient.ts",
+      "target": "src/utils/validators.ts"
+    },
+    {
       "source": "src/api/specClarifier/models/ClarificationRequest.ts",
       "target": "src/api/specClarifier/models/PlanInput.ts"
     },
@@ -550,12 +598,24 @@
       "target": "src/api/specClarifier/index.ts"
     },
     {
+      "source": "src/api/specClarifierClient.ts",
+      "target": "src/utils/validators.ts"
+    },
+    {
       "source": "src/utils/localStorage.test.ts",
       "target": "src/utils/localStorage.ts"
     },
     {
+      "source": "src/utils/statusMappings.test.ts",
+      "target": "src/utils/statusMappings.ts"
+    },
+    {
       "source": "src/utils/textUtils.test.ts",
       "target": "src/utils/textUtils.ts"
+    },
+    {
+      "source": "src/utils/validators.test.ts",
+      "target": "src/utils/validators.ts"
     }
   ],
   "external_dependencies_summary": {
