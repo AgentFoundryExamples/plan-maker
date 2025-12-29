@@ -73,7 +73,9 @@
     └── PlansListPage.tsx
   ├── state
     ├── planAnswersStore.test.tsx
-    └── planAnswersStore.tsx
+    ├── planAnswersStore.tsx
+    ├── submissionMetadataStore.test.tsx
+    └── submissionMetadataStore.tsx
   ├── styles
     ├── global.css
     ├── PlanDetailPage.css
