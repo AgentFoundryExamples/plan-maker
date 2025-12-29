@@ -13,11 +13,17 @@ import { getClarifierJobId, setClarifierJobId } from '@/utils/clarifierStorage';
 export interface ClarifierPanelProps {
   /** The plan job to clarify */
   planJob: PlanJobStatus;
-  /** Callback when clarification job is created */
-  onClarificationCreated?: (jobId: string) => void;
   /** Optional CSS class name */
   className?: string;
-  /** Validation result from plan answers - used to show readiness state */
+  /**
+   * @deprecated No longer used - submission controls moved to PlanStatusBar.
+   * Kept for backward compatibility with existing code.
+   */
+  onClarificationCreated?: (jobId: string) => void;
+  /**
+   * @deprecated No longer used - validation UI moved to PlanStatusBar.
+   * Kept for backward compatibility with existing code.
+   */
   validationResult?: PlanValidationResult | null;
 }
 
@@ -47,9 +53,10 @@ export interface ClarifierPanelProps {
  */
 export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
   planJob,
-  onClarificationCreated: _onClarificationCreated, // Keep for API compatibility
   className = '',
-  validationResult: _validationResult = null, // Keep for API compatibility
+  // Deprecated props kept for backward compatibility
+  onClarificationCreated: _onClarificationCreated,
+  validationResult: _validationResult,
 }) => {
   // Local state
   const [manualJobId, setManualJobId] = useState('');

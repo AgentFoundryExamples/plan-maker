@@ -402,13 +402,43 @@ const PlanDetailPage: React.FC = () => {
             <>
               {/* PlanStatusBar - Shows clarification progress and submission controls */}
               {hasQuestions && (
-                <PlanStatusBar
-                  validationResult={validationResult}
-                  submissionMetadata={submissionMetadata}
-                  isSubmitting={submitClarifications.isPending}
-                  onSubmit={handleSubmit}
-                  hasQuestions={hasQuestions}
-                />
+                <>
+                  <PlanStatusBar
+                    validationResult={validationResult}
+                    submissionMetadata={submissionMetadata}
+                    isSubmitting={submitClarifications.isPending}
+                    onSubmit={handleSubmit}
+                    hasQuestions={hasQuestions}
+                  />
+
+                  {/* Submission Banner - Show validation/submission errors close to status bar */}
+                  {submissionBanner && (
+                    <div 
+                      className={`submission-banner ${submissionBanner.type}`}
+                      role="alert"
+                    >
+                      <span className="submission-banner-icon">
+                        {submissionBanner.type === 'error' ? '⚠️' : '✓'}
+                      </span>
+                      <div className="submission-banner-content">
+                        <h3 className="submission-banner-title">
+                          {submissionBanner.title}
+                        </h3>
+                        <p className="submission-banner-message">
+                          {submissionBanner.message}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        className="btn btn-text"
+                        onClick={dismissBanner}
+                        aria-label="Dismiss message"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
 
               {/* Dual-pane layout for desktop, accordion for mobile */}
@@ -457,34 +487,6 @@ const PlanDetailPage: React.FC = () => {
                   validationResult={validationResult || undefined}
                   showValidationErrors={showValidationErrors}
                 />
-              )}
-
-              {/* Submission Banner - Show validation/submission errors */}
-              {hasQuestions && submissionBanner && (
-                <div 
-                  className={`submission-banner ${submissionBanner.type}`}
-                  role="alert"
-                >
-                  <span className="submission-banner-icon">
-                    {submissionBanner.type === 'error' ? '⚠️' : '✓'}
-                  </span>
-                  <div className="submission-banner-content">
-                    <h3 className="submission-banner-title">
-                      {submissionBanner.title}
-                    </h3>
-                    <p className="submission-banner-message">
-                      {submissionBanner.message}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-text"
-                    onClick={dismissBanner}
-                    aria-label="Dismiss message"
-                  >
-                    ✕
-                  </button>
-                </div>
               )}
             </>
           )}

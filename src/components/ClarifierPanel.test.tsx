@@ -514,7 +514,6 @@ describe('ClarifierPanel', () => {
       // Verify all major sections are present
       expect(screen.getByText('Clarification')).toBeInTheDocument();
       expect(screen.getByText('Track Existing Job')).toBeInTheDocument();
-      expect(screen.getByText('Track Existing Job')).toBeInTheDocument();
       
       // Verify clarifier panel container exists
       const clarifierPanel = document.querySelector('.clarifier-panel');

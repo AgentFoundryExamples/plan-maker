@@ -121,6 +121,10 @@ export const PlanStatusBar: React.FC<PlanStatusBarProps> = ({
     return `Please answer all ${getQuestionText(validationResult.unansweredCount)} before submitting.`;
   };
 
+  // Cache computed values
+  const statusText = getStatusText();
+  const helperText = getHelperText();
+
   return (
     <div
       className={`plan-status-bar ${config.sticky ? 'plan-status-bar-sticky' : ''} ${className}`.trim()}
@@ -139,11 +143,11 @@ export const PlanStatusBar: React.FC<PlanStatusBarProps> = ({
               role="status"
               aria-live="polite"
             >
-              {getStatusText()}
+              {statusText}
             </span>
-            {getHelperText() && (
+            {helperText && (
               <span className="plan-status-bar-helper">
-                {getHelperText()}
+                {helperText}
               </span>
             )}
           </div>
