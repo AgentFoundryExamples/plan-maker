@@ -137,7 +137,7 @@ const PlanDetailPage: React.FC = () => {
   const handleRefreshPlan = useCallback(async () => {
     try {
       await refetch();
-    } catch (err) {
+    } catch {
       // Error is already handled by query
     }
   }, [refetch]);

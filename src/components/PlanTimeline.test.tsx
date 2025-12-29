@@ -298,7 +298,7 @@ describe('PlanTimeline', () => {
         result: null,
       };
 
-      const { container } = render(<PlanTimeline planJob={emptyJob} />);
+      render(<PlanTimeline planJob={emptyJob} />);
 
       // Should still render with at least the creation event
       expect(screen.getByText('Plan Created')).toBeInTheDocument();

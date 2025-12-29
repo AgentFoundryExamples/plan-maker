@@ -4,7 +4,6 @@ import {
   setClarifierJobId,
   removeClarifierJobId,
   clearAllClarifierJobIds,
-  type ClarifierJobMetadata,
 } from './clarifierStorage';
 import * as localStorageModule from './localStorage';
 
