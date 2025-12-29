@@ -3,12 +3,13 @@ import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { usePlanDetail, useSubmitClarifications, useClarificationStatus } from '@/api/hooks';
 import { getStatusMetadata } from '@/api/softwarePlannerClient';
 import { formatTimestamp } from '@/utils/dateUtils';
-import { truncateJobId, formatQuestionCount, getQuestionText } from '@/utils/textUtils';
+import { truncateJobId, formatQuestionCount } from '@/utils/textUtils';
 import SpecAccordion from '@/components/SpecAccordion';
 import SpecListPane from '@/components/SpecListPane';
 import SpecDetailPane from '@/components/SpecDetailPane';
 import ClarifierPanel from '@/components/ClarifierPanel';
 import PlanTimeline from '@/components/PlanTimeline';
+import PlanStatusBar from '@/components/PlanStatusBar';
 import Breadcrumb, { type BreadcrumbItem } from '@/components/Breadcrumb';
 import { usePlanAnswers } from '@/state/planAnswersStore';
 import { useSubmissionMetadata } from '@/state/submissionMetadataStore';
@@ -399,6 +400,17 @@ const PlanDetailPage: React.FC = () => {
             </div>
           ) : (
             <>
+              {/* PlanStatusBar - Shows clarification progress and submission controls */}
+              {hasQuestions && (
+                <PlanStatusBar
+                  validationResult={validationResult}
+                  submissionMetadata={submissionMetadata}
+                  isSubmitting={submitClarifications.isPending}
+                  onSubmit={handleSubmit}
+                  hasQuestions={hasQuestions}
+                />
+              )}
+
               {/* Dual-pane layout for desktop, accordion for mobile */}
               {isDesktop ? (
                 <div className="dual-pane-container">
@@ -447,107 +459,31 @@ const PlanDetailPage: React.FC = () => {
                 />
               )}
 
-              {/* Readiness Banner - Show when all questions are answered */}
-              {hasQuestions && validationResult && validationResult.isValid && (
-                <div className="readiness-banner" role="status" aria-live="polite">
-                  <span className="readiness-banner-icon">🎉</span>
-                  <div className="readiness-banner-content">
-                    <h3 className="readiness-banner-title">Ready to Submit!</h3>
-                    <p className="readiness-banner-message">
-                      All {formatQuestionCount(validationResult.totalQuestions)} {validationResult.totalQuestions !== 1 ? 'have' : 'has'} been answered. 
-                      You can now submit your clarifications for processing.
+              {/* Submission Banner - Show validation/submission errors */}
+              {hasQuestions && submissionBanner && (
+                <div 
+                  className={`submission-banner ${submissionBanner.type}`}
+                  role="alert"
+                >
+                  <span className="submission-banner-icon">
+                    {submissionBanner.type === 'error' ? '⚠️' : '✓'}
+                  </span>
+                  <div className="submission-banner-content">
+                    <h3 className="submission-banner-title">
+                      {submissionBanner.title}
+                    </h3>
+                    <p className="submission-banner-message">
+                      {submissionBanner.message}
                     </p>
                   </div>
-                </div>
-              )}
-
-              {/* Submission Section - Only show if there are questions */}
-              {hasQuestions && (
-                <div className="submission-section">
-                  {/* Submission Banner */}
-                  {submissionBanner && (
-                    <div 
-                      className={`submission-banner ${submissionBanner.type}`}
-                      role="alert"
-                    >
-                      <span className="submission-banner-icon">
-                        {submissionBanner.type === 'error' ? '⚠️' : '✓'}
-                      </span>
-                      <div className="submission-banner-content">
-                        <h3 className="submission-banner-title">
-                          {submissionBanner.title}
-                        </h3>
-                        <p className="submission-banner-message">
-                          {submissionBanner.message}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        className="btn btn-text"
-                        onClick={dismissBanner}
-                        aria-label="Dismiss message"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Submission Controls */}
-                  <div className="submission-controls">
-                    <div className="submission-info">
-                      {validationResult && (
-                        <>
-                          <span className="submission-status">
-                            {validationResult.isValid ? (
-                              <span style={{ color: 'var(--color-success)' }}>
-                                ✓ All questions answered
-                              </span>
-                            ) : (
-                              <span>
-                                ⚠ {formatQuestionCount(validationResult.unansweredCount, ' remaining')}
-                              </span>
-                            )}
-                          </span>
-                          {!validationResult.isValid && (
-                            <span className="submission-helper-text">
-                              Please answer all {getQuestionText(validationResult.unansweredCount)} before submitting.
-                            </span>
-                          )}
-                        </>
-                      )}
-                      {submissionMetadata && (
-                        <span className="last-submitted">
-                          Last submitted: <time dateTime={submissionMetadata.submittedAt}>
-                            {formatTimestamp(submissionMetadata.submittedAt)}
-                          </time>
-                          {submissionMetadata.jobId && (
-                            <span className="submission-job-id"> (Job: {submissionMetadata.jobId})</span>
-                          )}
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      className="btn btn-primary btn-submit"
-                      onClick={handleSubmit}
-                      disabled={submitClarifications.isPending || (!!validationResult && !validationResult.isValid)}
-                      aria-busy={submitClarifications.isPending}
-                      title={
-                        validationResult && !validationResult.isValid
-                          ? `Please answer ${formatQuestionCount(validationResult.unansweredCount, ' remaining')}`
-                          : 'Submit your answers for clarification'
-                      }
-                    >
-                      {submitClarifications.isPending ? (
-                        <span className="submission-loading">
-                          <span className="submission-spinner" aria-hidden="true" />
-                          Submitting...
-                        </span>
-                      ) : (
-                        'Submit Clarifications'
-                      )}
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-text"
+                    onClick={dismissBanner}
+                    aria-label="Dismiss message"
+                  >
+                    ✕
+                  </button>
                 </div>
               )}
             </>
