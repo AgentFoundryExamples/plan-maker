@@ -221,6 +221,42 @@ Always prefer design tokens over hard-coded values:
 }
 ```
 
+#### When to Use Component Tokens vs Generic Spacing
+
+The design system includes both generic spacing tokens (`--spacing-*`) and component-specific tokens (`--button-padding-x`, `--card-padding`, etc.). Here's when to use each:
+
+**Use Generic Spacing Tokens (`--spacing-*`) when:**
+- Adding margins between elements
+- Setting padding for custom components not covered by component tokens
+- Creating custom layouts or grids
+- Defining gaps in flex/grid containers
+
+**Use Component-Specific Tokens when:**
+- Styling standard UI components (buttons, inputs, cards, badges)
+- Ensuring consistency with the design system's component library
+- You want your styles to automatically update if component tokens are reconfigured
+
+**Example:**
+```css
+/* ❌ Don't use generic spacing for standard components */
+.my-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+/* ✅ Use component tokens for standard components */
+.my-button {
+  padding: var(--button-padding-y) var(--button-padding-x);
+}
+
+/* ✅ Use generic spacing for custom layouts */
+.my-custom-panel {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+}
+```
+
+**Note:** Component tokens are often aliased to spacing tokens (e.g., `--button-padding-x: var(--spacing-md)`), but using the component token makes your intent clearer and allows for future customization.
+
 #### Responsive Design
 
 Design tokens automatically adjust for different screen sizes:

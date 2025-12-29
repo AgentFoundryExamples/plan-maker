@@ -167,6 +167,12 @@
   --header-height: 4rem; /* 64px */
   --input-height: 2.5rem; /* 40px */
 
+  /* Component-specific heights and constraints */
+  --accordion-header-min-height-mobile: 4.5rem; /* 72px - larger tap target for mobile */
+  --accordion-header-min-height-desktop: 3.75rem; /* 60px - smaller on desktop */
+  --accordion-list-max-height: 70vh; /* Maximum height before scrolling */
+  --debug-output-max-height: 25rem; /* 400px - maximum height for debug displays */
+
   /* ===========================
      MOTION TOKENS
      =========================== */

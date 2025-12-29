@@ -258,6 +258,12 @@ a:focus-visible {
   border-color: var(--color-success-hover);
 }
 
+.btn-success:active:not(:disabled) {
+  background-color: var(--color-success-hover);
+  border-color: var(--color-success-hover);
+  transform: translateY(0);
+}
+
 .btn-danger {
   background-color: var(--color-error);
   color: var(--color-text-inverse);
@@ -267,6 +273,12 @@ a:focus-visible {
 .btn-danger:hover:not(:disabled) {
   background-color: var(--color-error-hover);
   border-color: var(--color-error-hover);
+}
+
+.btn-danger:active:not(:disabled) {
+  background-color: var(--color-error-hover);
+  border-color: var(--color-error-hover);
+  transform: translateY(0);
 }
 
 /* Button sizes */

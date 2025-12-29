@@ -227,7 +227,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  max-height: 70vh;
+  max-height: var(--accordion-list-max-height);
   overflow-y: auto;
   padding-right: var(--spacing-xs);
 }
@@ -289,7 +289,7 @@
   text-align: left;
   transition: var(--accordion-transition);
   gap: var(--spacing-md);
-  min-height: 4.5rem; /* Larger tap target for mobile */
+  min-height: var(--accordion-header-min-height-mobile);
   font-family: inherit;
 }
 
@@ -656,7 +656,7 @@
 @media (min-width: 768px) {
   .accordion-header {
     padding: var(--spacing-lg);
-    min-height: 3.75rem; /* Smaller on desktop since mouse is more precise */
+    min-height: var(--accordion-header-min-height-desktop);
   }
 
   .accordion-content {
@@ -686,7 +686,7 @@
 /* Touch target improvements for mobile */
 @media (max-width: 767px) {
   .accordion-header {
-    min-height: 4.5rem;
+    min-height: var(--accordion-header-min-height-mobile);
   }
 
   .question-badge,
@@ -1049,7 +1049,7 @@
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
   overflow-x: auto;
-  max-height: 25rem;
+  max-height: var(--debug-output-max-height);
   overflow-y: auto;
 }
 
