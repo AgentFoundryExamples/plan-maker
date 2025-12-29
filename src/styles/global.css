@@ -759,3 +759,53 @@ body {
     box-shadow: var(--card-shadow);
   }
 }
+
+/* ===========================
+   THEME TOGGLE COMPONENT
+   =========================== */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: var(--border-radius-md);
+  background-color: transparent;
+  color: var(--color-text);
+  border: var(--border-width-thin) solid transparent;
+  cursor: pointer;
+  transition: var(--transition-colors);
+}
+
+.theme-toggle:hover {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary-border);
+  transform: none; /* Override btn hover transform */
+}
+
+.theme-toggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.theme-toggle-icon {
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .theme-toggle-label {
+    display: none;
+  }
+}

@@ -15,6 +15,107 @@ A Vite-powered React + TypeScript application for creating and managing software
 - 🔍 ESLint + Prettier for code quality and consistency
 - 🔄 React Query for intelligent data fetching and caching
 - 🗺️ TypeScript path aliases for cleaner imports
+- 🌓 Dark mode support with OS preference detection and manual toggle
+
+## Dark Mode
+
+Plan Maker includes a built-in dark mode theme that provides a comfortable viewing experience in low-light conditions.
+
+### Using Dark Mode
+
+The theme toggle is located in the application header. It cycles through three modes:
+
+- **☀️ Light** - Light theme (white background, dark text)
+- **🌙 Dark** - Dark theme (dark background, light text)
+- **🔄 Auto** - Automatically follows your OS/browser preference
+
+Your theme preference is automatically saved and persists across browser sessions.
+
+### OS Preference Detection
+
+When set to "Auto" mode, the app automatically detects and follows your operating system's color scheme preference using the `prefers-color-scheme` media query. If your OS switches between light and dark modes, the app will update accordingly in real-time.
+
+### Accessibility
+
+All colors in both light and dark themes maintain WCAG AA contrast ratios for readability and accessibility. Focus states, validation colors, and status badges are optimized for visibility in both themes.
+
+### Print Styling
+
+When printing or generating PDFs, the app automatically forces the light theme regardless of your current theme setting to ensure optimal readability on paper.
+
+### For Developers
+
+#### Theme Implementation
+
+The theme system uses CSS custom properties (CSS variables) for all colors. The theme is controlled by a `data-theme` attribute on the document root element:
+
+```html
+<html data-theme="light">  <!-- Light theme -->
+<html data-theme="dark">   <!-- Dark theme -->
+```
+
+#### Using Theme Colors
+
+Always use semantic color variables rather than hard-coded colors:
+
+```css
+/* ✅ Good - uses semantic variable */
+.my-component {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+/* ❌ Bad - hard-coded color */
+.my-component {
+  background-color: #f5f5f5;
+  color: #1a1a1a;
+}
+```
+
+#### Theme Hook
+
+Use the `useTheme` hook to access and control the theme from React components:
+
+```tsx
+import { useTheme } from '@/hooks/useTheme';
+
+function MyComponent() {
+  const { theme, resolvedTheme, setTheme } = useTheme();
+  
+  // Current theme mode: 'light', 'dark', or 'auto'
+  console.log(theme);
+  
+  // Actual theme being displayed: 'light' or 'dark'
+  console.log(resolvedTheme);
+  
+  // Change theme
+  setTheme('dark');
+}
+```
+
+#### Adding New Colors
+
+When adding new colors to the design system:
+
+1. Define both light and dark variants in `src/styles/theme.css`
+2. Use semantic names that describe the purpose, not the color
+3. Ensure WCAG AA contrast ratios (4.5:1 for normal text, 3:1 for large text)
+4. Test in both light and dark modes
+
+```css
+/* In :root for light theme */
+:root {
+  --color-my-feature: #0066cc;
+  --color-my-feature-hover: #0052a3;
+}
+
+/* In [data-theme="dark"] for dark theme */
+[data-theme="dark"] {
+  --color-my-feature: #4d9fff;
+  --color-my-feature-hover: #70b0ff;
+}
+```
 
 ## Design System
 

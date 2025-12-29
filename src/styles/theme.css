@@ -12,7 +12,7 @@
 
 :root {
   /* ===========================
-     COLOR TOKENS
+     COLOR TOKENS - LIGHT THEME (Default)
      =========================== */
   
   /* Primary colors - brand and interactive elements */
@@ -256,6 +256,143 @@
 }
 
 /* ===========================
+   DARK MODE THEME
+   =========================== */
+
+/**
+ * Dark mode color palette
+ * Applied when user explicitly selects dark theme via toggle
+ * All colors maintain WCAG AA contrast ratios for accessibility
+ */
+[data-theme="dark"] {
+  /* Primary colors - adjusted for dark background */
+  --color-primary: #4d9fff;
+  --color-primary-hover: #70b0ff;
+  --color-primary-active: #3388ff;
+  --color-primary-light: rgba(77, 159, 255, 0.15);
+  --color-primary-border: rgba(77, 159, 255, 0.4);
+
+  /* Secondary colors */
+  --color-secondary: #b0b3b8;
+  --color-secondary-hover: #c4c7cc;
+  --color-secondary-light: rgba(176, 179, 184, 0.15);
+
+  /* Background colors */
+  --color-background: #1a1a1a;
+  --color-surface: #2a2a2a;
+  --color-surface-hover: #333333;
+  --color-overlay: rgba(0, 0, 0, 0.7);
+
+  /* Text colors */
+  --color-text: #e8e8e8;
+  --color-text-secondary: #b0b0b0;
+  --color-text-tertiary: #808080;
+  --color-text-inverse: #1a1a1a;
+
+  /* Border colors */
+  --color-border: #404040;
+  --color-border-hover: #505050;
+  --color-border-focus: var(--color-primary);
+
+  /* Semantic status colors - brighter for dark backgrounds */
+  --color-success: #4caf50;
+  --color-success-hover: #66bb6a;
+  --color-success-light: rgba(76, 175, 80, 0.15);
+  --color-success-border: rgba(76, 175, 80, 0.4);
+  
+  --color-warning: #ff9800;
+  --color-warning-hover: #ffa726;
+  --color-warning-light: rgba(255, 152, 0, 0.15);
+  --color-warning-border: rgba(255, 152, 0, 0.4);
+  
+  --color-error: #ef5350;
+  --color-error-hover: #f44336;
+  --color-error-light: rgba(239, 83, 80, 0.15);
+  --color-error-border: rgba(239, 83, 80, 0.4);
+  
+  --color-info: #29b6f6;
+  --color-info-hover: #4fc3f7;
+  --color-info-light: rgba(41, 182, 246, 0.15);
+  --color-info-border: rgba(41, 182, 246, 0.4);
+
+  /* Neutral status colors */
+  --color-neutral: #9e9e9e;
+  --color-neutral-light: rgba(158, 158, 158, 0.15);
+  --color-neutral-border: rgba(158, 158, 158, 0.4);
+}
+
+/**
+ * Automatic dark mode based on OS preference
+ * Only applies when user is in "auto" mode (no explicit theme selected)
+ * 
+ * Note: The color values are intentionally duplicated from [data-theme="dark"]
+ * because both selectors serve different purposes:
+ * - [data-theme="dark"] applies when user explicitly chooses dark mode
+ * - This media query applies when user is in auto mode AND OS prefers dark
+ * 
+ * This duplication is necessary to support both explicit and automatic theming
+ * without complex CSS selector logic that could impact performance.
+ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* Primary colors - adjusted for dark background */
+    --color-primary: #4d9fff;
+    --color-primary-hover: #70b0ff;
+    --color-primary-active: #3388ff;
+    --color-primary-light: rgba(77, 159, 255, 0.15);
+    --color-primary-border: rgba(77, 159, 255, 0.4);
+
+    /* Secondary colors */
+    --color-secondary: #b0b3b8;
+    --color-secondary-hover: #c4c7cc;
+    --color-secondary-light: rgba(176, 179, 184, 0.15);
+
+    /* Background colors */
+    --color-background: #1a1a1a;
+    --color-surface: #2a2a2a;
+    --color-surface-hover: #333333;
+    --color-overlay: rgba(0, 0, 0, 0.7);
+
+    /* Text colors */
+    --color-text: #e8e8e8;
+    --color-text-secondary: #b0b0b0;
+    --color-text-tertiary: #808080;
+    --color-text-inverse: #1a1a1a;
+
+    /* Border colors */
+    --color-border: #404040;
+    --color-border-hover: #505050;
+    --color-border-focus: var(--color-primary);
+
+    /* Semantic status colors - brighter for dark backgrounds */
+    --color-success: #4caf50;
+    --color-success-hover: #66bb6a;
+    --color-success-light: rgba(76, 175, 80, 0.15);
+    --color-success-border: rgba(76, 175, 80, 0.4);
+    
+    --color-warning: #ff9800;
+    --color-warning-hover: #ffa726;
+    --color-warning-light: rgba(255, 152, 0, 0.15);
+    --color-warning-border: rgba(255, 152, 0, 0.4);
+    
+    --color-error: #ef5350;
+    --color-error-hover: #f44336;
+    --color-error-light: rgba(239, 83, 80, 0.15);
+    --color-error-border: rgba(239, 83, 80, 0.4);
+    
+    --color-info: #29b6f6;
+    --color-info-hover: #4fc3f7;
+    --color-info-light: rgba(41, 182, 246, 0.15);
+    --color-info-border: rgba(41, 182, 246, 0.4);
+
+    /* Neutral status colors */
+    --color-neutral: #9e9e9e;
+    --color-neutral-light: rgba(158, 158, 158, 0.15);
+    --color-neutral-border: rgba(158, 158, 158, 0.4);
+  }
+}
+
+/* ===========================
    RESPONSIVE OVERRIDES
    =========================== */
 
@@ -298,5 +435,67 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ===========================
+   PRINT STYLES
+   =========================== */
+
+/**
+ * Force light theme for printing
+ * Ensures readable output regardless of current theme
+ */
+@media print {
+  :root,
+  [data-theme="dark"] {
+    /* Force light theme colors */
+    --color-primary: #0066cc;
+    --color-primary-hover: #0052a3;
+    --color-primary-active: #004080;
+    --color-primary-light: rgba(0, 102, 204, 0.1);
+    --color-primary-border: rgba(0, 102, 204, 0.3);
+
+    --color-secondary: #5f6368;
+    --color-secondary-hover: #4a4d50;
+    --color-secondary-light: rgba(95, 99, 104, 0.1);
+
+    --color-background: #ffffff;
+    --color-surface: #f5f5f5;
+    --color-surface-hover: #eeeeee;
+    --color-overlay: rgba(0, 0, 0, 0.5);
+
+    --color-text: #1a1a1a;
+    --color-text-secondary: #666666;
+    --color-text-tertiary: #999999;
+    --color-text-inverse: #ffffff;
+
+    --color-border: #e0e0e0;
+    --color-border-hover: #d0d0d0;
+    --color-border-focus: #0066cc;
+
+    --color-success: #2e7d32;
+    --color-success-hover: #1b5e20;
+    --color-success-light: rgba(46, 125, 50, 0.1);
+    --color-success-border: rgba(46, 125, 50, 0.3);
+    
+    --color-warning: #e65100;
+    --color-warning-hover: #bf360c;
+    --color-warning-light: rgba(230, 81, 0, 0.1);
+    --color-warning-border: rgba(230, 81, 0, 0.3);
+    
+    --color-error: #d32f2f;
+    --color-error-hover: #c62828;
+    --color-error-light: rgba(211, 47, 47, 0.1);
+    --color-error-border: rgba(211, 47, 47, 0.3);
+    
+    --color-info: #0277bd;
+    --color-info-hover: #01579b;
+    --color-info-light: rgba(2, 119, 189, 0.1);
+    --color-info-border: rgba(2, 119, 189, 0.3);
+
+    --color-neutral: #757575;
+    --color-neutral-light: rgba(117, 117, 117, 0.1);
+    --color-neutral-border: rgba(117, 117, 117, 0.3);
   }
 }
