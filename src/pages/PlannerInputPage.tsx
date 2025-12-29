@@ -170,7 +170,7 @@ const PlannerInputPage: React.FC = () => {
     <div className="container">
       <nav className="breadcrumb" aria-label="Breadcrumb">
         <Link to="/" className="breadcrumb-link">
-          ← Home
+          <span aria-hidden="true">← </span>Home
         </Link>
       </nav>
       <div className="page-header">

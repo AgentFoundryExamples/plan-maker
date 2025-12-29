@@ -242,7 +242,7 @@ a:focus-visible {
   gap: var(--spacing-xs);
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--border-radius-sm);
-  min-height: 32px;
+  min-height: var(--input-height);
 }
 
 .breadcrumb-link:hover {

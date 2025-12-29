@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { usePlanDetail, useSubmitClarifications, useClarificationStatus } from '@/api/hooks';
 import { getStatusMetadata } from '@/api/softwarePlannerClient';
 import { formatTimestamp } from '@/utils/dateUtils';
+import { truncateJobId } from '@/utils/textUtils';
 import SpecAccordion from '@/components/SpecAccordion';
 import ClarifierPanel from '@/components/ClarifierPanel';
 import PlanTimeline from '@/components/PlanTimeline';
@@ -276,7 +277,7 @@ const PlanDetailPage: React.FC = () => {
           Plans
         </Link>
         <span className="breadcrumb-separator" aria-hidden="true">/</span>
-        <span className="breadcrumb-current">{data.job_id.slice(0, 8)}...</span>
+        <span className="breadcrumb-current">{truncateJobId(data.job_id)}</span>
       </nav>
       <div className="page-header">
         <h1 className="page-title">Plan Details</h1>

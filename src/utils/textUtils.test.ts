@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { describe, it, expect } from 'vitest';
-import { countWords } from './textUtils';
+import { countWords, truncateJobId } from './textUtils';
 
 describe('textUtils', () => {
   describe('countWords', () => {
@@ -56,6 +56,42 @@ describe('textUtils', () => {
 
     it('handles text with special characters', () => {
       expect(countWords('user@example.com test@test.com')).toBe(2);
+    });
+  });
+
+  describe('truncateJobId', () => {
+    it('truncates long job IDs to default length', () => {
+      const jobId = 'abc123def456ghi789';
+      expect(truncateJobId(jobId)).toBe('abc123de...');
+    });
+
+    it('returns full job ID if shorter than truncate length', () => {
+      const jobId = 'short';
+      expect(truncateJobId(jobId)).toBe('short');
+    });
+
+    it('returns full job ID if equal to truncate length', () => {
+      const jobId = 'exactly8';
+      expect(truncateJobId(jobId, 8)).toBe('exactly8');
+    });
+
+    it('respects custom length parameter', () => {
+      const jobId = 'abc123def456';
+      expect(truncateJobId(jobId, 6)).toBe('abc123...');
+    });
+
+    it('respects custom suffix parameter', () => {
+      const jobId = 'abc123def456';
+      expect(truncateJobId(jobId, 6, '…')).toBe('abc123…');
+    });
+
+    it('handles empty string', () => {
+      expect(truncateJobId('')).toBe('');
+    });
+
+    it('handles very long UUIDs', () => {
+      const uuid = '550e8400-e29b-41d4-a716-446655440000';
+      expect(truncateJobId(uuid)).toBe('550e8400...');
     });
   });
 });
