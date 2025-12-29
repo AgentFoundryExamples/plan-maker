@@ -136,7 +136,7 @@ export const SubmissionMetadataProvider: React.FC<SubmissionMetadataProviderProp
     return {};
   });
 
-  const saveTimeoutRef = useRef<number | null>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
    * Debounced save to localStorage
