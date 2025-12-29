@@ -32,10 +32,16 @@ const PlanDetailPage: React.FC = () => {
   const [clarifierJobIdForTimeline, setClarifierJobIdForTimeline] = useState<string | null>(null);
   
   // Dual-pane layout: Track viewport size to determine layout mode
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+  // Initialize in useEffect to avoid hydration issues with SSR
+  const [isDesktop, setIsDesktop] = useState(false);
   
   // Dual-pane layout: Selected spec index (synced with URL)
   const [selectedSpecIndex, setSelectedSpecIndex] = useState<number | null>(null);
+
+  // Initialize viewport detection after mount
+  useEffect(() => {
+    setIsDesktop(window.innerWidth >= 768);
+  }, []);
 
   // Handle viewport resize
   useEffect(() => {
@@ -398,7 +404,6 @@ const PlanDetailPage: React.FC = () => {
                     spec={selectedSpecIndex !== null ? specs[selectedSpecIndex] : null}
                     specIndex={selectedSpecIndex}
                     planId={data.job_id}
-                    showValidationErrors={showValidationErrors}
                     hasValidationError={(specIndex, questionIndex) => {
                       if (!showValidationErrors || !validationResult) return false;
                       return validationResult.errors.some(

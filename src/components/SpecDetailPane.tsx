@@ -6,7 +6,9 @@ export interface SpecDetailPaneProps {
   spec: SpecItem | null;
   specIndex: number | null;
   planId: string;
-  showValidationErrors?: boolean;
+  // hasValidationError and getValidationError callbacks use showValidationErrors internally
+  // to determine when to display validation messages. These are passed as callbacks to
+  // centralize validation logic in the parent component.
   hasValidationError?: (specIndex: number, questionIndex: number) => boolean;
   getValidationError?: (specIndex: number, questionIndex: number) => string;
 }
@@ -27,7 +29,6 @@ export const SpecDetailPane: React.FC<SpecDetailPaneProps> = ({
   spec,
   specIndex,
   planId,
-  // showValidationErrors is used indirectly via hasValidationError and getValidationError callbacks
   hasValidationError,
   getValidationError,
 }) => {
