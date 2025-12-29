@@ -77,10 +77,9 @@
   border-radius: var(--button-border-radius);
   transition: var(--button-transition);
   text-decoration: none;
-  display: inline-block;
-  min-height: 44px;
   display: inline-flex;
   align-items: center;
+  min-height: 44px;
 }
 
 .nav-list a:hover {
