@@ -226,6 +226,30 @@ a:focus-visible {
   box-shadow: var(--shadow-sm);
 }
 
+/* Status Badge Utilities */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}
+
+.status-badge-sm {
+  padding: calc(var(--spacing-xs) / 2) var(--spacing-xs);
+  font-size: var(--font-size-xs);
+}
+
+.status-badge-md {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+}
+
+.status-badge-lg {
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: var(--font-size-sm);
+}
+
 /* Loading and Error States */
 .loading {
   text-align: center;

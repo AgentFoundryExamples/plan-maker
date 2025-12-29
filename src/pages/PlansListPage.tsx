@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePlansList } from '@/api/hooks';
-import { getStatusMetadata } from '@/api/softwarePlannerClient';
 import { formatTimestamp } from '@/utils/dateUtils';
 import type { PlanJobStatus } from '@/api/softwarePlannerClient';
+import { StatusBadge } from '@/components/StatusBadge';
 import '@/styles/PlansListPage.css';
 
 // Configuration constants - adjustable for fine-tuning
-const PLANS_LIMIT = 25;
+const PLANS_LIMIT = 50;
 const REFETCH_INTERVAL_MS = 60000; // 60 seconds
 const SKELETON_COUNT = 3;
+const RECENT_ACTIVITY_COUNT = 5;
 
 const PlansListPage: React.FC = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -151,53 +152,77 @@ const PlansListPage: React.FC = () => {
 
         {/* Success state with plans */}
         {!isLoading && !isError && data && data.jobs.length > 0 && (
-          <div className="plans-grid">
-            {data.jobs
-              .filter((job: PlanJobStatus) => job.job_id)
-              .map((job: PlanJobStatus) => {
-                const statusMeta = getStatusMetadata(job.status);
-                return (
-                  <Link
-                    key={job.job_id}
-                    to={`/plans/${job.job_id}`}
-                    className="plan-card"
-                    aria-label={`View plan ${job.job_id}`}
-                  >
-                    <div className="plan-card-header">
-                      <span className="plan-id" title={job.job_id}>
-                        {job.job_id}
-                      </span>
-                      <span
-                        className="status-badge"
-                        style={{
-                          backgroundColor: statusMeta.color,
-                          color: 'var(--color-background)',
-                        }}
-                        aria-label={`Status: ${statusMeta.label}`}
-                      >
-                        {statusMeta.label}
-                      </span>
-                    </div>
-                    <div className="plan-card-metadata">
-                      <div className="metadata-row">
-                        <span className="metadata-label">Created:</span>
-                        <time dateTime={job.created_at}>
-                          {formatTimestamp(job.created_at)}
+          <>
+            {/* Recent Activity Timeline */}
+            <div className="recent-activity">
+              <h2>Recent Activity</h2>
+              <div className="timeline">
+                {data.jobs
+                  .slice(0, RECENT_ACTIVITY_COUNT)
+                  .map((job: PlanJobStatus) => (
+                    <div key={`timeline-${job.job_id}`} className="timeline-item">
+                      <div className="timeline-marker" aria-hidden="true" />
+                      <div className="timeline-content">
+                        <Link
+                          to={`/plans/${job.job_id}`}
+                          className="timeline-link"
+                        >
+                          <span className="timeline-job-id" title={job.job_id}>
+                            {job.job_id}
+                          </span>
+                        </Link>
+                        <StatusBadge status={job.status} type="planner" size="sm" />
+                        <time
+                          dateTime={job.updated_at || job.created_at}
+                          className="timeline-timestamp"
+                        >
+                          {formatTimestamp(job.updated_at || job.created_at)}
                         </time>
                       </div>
-                      {job.updated_at && (
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Plans Grid */}
+            <div className="plans-grid">
+              {data.jobs
+                .filter((job: PlanJobStatus) => job.job_id)
+                .map((job: PlanJobStatus) => {
+                  return (
+                    <Link
+                      key={job.job_id}
+                      to={`/plans/${job.job_id}`}
+                      className="plan-card"
+                      aria-label={`View plan ${job.job_id}`}
+                    >
+                      <div className="plan-card-header">
+                        <span className="plan-id" title={job.job_id}>
+                          {job.job_id}
+                        </span>
+                        <StatusBadge status={job.status} type="planner" />
+                      </div>
+                      <div className="plan-card-metadata">
                         <div className="metadata-row">
-                          <span className="metadata-label">Updated:</span>
-                          <time dateTime={job.updated_at}>
-                            {formatTimestamp(job.updated_at)}
+                          <span className="metadata-label">Created:</span>
+                          <time dateTime={job.created_at}>
+                            {formatTimestamp(job.created_at)}
                           </time>
                         </div>
-                      )}
-                    </div>
-                  </Link>
-                );
-              })}
-          </div>
+                        {job.updated_at && (
+                          <div className="metadata-row">
+                            <span className="metadata-label">Updated:</span>
+                            <time dateTime={job.updated_at}>
+                              {formatTimestamp(job.updated_at)}
+                            </time>
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
+            </div>
+          </>
         )}
       </div>
     </div>
