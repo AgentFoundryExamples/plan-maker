@@ -395,17 +395,6 @@
   overflow-y: visible;
 }
 
-@media (min-width: 768px) {
-  .spec-detail-content {
-  }
-}
-
-/* On mobile, ensure adequate padding for touch interaction */
-@media (max-width: 767px) {
-  .spec-detail-content {
-  }
-}
-
 /* Empty state for detail pane */
 .spec-detail-empty {
   padding: var(--spacing-xl);
