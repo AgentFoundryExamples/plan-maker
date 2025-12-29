@@ -110,29 +110,58 @@
 
 /* Container for dual-pane layout */
 .dual-pane-container {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: var(--dual-pane-gap);
   width: 100%;
-  min-height: var(--dual-pane-min-height);
+  /* No min-height on mobile to allow natural scrolling */
+}
+
+/* Mobile: Stacked layout with collapsible spec list */
+@media (max-width: 767px) {
+  .dual-pane-container {
+    gap: var(--spacing-md);
+  }
 }
 
 /* Desktop: Enable dual-pane layout */
 @media (min-width: 768px) {
   .dual-pane-container {
+    display: grid;
     grid-template-columns: var(--spec-list-width) 1fr;
+    min-height: var(--dual-pane-min-height);
     max-height: var(--dual-pane-max-height);
   }
 }
 
-/* Spec list pane (left column on desktop) */
+/* Spec list pane (top on mobile, left column on desktop) */
 .spec-list-pane {
   display: flex;
   flex-direction: column;
   background-color: var(--color-background);
   border-radius: var(--border-radius-md);
   border: var(--border-width-thin) solid var(--color-border);
-  overflow: hidden;
+  overflow: visible;
+}
+
+/* Mobile: Collapsible spec list */
+@media (max-width: 767px) {
+  .spec-list-pane {
+    position: sticky;
+    top: calc(var(--header-height) + var(--spacing-sm));
+    z-index: calc(var(--z-index-sticky) - 1);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* When collapsed on mobile, only show header */
+  .spec-list-pane.collapsed .spec-list-items {
+    display: none;
+  }
+
+  /* Add animation for expand/collapse */
+  .spec-list-pane .spec-list-items {
+    animation: slideDown var(--transition-duration-base) var(--transition-timing-ease-out);
+  }
 }
 
 /* Desktop: Make spec list scrollable */
@@ -142,6 +171,7 @@
     height: 100%;
     /* Enable momentum scrolling on iOS */
     -webkit-overflow-scrolling: touch;
+    overflow: hidden;
   }
 }
 
@@ -153,6 +183,10 @@
   position: sticky;
   top: 0;
   z-index: var(--z-index-sticky);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
 }
 
 .spec-list-header h3 {
@@ -160,6 +194,47 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text);
+  flex: 1;
+}
+
+/* Toggle button for mobile collapse/expand */
+.spec-list-toggle {
+  display: none;
+  background: none;
+  border: none;
+  padding: var(--spacing-sm);
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xl);
+  line-height: 1;
+  transition: var(--transition-colors);
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--border-radius-sm);
+}
+
+.spec-list-toggle:hover {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.spec-list-toggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Show toggle button only on mobile */
+@media (max-width: 767px) {
+  .spec-list-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Rotate icon when collapsed */
+  .spec-list-pane.collapsed .spec-list-toggle {
+    transform: rotate(180deg);
+  }
 }
 
 /* Spec list items container */
@@ -246,20 +321,29 @@
   border: var(--border-width-thin) solid var(--color-primary-border);
 }
 
-/* Detail pane (right column on desktop) */
+/* Detail pane (below spec list on mobile, right column on desktop) */
 .spec-detail-pane {
   display: flex;
   flex-direction: column;
   background-color: var(--color-background);
   border-radius: var(--border-radius-md);
   border: var(--border-width-thin) solid var(--color-border);
-  overflow: hidden;
+  /* Allow natural scrolling on mobile */
+  overflow: visible;
 }
 
-/* Desktop: Make detail pane scrollable */
+/* Mobile: Natural scrolling, no fixed height */
+@media (max-width: 767px) {
+  .spec-detail-pane {
+    min-height: 300px;
+  }
+}
+
+/* Desktop: Make detail pane scrollable within fixed height */
 @media (min-width: 768px) {
   .spec-detail-pane {
     overflow-y: auto;
+    overflow-x: hidden;
     height: 100%;
     /* Enable momentum scrolling on iOS */
     -webkit-overflow-scrolling: touch;
@@ -1071,6 +1155,32 @@
   .btn-submit {
     width: 100%;
     min-height: 48px;
+  }
+
+  /* Mobile touch targets for spec list items */
+  .spec-list-item {
+    min-height: 88px;
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
+  .spec-list-item-title {
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-relaxed);
+  }
+
+  /* Increase spacing between items on mobile */
+  .spec-list-items {
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+  }
+
+  /* Better spacing for spec detail pane on mobile */
+  .spec-detail-content {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .spec-detail-header {
+    padding: var(--spacing-lg) var(--spacing-md);
   }
 }
 

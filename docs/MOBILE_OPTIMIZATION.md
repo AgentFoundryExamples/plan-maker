@@ -4,6 +4,42 @@
 
 This document outlines the mobile and touch-first optimizations implemented across the Plan Maker application to ensure optimal user experience on phones and tablets.
 
+## Responsive Layout Design
+
+### PlanDetailPage Layout Modes
+
+The Plan Detail page implements a dual-mode responsive layout:
+
+**Mobile Mode (< 768px):**
+- **Collapsible Spec List**: A sticky, top-docked drawer showing all specifications
+  - Toggle button to expand/collapse the list
+  - Auto-collapses when a spec is selected for optimal viewing space
+  - Sticky positioned below the header for easy access
+- **Detail Pane**: Stacked below the spec list
+  - Shows the currently selected specification's content and Q&A
+  - Natural full-page vertical scrolling
+  - No fixed heights or nested scrollbars
+
+**Desktop Mode (≥ 768px):**
+- **Dual-Pane Layout**: Side-by-side spec list and detail pane
+  - Fixed-width left pane (320px) with scrollable spec list
+  - Flexible-width right pane with scrollable detail content
+  - Fixed maximum height with internal scrolling
+
+### Breakpoints
+
+Responsive breakpoints are configured via CSS custom properties:
+
+```css
+:root {
+  --dual-pane-breakpoint: 768px;
+}
+```
+
+The layout switches at this breakpoint:
+- **<768px**: Stacked mobile layout with collapsible spec list
+- **≥768px**: Side-by-side dual-pane layout
+
 ## Key Features
 
 ### 1. Touch Targets
@@ -12,8 +48,24 @@ All interactive elements meet or exceed the minimum 44×44px touch target requir
 
 - **Buttons**: Minimum 44px height on mobile, 48px for primary actions
 - **Form inputs**: Minimum 44px height with increased padding on mobile
-- **Cards**: Minimum 88px height for adequate touch surface
+- **Spec list items**: Minimum 88px height for adequate touch surface
+- **Toggle button**: 44×44px minimum for easy interaction
 - **Checkboxes/Radio buttons**: Minimum 24×24px
+
+Mobile-specific touch target improvements:
+```css
+@media (max-width: 767px) {
+  .spec-list-item {
+    min-height: 88px;
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+  
+  .btn-submit {
+    width: 100%;
+    min-height: 48px;
+  }
+}
+```
 
 ### 2. Safe Area Support
 
@@ -44,6 +96,22 @@ Optimized for common device sizes:
 
 ### 4. Smooth Scrolling
 
+#### Page-Level Scrolling
+On mobile, the entire page uses natural vertical scrolling - no nested scrollbars or fixed-height containers that could trap content.
+
+**Mobile (<768px):**
+- Spec list is collapsible and sticky at the top
+- Detail pane scrolls naturally with page content
+- No `max-height` constraints
+- Single scroll context for the entire page
+
+**Desktop (≥768px):**
+- Dual-pane layout with fixed max-height
+- Each pane has independent scrolling
+- Spec list scrolls within its 320px width
+- Detail pane scrolls within remaining space
+
+#### Momentum Scrolling
 Momentum scrolling enabled for iOS devices:
 
 ```css
@@ -52,10 +120,29 @@ scroll-behavior: smooth;
 ```
 
 Applied to:
-- Accordion lists
+- Spec list pane (desktop only)
+- Detail pane (desktop only)
 - Timeline containers
 - Clarifier panels
 - All scrollable regions
+
+#### Collapsible Spec List (Mobile)
+
+The spec list on mobile features:
+- **Sticky positioning** below the header
+- **Toggle button** (▼/▲) to expand/collapse
+- **Auto-collapse** when a spec is selected
+- **Smooth animation** for expand/collapse transitions
+- **Accessible** with ARIA labels and keyboard support
+
+```tsx
+// Auto-collapse behavior
+useEffect(() => {
+  if (isMobile && selectedIndex !== null) {
+    setIsCollapsed(true);
+  }
+}, [selectedIndex, isMobile]);
+```
 
 ### 5. Sticky Action Bars
 
@@ -133,36 +220,110 @@ All automatically disabled for users who prefer reduced motion.
 
 ## Implementation Details
 
-### PlannerInputPage
-
-**Mobile Optimizations:**
-- Full-width submit button (48px height)
-- Increased font size for inputs (18px)
-- Safe area padding for all form fields
-- Reduced motion for spinner animations
-
-**Breakpoint: 320px**
-- Compact padding (8px → 12px)
-- Maintains minimum touch targets
-
 ### PlanDetailPage
 
+The PlanDetailPage implements responsive layout switching based on viewport width:
+
+```tsx
+// Detect viewport size
+const [isDesktop, setIsDesktop] = useState(false);
+
+useEffect(() => {
+  setIsDesktop(window.innerWidth >= 768);
+}, []);
+
+useEffect(() => {
+  const handleResize = () => {
+    setIsDesktop(window.innerWidth >= 768);
+  };
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
+```
+
+**Layout Rendering:**
+```tsx
+{isDesktop ? (
+  // Desktop: Dual-pane layout
+  <div className="dual-pane-container">
+    <SpecListPane ... />
+    <SpecDetailPane ... />
+  </div>
+) : (
+  // Mobile: Accordion layout (legacy) or Stacked layout (new)
+  <div className="dual-pane-container">
+    <SpecListPane ... />  {/* Collapsible */}
+    <SpecDetailPane ... /> {/* Stacked below */}
+  </div>
+)}
+```
+
 **Mobile Optimizations:**
-- Sticky submission controls at bottom
-- Momentum scrolling for accordion lists
-- 6rem minimum height for text areas
-- Timeline animations with reduced motion support
-- Bottom padding to prevent content hiding behind sticky bar
+- Collapsible spec list with toggle button
+- Natural page-level scrolling (no fixed heights)
+- Full-width submit buttons (48px height)
+- Safe area padding for all form fields
+- Reduced motion for animations
+- 88px minimum height for spec list items
+- Increased font sizes for readability
 
-**Accordion:**
-- 72px minimum header height on mobile
-- Single scroll container (no nested scrollbars)
-- Smooth expand/collapse animations
+**Breakpoints:**
+- **320px**: Compact padding, maintains minimum touch targets
+- **480px**: Standard mobile spacing
+- **768px+**: Desktop dual-pane layout activated
 
-**Submission Section:**
-- Full-width submit button (48px height)
-- Sticky positioning with keyboard offset
-- Safe area padding for bottom inset
+### SpecListPane (Mobile Behavior)
+
+The SpecListPane component adapts for mobile:
+
+```tsx
+const [isCollapsed, setIsCollapsed] = React.useState(false);
+const [isMobile, setIsMobile] = React.useState(false);
+
+// Auto-collapse when spec is selected on mobile
+useEffect(() => {
+  if (isMobile && selectedIndex !== null) {
+    setIsCollapsed(true);
+  }
+}, [selectedIndex, isMobile]);
+```
+
+**CSS Implementation:**
+```css
+@media (max-width: 767px) {
+  .spec-list-pane {
+    position: sticky;
+    top: calc(var(--header-height) + var(--spacing-sm));
+    z-index: calc(var(--z-index-sticky) - 1);
+  }
+
+  .spec-list-pane.collapsed .spec-list-items {
+    display: none;
+  }
+}
+```
+
+### SpecDetailPane (Mobile Scrolling)
+
+On mobile, the detail pane allows natural scrolling:
+
+```css
+@media (max-width: 767px) {
+  .spec-detail-pane {
+    /* Allow natural scrolling */
+    overflow: visible;
+    min-height: 300px;
+  }
+}
+
+@media (min-width: 768px) {
+  .spec-detail-pane {
+    /* Fixed height with internal scrolling */
+    overflow-y: auto;
+    height: 100%;
+  }
+}
+```
 
 ### PlansListPage
 
