@@ -16,6 +16,7 @@ import {
   clarifySpecs,
   getClarifierStatus,
   waitForClarification,
+  getClarifierDebug,
 } from './specClarifierClient';
 import { clearEnvCache } from './env';
 import { JobStatus } from './specClarifier';
@@ -43,7 +44,7 @@ describe('Spec Clarifier Client', () => {
       setupEnv();
 
       const mockResponse = {
-        id: 'test-job-id',
+        id: '550e8400-e29b-41d4-a716-446655440000',
         status: JobStatus.PENDING,
         created_at: '2025-01-01T00:00:00Z',
         updated_at: '2025-01-01T00:00:00Z',
@@ -113,7 +114,7 @@ describe('Spec Clarifier Client', () => {
       setupEnv();
 
       const mockResponse = {
-        id: 'test-job-id',
+        id: '550e8400-e29b-41d4-a716-446655440000',
         status: JobStatus.SUCCESS,
         created_at: '2025-01-01T00:00:00Z',
         updated_at: '2025-01-01T00:00:05Z',
@@ -136,11 +137,11 @@ describe('Spec Clarifier Client', () => {
         json: async () => mockResponse,
       });
 
-      const result = await getClarifierStatus('test-job-id', mockFetch as any);
+      const result = await getClarifierStatus('550e8400-e29b-41d4-a716-446655440000', mockFetch as any);
 
       expect(result).toEqual(mockResponse);
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8081/v1/clarifications/test-job-id',
+        'http://localhost:8081/v1/clarifications/550e8400-e29b-41d4-a716-446655440000',
         expect.objectContaining({
           method: 'GET',
         })
@@ -156,8 +157,24 @@ describe('Spec Clarifier Client', () => {
       });
 
       await expect(
-        getClarifierStatus('invalid-id', mockFetch as any)
+        getClarifierStatus('550e8400-e29b-41d4-a716-446655440000', mockFetch as any)
       ).rejects.toThrow(/Failed to get clarification status/);
+    });
+
+    it('throws error when UUID format is invalid', async () => {
+      setupEnv();
+
+      await expect(
+        getClarifierStatus('invalid-id', vi.fn() as any)
+      ).rejects.toThrow(/Invalid UUID format/);
+
+      await expect(
+        getClarifierStatus('not-a-uuid', vi.fn() as any)
+      ).rejects.toThrow(/Invalid UUID format/);
+
+      await expect(
+        getClarifierStatus('', vi.fn() as any)
+      ).rejects.toThrow(/Invalid UUID format/);
     });
   });
 
@@ -166,7 +183,7 @@ describe('Spec Clarifier Client', () => {
       setupEnv();
 
       const mockResponse = {
-        id: 'test-job-id',
+        id: '550e8400-e29b-41d4-a716-446655440000',
         status: JobStatus.SUCCESS,
         created_at: '2025-01-01T00:00:00Z',
         updated_at: '2025-01-01T00:00:05Z',
@@ -177,7 +194,7 @@ describe('Spec Clarifier Client', () => {
         json: async () => mockResponse,
       });
 
-      const result = await waitForClarification('test-job-id', {
+      const result = await waitForClarification('550e8400-e29b-41d4-a716-446655440000', {
         fetchImpl: mockFetch as any,
         maxAttempts: 10,
         intervalMs: 100,
@@ -197,7 +214,7 @@ describe('Spec Clarifier Client', () => {
         return {
           ok: true,
           json: async () => ({
-            id: 'test-job-id',
+            id: '550e8400-e29b-41d4-a716-446655440000',
             status,
             created_at: '2025-01-01T00:00:00Z',
             updated_at: '2025-01-01T00:00:05Z',
@@ -205,7 +222,7 @@ describe('Spec Clarifier Client', () => {
         };
       });
 
-      const result = await waitForClarification('test-job-id', {
+      const result = await waitForClarification('550e8400-e29b-41d4-a716-446655440000', {
         fetchImpl: mockFetch as any,
         maxAttempts: 10,
         intervalMs: 10,
@@ -219,7 +236,7 @@ describe('Spec Clarifier Client', () => {
       setupEnv();
 
       const mockResponse = {
-        id: 'test-job-id',
+        id: '550e8400-e29b-41d4-a716-446655440000',
         status: JobStatus.FAILED,
         created_at: '2025-01-01T00:00:00Z',
         updated_at: '2025-01-01T00:00:05Z',
@@ -231,7 +248,7 @@ describe('Spec Clarifier Client', () => {
         json: async () => mockResponse,
       });
 
-      const result = await waitForClarification('test-job-id', {
+      const result = await waitForClarification('550e8400-e29b-41d4-a716-446655440000', {
         fetchImpl: mockFetch as any,
         maxAttempts: 10,
         intervalMs: 10,
@@ -247,7 +264,7 @@ describe('Spec Clarifier Client', () => {
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
         json: async () => ({
-          id: 'test-job-id',
+          id: '550e8400-e29b-41d4-a716-446655440000',
           status: JobStatus.RUNNING,
           created_at: '2025-01-01T00:00:00Z',
           updated_at: '2025-01-01T00:00:05Z',
@@ -255,7 +272,7 @@ describe('Spec Clarifier Client', () => {
       });
 
       await expect(
-        waitForClarification('test-job-id', {
+        waitForClarification('550e8400-e29b-41d4-a716-446655440000', {
           fetchImpl: mockFetch as any,
           maxAttempts: 3,
           intervalMs: 10,
@@ -267,13 +284,13 @@ describe('Spec Clarifier Client', () => {
       setupEnv();
 
       await expect(
-        waitForClarification('test-job-id', {
+        waitForClarification('550e8400-e29b-41d4-a716-446655440000', {
           maxAttempts: 0,
         })
       ).rejects.toThrow(/maxAttempts must be a positive number/);
 
       await expect(
-        waitForClarification('test-job-id', {
+        waitForClarification('550e8400-e29b-41d4-a716-446655440000', {
           maxAttempts: -1,
         })
       ).rejects.toThrow(/maxAttempts must be a positive number/);
@@ -283,13 +300,13 @@ describe('Spec Clarifier Client', () => {
       setupEnv();
 
       await expect(
-        waitForClarification('test-job-id', {
+        waitForClarification('550e8400-e29b-41d4-a716-446655440000', {
           maxAttempts: NaN,
         })
       ).rejects.toThrow(/maxAttempts must be a positive number/);
 
       await expect(
-        waitForClarification('test-job-id', {
+        waitForClarification('550e8400-e29b-41d4-a716-446655440000', {
           maxAttempts: Infinity,
         })
       ).rejects.toThrow(/maxAttempts must be a positive number/);
@@ -299,13 +316,13 @@ describe('Spec Clarifier Client', () => {
       setupEnv();
 
       await expect(
-        waitForClarification('test-job-id', {
+        waitForClarification('550e8400-e29b-41d4-a716-446655440000', {
           intervalMs: 0,
         })
       ).rejects.toThrow(/intervalMs must be a positive number/);
 
       await expect(
-        waitForClarification('test-job-id', {
+        waitForClarification('550e8400-e29b-41d4-a716-446655440000', {
           intervalMs: -1,
         })
       ).rejects.toThrow(/intervalMs must be a positive number/);
@@ -315,7 +332,7 @@ describe('Spec Clarifier Client', () => {
       setupEnv();
 
       await expect(
-        waitForClarification('test-job-id', {
+        waitForClarification('550e8400-e29b-41d4-a716-446655440000', {
           intervalMs: NaN,
         })
       ).rejects.toThrow(/intervalMs must be a positive number/);
@@ -340,7 +357,7 @@ describe('Spec Clarifier Client', () => {
         return {
           ok: true,
           json: async () => ({
-            id: 'test-job-id',
+            id: '550e8400-e29b-41d4-a716-446655440000',
             status: JobStatus.SUCCESS,
             created_at: '2025-01-01T00:00:00Z',
             updated_at: '2025-01-01T00:00:05Z',
@@ -348,7 +365,7 @@ describe('Spec Clarifier Client', () => {
         };
       });
 
-      const result = await waitForClarification('test-job-id', {
+      const result = await waitForClarification('550e8400-e29b-41d4-a716-446655440000', {
         fetchImpl: mockFetch as any,
         maxAttempts: 10,
         intervalMs: 10,
@@ -356,6 +373,115 @@ describe('Spec Clarifier Client', () => {
 
       expect(result.status).toBe(JobStatus.SUCCESS);
       expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('getClarifierDebug', () => {
+    it('successfully retrieves debug information', async () => {
+      setupEnv();
+
+      const mockResponse = {
+        id: '550e8400-e29b-41d4-a716-446655440000',
+        status: 'SUCCESS',
+        created_at: '2025-01-01T00:00:00Z',
+        updated_at: '2025-01-01T00:00:05Z',
+        config: {
+          provider: 'openai',
+          model: 'gpt-5.1',
+          temperature: 0.1,
+        },
+        metadata: {
+          tokens_used: 1500,
+          duration_ms: 2500,
+        },
+      };
+
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockResponse,
+      });
+
+      const result = await getClarifierDebug('550e8400-e29b-41d4-a716-446655440000', mockFetch as any);
+
+      expect(result).toEqual(mockResponse);
+      expect(mockFetch).toHaveBeenCalledWith(
+        'http://localhost:8081/v1/clarifications/550e8400-e29b-41d4-a716-446655440000/debug',
+        expect.objectContaining({
+          method: 'GET',
+        })
+      );
+    });
+
+    it('throws "Debug endpoint is disabled" error when 403 returned', async () => {
+      setupEnv();
+
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 403,
+        json: async () => ({ detail: 'Debug endpoint is disabled' }),
+      });
+
+      await expect(
+        getClarifierDebug('550e8400-e29b-41d4-a716-446655440000', mockFetch as any)
+      ).rejects.toThrow(/Debug endpoint is disabled/);
+    });
+
+    it('throws error when job not found (404)', async () => {
+      setupEnv();
+
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+        json: async () => ({ detail: 'Job not found' }),
+      });
+
+      await expect(
+        getClarifierDebug('550e8400-e29b-41d4-a716-446655440000', mockFetch as any)
+      ).rejects.toThrow(/Failed to get clarification debug info/);
+    });
+
+    it('throws error when UUID format is invalid', async () => {
+      setupEnv();
+
+      await expect(
+        getClarifierDebug('invalid-id', vi.fn() as any)
+      ).rejects.toThrow(/Invalid UUID format/);
+
+      await expect(
+        getClarifierDebug('not-a-uuid', vi.fn() as any)
+      ).rejects.toThrow(/Invalid UUID format/);
+    });
+
+    it('handles network errors gracefully', async () => {
+      setupEnv();
+
+      const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'));
+
+      await expect(
+        getClarifierDebug('550e8400-e29b-41d4-a716-446655440000', mockFetch as any)
+      ).rejects.toThrow(/Network error/);
+    });
+
+    it('handles 422 validation errors', async () => {
+      setupEnv();
+
+      const mockFetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 422,
+        json: async () => ({
+          detail: [
+            {
+              loc: ['path', 'job_id'],
+              msg: 'Input should be a valid UUID',
+              type: 'uuid_parsing',
+            },
+          ],
+        }),
+      });
+
+      await expect(
+        getClarifierDebug('550e8400-e29b-41d4-a716-446655440000', mockFetch as any)
+      ).rejects.toThrow(/Failed to get clarification debug info/);
     });
   });
 });

@@ -76,6 +76,18 @@ import type {
 import { JobStatus } from './specClarifier';
 
 /**
+ * Validate UUID format
+ * @param uuid - UUID string to validate
+ * @throws Error if UUID format is invalid
+ */
+function validateUUID(uuid: string): void {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(uuid)) {
+    throw new Error(`Invalid UUID format: "${uuid}". Expected format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`);
+  }
+}
+
+/**
  * Options for clarification operations
  */
 export interface ClarifyOptions {
@@ -131,14 +143,18 @@ export async function clarifySpecs(
 
 /**
  * Get the status and result of a clarification job
- * @param jobId - The job ID to check
+ * @param jobId - The job ID to check (must be valid UUID format)
  * @param fetchImpl - Optional custom fetch implementation
  * @returns Job status with optional result
+ * @throws Error if jobId is not a valid UUID or request fails
  */
 export async function getClarifierStatus(
   jobId: string,
   fetchImpl?: typeof fetch
 ): Promise<JobStatusResponse> {
+  // Validate UUID format before making request
+  validateUUID(jobId);
+  
   const config = getSpecClarifierConfig(fetchImpl);
 
   const response = await config.fetchImpl(
@@ -235,4 +251,77 @@ export async function waitForClarification(
     `Clarification job did not complete within ${maxAttempts} attempts. ` +
       `Please check the job status or increase maxAttempts if needed.`
   );
+}
+
+/**
+ * Debug information response structure
+ */
+export interface ClarifierDebugResponse {
+  id: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  config?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+/**
+ * Get debug information for a clarification job
+ * 
+ * This endpoint provides detailed debug information for development and troubleshooting.
+ * It is disabled by default in production environments.
+ * 
+ * @param jobId - The job ID to get debug info for (must be valid UUID format)
+ * @param fetchImpl - Optional custom fetch implementation
+ * @returns Debug information for the job
+ * @throws Error with message "Debug endpoint is disabled" when endpoint returns 403
+ * @throws Error if jobId is not a valid UUID
+ * @throws Error for other failures (404, 422, network errors)
+ */
+export async function getClarifierDebug(
+  jobId: string,
+  fetchImpl?: typeof fetch
+): Promise<ClarifierDebugResponse> {
+  // Validate UUID format before making request
+  validateUUID(jobId);
+  
+  const config = getSpecClarifierConfig(fetchImpl);
+
+  const response = await config.fetchImpl(
+    `${config.baseUrl}/v1/clarifications/${jobId}/debug`,
+    {
+      method: 'GET',
+      headers: createHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    // Handle 403 specially - this means debug endpoint is disabled
+    if (response.status === 403) {
+      throw new Error('Debug endpoint is disabled');
+    }
+
+    let errorMessage = `Request failed with status ${response.status}`;
+    try {
+      const errorBody = await response.json();
+      // Only include sanitized error information
+      if (errorBody.detail && typeof errorBody.detail === 'string') {
+        errorMessage = errorBody.detail;
+      }
+    } catch {
+      // If JSON parsing fails, try to get text
+      try {
+        const errorText = await response.text();
+        if (errorText) {
+          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
+        }
+      } catch {
+        // Ignore text parsing errors
+      }
+    }
+    throw new Error(`Failed to get clarification debug info: ${errorMessage}`);
+  }
+
+  return response.json();
 }

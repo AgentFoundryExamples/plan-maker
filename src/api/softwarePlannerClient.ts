@@ -18,6 +18,7 @@
 
 import { getSoftwarePlannerConfig, createHeaders } from './clientConfig';
 import type { PlanRequest, PlanResponse } from './softwarePlanner';
+import { getPlannerStatusMetadata, type StatusMetadata } from '../utils/statusMappings';
 
 /**
  * Job metadata returned from async plan creation
@@ -52,66 +53,25 @@ export interface PlanJobsList {
 }
 
 /**
- * Metadata for status display
+ * Re-export StatusMetadata type for backward compatibility
  */
-export interface StatusMetadata {
-  label: string;
-  description: string;
-  color: string;
-  icon?: string;
-}
+export type { StatusMetadata };
 
 /**
- * Status mapping for planner job statuses
- * Maps each status to display metadata for UI components
- */
-export const PLANNER_STATUS_MAP: Record<
-  'QUEUED' | 'RUNNING' | 'SUCCEEDED' | 'FAILED',
-  StatusMetadata
-> = {
-  QUEUED: {
-    label: 'Queued',
-    description: 'Job is waiting to be processed',
-    color: 'var(--color-info)',
-    icon: 'clock',
-  },
-  RUNNING: {
-    label: 'Running',
-    description: 'Job is currently being processed',
-    color: 'var(--color-warning)',
-    icon: 'spinner',
-  },
-  SUCCEEDED: {
-    label: 'Succeeded',
-    description: 'Job completed successfully',
-    color: 'var(--color-success)',
-    icon: 'check',
-  },
-  FAILED: {
-    label: 'Failed',
-    description: 'Job failed to complete',
-    color: 'var(--color-danger)',
-    icon: 'error',
-  },
-} as const;
-
-/**
- * Get status metadata for a given status, with fallback for unknown statuses
+ * Get status metadata for a given planner status, with fallback for unknown statuses
  * @param status - The status string to look up
- * @returns Status metadata with label, description, color, and optional icon
+ * @returns Status metadata with label, description, color, icon, and progress
+ * @deprecated Use getPlannerStatusMetadata from utils/statusMappings.ts instead
  */
 export function getStatusMetadata(status: string): StatusMetadata {
-  if (status in PLANNER_STATUS_MAP) {
-    return PLANNER_STATUS_MAP[status as keyof typeof PLANNER_STATUS_MAP];
-  }
-  // Fallback for unknown statuses
-  return {
-    label: 'Unknown',
-    description: `Status: ${status}`,
-    color: 'var(--color-text-secondary)',
-    icon: 'question',
-  };
+  return getPlannerStatusMetadata(status);
 }
+
+/**
+ * Legacy export for backward compatibility
+ * @deprecated Import from utils/statusMappings.ts instead
+ */
+export { getPlannerStatusMetadata as PLANNER_STATUS_MAP };
 
 /**
  * Options for creating a plan
@@ -214,15 +174,42 @@ export async function createPlanAsync(
 }
 
 /**
+ * Validate UUID format
+ * @param uuid - UUID string to validate
+ * @throws Error if UUID format is invalid
+ */
+function validateUUID(uuid: string): void {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(uuid)) {
+    throw new Error(`Invalid UUID format: "${uuid}". Expected format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`);
+  }
+}
+
+/**
+ * Validate limit parameter for list operations
+ * @param limit - Limit value to validate
+ * @throws Error if limit is outside acceptable range
+ */
+function validateLimit(limit: number): void {
+  if (!Number.isFinite(limit) || limit < 1 || limit > 1000) {
+    throw new Error(`Invalid limit: ${limit}. Limit must be between 1 and 1000.`);
+  }
+}
+
+/**
  * Get the status and result of a planning job
- * @param jobId - The job ID to check
+ * @param jobId - The job ID to check (must be valid UUID format)
  * @param fetchImpl - Optional custom fetch implementation
  * @returns Job status with optional result
+ * @throws Error if jobId is not a valid UUID or request fails
  */
 export async function getPlanById(
   jobId: string,
   fetchImpl?: typeof fetch
 ): Promise<PlanJobStatus> {
+  // Validate UUID format before making request
+  validateUUID(jobId);
+  
   const config = getSoftwarePlannerConfig(fetchImpl);
 
   const response = await config.fetchImpl(
@@ -269,18 +256,25 @@ export interface ListPlansOptions {
 
 /**
  * List recent planning jobs
- * @param options - Optional parameters including limit (default 25, max 25) and cursor for pagination
+ * @param options - Optional parameters including limit (1-1000, default 25) and cursor for pagination
  * @returns List of recent jobs
+ * @throws Error if limit is outside valid range (1-1000)
  */
 export async function listPlans(
   options: ListPlansOptions = {}
 ): Promise<PlanJobsList> {
   const { limit, cursor, fetchImpl } = options;
+  
+  // Validate limit if provided
+  if (limit !== undefined) {
+    validateLimit(limit);
+  }
+  
   const config = getSoftwarePlannerConfig(fetchImpl);
   const url = new URL(`${config.baseUrl}/api/v1/plans`);
 
-  // Default limit to 25 and clamp to max 25
-  const effectiveLimit = Math.min(limit ?? 25, 25);
+  // Use provided limit or default to 100 (as shown in API example)
+  const effectiveLimit = limit ?? 100;
   url.searchParams.set('limit', effectiveLimit.toString());
 
   if (cursor) {
