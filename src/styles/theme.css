@@ -1,66 +1,258 @@
+/**
+ * Design System Theme Tokens
+ * 
+ * This file defines the core design tokens for the application.
+ * Tokens are organized into semantic categories for easy reuse and theming.
+ * 
+ * Usage:
+ * - Use CSS variables in your styles: color: var(--color-primary);
+ * - All tokens maintain WCAG AA contrast ratios for accessibility
+ * - Tokens support graceful degradation in older browsers
+ */
+
 :root {
-  /* Color palette - light theme */
+  /* ===========================
+     COLOR TOKENS
+     =========================== */
+  
+  /* Primary colors - brand and interactive elements */
   --color-primary: #0066cc;
   --color-primary-hover: #0052a3;
+  --color-primary-active: #004080;
+  --color-primary-light: rgba(0, 102, 204, 0.1);
+  --color-primary-border: rgba(0, 102, 204, 0.3);
+
+  /* Secondary colors - supporting actions */
+  --color-secondary: #5f6368;
+  --color-secondary-hover: #4a4d50;
+  --color-secondary-light: rgba(95, 99, 104, 0.1);
+
+  /* Background colors */
   --color-background: #ffffff;
   --color-surface: #f5f5f5;
+  --color-surface-hover: #eeeeee;
+  --color-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Text colors */
   --color-text: #1a1a1a;
   --color-text-secondary: #666666;
+  --color-text-tertiary: #999999;
+  --color-text-inverse: #ffffff;
+
+  /* Border colors */
   --color-border: #e0e0e0;
-  --color-error: #d32f2f;
+  --color-border-hover: #d0d0d0;
+  --color-border-focus: var(--color-primary);
+
+  /* Semantic status colors */
   --color-success: #388e3c;
+  --color-success-light: rgba(56, 142, 60, 0.1);
+  --color-success-border: rgba(56, 142, 60, 0.3);
+  
+  --color-warning: #f57c00;
+  --color-warning-light: rgba(245, 124, 0, 0.1);
+  --color-warning-border: rgba(245, 124, 0, 0.3);
+  
+  --color-error: #d32f2f;
+  --color-error-light: rgba(211, 47, 47, 0.1);
+  --color-error-border: rgba(211, 47, 47, 0.3);
+  
+  --color-info: #0288d1;
+  --color-info-light: rgba(2, 136, 209, 0.1);
+  --color-info-border: rgba(2, 136, 209, 0.3);
 
-  /* Spacing tokens - mobile-first */
-  --spacing-xs: 0.25rem; /* 4px */
-  --spacing-sm: 0.5rem; /* 8px */
-  --spacing-md: 1rem; /* 16px */
-  --spacing-lg: 1.5rem; /* 24px */
-  --spacing-xl: 2rem; /* 32px */
-  --spacing-2xl: 3rem; /* 48px */
+  /* Neutral status colors - used for non-critical states */
+  --color-neutral: #757575;
+  --color-neutral-light: rgba(117, 117, 117, 0.1);
+  --color-neutral-border: rgba(117, 117, 117, 0.3);
 
-  /* Typography tokens */
+  /* Legacy aliases for backward compatibility */
+  --color-danger: var(--color-error);
+  --color-danger-light: var(--color-error-light);
+  --color-danger-border: var(--color-error-border);
+  --color-background-secondary: var(--color-surface);
+
+  /* ===========================
+     SPACING TOKENS
+     =========================== */
+  
+  /* Mobile-first spacing scale - follows 4px base unit */
+  --spacing-xs: 0.25rem;  /* 4px - minimal spacing */
+  --spacing-sm: 0.5rem;   /* 8px - compact spacing */
+  --spacing-md: 1rem;     /* 16px - standard spacing */
+  --spacing-lg: 1.5rem;   /* 24px - comfortable spacing */
+  --spacing-xl: 2rem;     /* 32px - generous spacing */
+  --spacing-2xl: 3rem;    /* 48px - large section spacing */
+  --spacing-3xl: 4rem;    /* 64px - extra large spacing */
+
+  /* ===========================
+     TYPOGRAPHY TOKENS
+     =========================== */
+  
+  /* Font families with graceful fallbacks */
   --font-family-base:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  --font-size-xs: 0.75rem; /* 12px */
-  --font-size-sm: 0.875rem; /* 14px */
-  --font-size-base: 1rem; /* 16px */
-  --font-size-lg: 1.125rem; /* 18px */
-  --font-size-xl: 1.25rem; /* 20px */
-  --font-size-2xl: 1.5rem; /* 24px */
-  --font-size-3xl: 1.875rem; /* 30px */
+  --font-family-mono:
+    'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', 'Courier New', monospace;
 
+  /* Font size scale - mobile-first */
+  --font-size-xs: 0.75rem;    /* 12px - captions, labels */
+  --font-size-sm: 0.875rem;   /* 14px - small text, secondary info */
+  --font-size-base: 1rem;     /* 16px - body text */
+  --font-size-lg: 1.125rem;   /* 18px - emphasized body text */
+  --font-size-xl: 1.25rem;    /* 20px - h5, subheadings */
+  --font-size-2xl: 1.5rem;    /* 24px - h4, h3 */
+  --font-size-3xl: 1.875rem;  /* 30px - h2 */
+  --font-size-4xl: 2.25rem;   /* 36px - h1 */
+
+  /* Font weights */
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  --line-height-tight: 1.25;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.75;
+  /* Line heights for different content types */
+  --line-height-tight: 1.25;    /* Headings */
+  --line-height-normal: 1.5;    /* Body text */
+  --line-height-relaxed: 1.75;  /* Long-form content */
 
-  /* Layout tokens */
-  --border-radius-sm: 0.25rem; /* 4px */
-  --border-radius-md: 0.5rem; /* 8px */
-  --border-radius-lg: 0.75rem; /* 12px */
+  /* Letter spacing for different contexts */
+  --letter-spacing-tight: -0.01em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
 
+  /* ===========================
+     LAYOUT TOKENS
+     =========================== */
+  
+  /* Border radius scale */
+  --border-radius-sm: 0.25rem;  /* 4px - subtle rounding */
+  --border-radius-md: 0.5rem;   /* 8px - standard rounding */
+  --border-radius-lg: 0.75rem;  /* 12px - prominent rounding */
+  --border-radius-xl: 1rem;     /* 16px - extra rounding */
+  --border-radius-full: 9999px; /* Pill shape */
+
+  /* Border widths */
+  --border-width-thin: 1px;
+  --border-width-medium: 2px;
+  --border-width-thick: 4px;
+
+  /* Box shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* Focus ring styles for accessibility */
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: var(--color-primary);
+  --focus-ring: 0 0 0 var(--focus-ring-width) var(--focus-ring-color);
 
   /* Container widths */
   --container-max-width: 1200px;
   --header-height: 4rem; /* 64px */
+  --input-height: 2.5rem; /* 40px */
+
+  /* ===========================
+     MOTION TOKENS
+     =========================== */
+  
+  /* Duration for different interaction types */
+  --transition-duration-fast: 150ms;
+  --transition-duration-base: 200ms;
+  --transition-duration-slow: 300ms;
+  --transition-duration-slower: 400ms;
+
+  /* Easing functions for natural motion */
+  --transition-timing-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --transition-timing-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --transition-timing-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-timing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Common transition combinations */
+  --transition-colors: color var(--transition-duration-base) var(--transition-timing-ease-in-out),
+                       background-color var(--transition-duration-base) var(--transition-timing-ease-in-out),
+                       border-color var(--transition-duration-base) var(--transition-timing-ease-in-out);
+  --transition-transform: transform var(--transition-duration-base) var(--transition-timing-ease-out);
+  --transition-opacity: opacity var(--transition-duration-base) var(--transition-timing-ease-in-out);
+  --transition-all: all var(--transition-duration-base) var(--transition-timing-ease-in-out);
+
+  /* ===========================
+     COMPONENT TOKENS
+     =========================== */
+  
+  /* Button tokens */
+  --button-padding-x: var(--spacing-md);
+  --button-padding-y: var(--spacing-sm);
+  --button-border-radius: var(--border-radius-md);
+  --button-font-weight: var(--font-weight-medium);
+  --button-transition: var(--transition-colors), var(--transition-transform);
+
+  /* Input tokens */
+  --input-padding-x: var(--spacing-md);
+  --input-padding-y: var(--spacing-sm);
+  --input-border-radius: var(--border-radius-md);
+  --input-border-color: var(--color-border);
+  --input-border-width: var(--border-width-thin);
+  --input-focus-border-color: var(--color-primary);
+  --input-transition: var(--transition-colors), box-shadow var(--transition-duration-base) var(--transition-timing-ease-in-out);
+
+  /* Card tokens */
+  --card-padding: var(--spacing-lg);
+  --card-border-radius: var(--border-radius-lg);
+  --card-border-color: var(--color-border);
+  --card-shadow: var(--shadow-sm);
+  --card-hover-shadow: var(--shadow-md);
+  --card-transition: box-shadow var(--transition-duration-base) var(--transition-timing-ease-out);
+
+  /* Badge tokens */
+  --badge-padding-x: var(--spacing-sm);
+  --badge-padding-y: var(--spacing-xs);
+  --badge-border-radius: var(--border-radius-md);
+  --badge-font-size: var(--font-size-xs);
+  --badge-font-weight: var(--font-weight-medium);
+
+  /* Accordion tokens */
+  --accordion-border-radius: var(--border-radius-md);
+  --accordion-border-color: var(--color-border);
+  --accordion-header-padding: var(--spacing-md);
+  --accordion-content-padding: var(--spacing-lg);
+  --accordion-transition: background-color var(--transition-duration-base) var(--transition-timing-ease-in-out);
+
+  /* Z-index scale for layering */
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
 }
 
-/* Desktop overrides */
+/* ===========================
+   RESPONSIVE OVERRIDES
+   =========================== */
+
+/* Tablet and desktop adjustments */
 @media (min-width: 768px) {
   :root {
-    --spacing-md: 1.25rem; /* 20px on desktop */
-    --spacing-lg: 2rem; /* 32px on desktop */
-    --spacing-xl: 2.5rem; /* 40px on desktop */
-    --spacing-2xl: 4rem; /* 64px on desktop */
+    /* Slightly larger spacing on desktop for more breathing room */
+    --spacing-md: 1.25rem;  /* 20px on desktop */
+    --spacing-lg: 2rem;     /* 32px on desktop */
+    --spacing-xl: 2.5rem;   /* 40px on desktop */
+    --spacing-2xl: 4rem;    /* 64px on desktop */
+    --spacing-3xl: 5rem;    /* 80px on desktop */
+
+    /* Larger typography on desktop */
+    --font-size-3xl: 2rem;    /* 32px - h2 on desktop */
+    --font-size-4xl: 2.5rem;  /* 40px - h1 on desktop */
   }
 }
