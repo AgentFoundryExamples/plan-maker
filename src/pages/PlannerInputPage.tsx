@@ -279,8 +279,8 @@ const PlannerInputPage: React.FC = () => {
                 Model (Optional)
               </label>
               <p className="form-helper-text">
-                Specify a logical model name (e.g., 'gpt-4-turbo',
-                'claude-opus'). Leave empty to use the default model.
+                Specify a logical model name (e.g., &apos;gpt-4-turbo&apos;,
+                &apos;claude-opus&apos;). Leave empty to use the default model.
               </p>
               <input
                 type="text"

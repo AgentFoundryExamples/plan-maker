@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { saveDraft, getDraft } from '@/utils/localStorage';
 
 /**
@@ -20,6 +20,7 @@ export interface PlanAnswersConfig {
  * Default configuration for plan answers store
  * Can be overridden when creating the provider
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const DEFAULT_PLAN_ANSWERS_CONFIG: PlanAnswersConfig = {
   storageKeyPrefix: 'plan-answers',
   enableSessionStorage: true,
@@ -105,6 +106,7 @@ const PlanAnswersContext = createContext<PlanAnswersContextValue | undefined>(un
  * Hook to access the plan answers store
  * @throws Error if used outside of PlanAnswersProvider
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function usePlanAnswers(): PlanAnswersContextValue {
   const context = useContext(PlanAnswersContext);
   if (!context) {
@@ -183,24 +185,20 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
   });
 
   const [currentPlanId, setCurrentPlanId] = useState<string | null>(null);
-  const [saveTimeout, setSaveTimeout] = useState<number | null>(null);
+  const saveTimeoutRef = useRef<number | null>(null);
 
-  // Debounced save to localStorage
+  // Debounced save to localStorage - uses ref to avoid state updates in effect
   const saveToStorage = useCallback((state: AnswerState) => {
     if (!config.enableSessionStorage) return;
 
-    setSaveTimeout((prev) => {
-      if (prev !== null) {
-        clearTimeout(prev);
-      }
+    if (saveTimeoutRef.current !== null) {
+      clearTimeout(saveTimeoutRef.current);
+    }
 
-      const timeout = window.setTimeout(() => {
-        saveDraft(config.storageKeyPrefix, state);
-        setSaveTimeout(null);
-      }, config.storageDebounceMs);
-
-      return timeout;
-    });
+    saveTimeoutRef.current = window.setTimeout(() => {
+      saveDraft(config.storageKeyPrefix, state);
+      saveTimeoutRef.current = null;
+    }, config.storageDebounceMs);
   }, [config.enableSessionStorage, config.storageKeyPrefix, config.storageDebounceMs]);
 
   // Save to storage whenever answers change
@@ -213,11 +211,11 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
-      if (saveTimeout !== null) {
-        clearTimeout(saveTimeout);
+      if (saveTimeoutRef.current !== null) {
+        clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [saveTimeout]);
+  }, []);
 
   /**
    * Generate a storage key for a specific question

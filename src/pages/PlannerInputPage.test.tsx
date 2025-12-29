@@ -97,7 +97,6 @@ describe('PlannerInputPage', () => {
 
   describe('Client-side Validation', () => {
     it('prevents submission when description is empty', async () => {
-      const user = userEvent.setup();
       renderWithProviders(<PlannerInputPage />);
 
       const submitButton = screen.getByRole('button', { name: /create plan/i });
@@ -182,11 +181,10 @@ describe('PlannerInputPage', () => {
 
     it('prevents duplicate submissions while request is pending', async () => {
       const user = userEvent.setup();
-      let resolvePromise: any;
       const mockFetch = vi.fn(
         () =>
-          new Promise((resolve) => {
-            resolvePromise = resolve;
+          new Promise(() => {
+            // Promise intentionally never resolves to test pending state
           })
       );
       global.fetch = mockFetch as any;
