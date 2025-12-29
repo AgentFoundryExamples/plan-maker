@@ -288,6 +288,14 @@
             },
             {
               "type": "file",
+              "name": "SpecDetailPane.tsx"
+            },
+            {
+              "type": "file",
+              "name": "SpecListPane.tsx"
+            },
+            {
+              "type": "file",
               "name": "StatusBadge.test.tsx"
             },
             {

@@ -66,6 +66,8 @@
     ├── PlanTimeline.tsx
     ├── SpecAccordion.test.tsx
     ├── SpecAccordion.tsx
+    ├── SpecDetailPane.tsx
+    ├── SpecListPane.tsx
     ├── StatusBadge.test.tsx
     └── StatusBadge.tsx
   ├── layout
