@@ -108,7 +108,7 @@ describe('Software Planner Client', () => {
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
-        json: async () => ({ error: 'Invalid request' }),
+        text: async () => JSON.stringify({ error: 'Invalid request' }),
       });
 
       await expect(
@@ -150,7 +150,7 @@ describe('Software Planner Client', () => {
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
-        json: async () => ({ error: 'Invalid request' }),
+        text: async () => JSON.stringify({ error: 'Invalid request' }),
       });
 
       await expect(
@@ -202,7 +202,7 @@ describe('Software Planner Client', () => {
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
-        json: async () => ({ error: 'Job not found' }),
+        text: async () => JSON.stringify({ error: 'Job not found' }),
       });
 
       await expect(
@@ -330,7 +330,7 @@ describe('Software Planner Client', () => {
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
-        json: async () => ({ error: 'Server error' }),
+        text: async () => JSON.stringify({ error: 'Server error' }),
       });
 
       await expect(listPlans({ fetchImpl: mockFetch as any })).rejects.toThrow(

@@ -89,7 +89,7 @@ describe('Spec Clarifier Client', () => {
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
-        json: async () => ({ detail: 'Invalid request' }),
+        text: async () => JSON.stringify({ detail: 'Invalid request' }),
       });
 
       const request = {
@@ -153,7 +153,7 @@ describe('Spec Clarifier Client', () => {
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
-        json: async () => ({ detail: 'Job not found' }),
+        text: async () => JSON.stringify({ detail: 'Job not found' }),
       });
 
       await expect(
@@ -432,7 +432,7 @@ describe('Spec Clarifier Client', () => {
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
         status: 404,
-        json: async () => ({ detail: 'Job not found' }),
+        text: async () => JSON.stringify({ detail: 'Job not found' }),
       });
 
       await expect(
@@ -468,7 +468,7 @@ describe('Spec Clarifier Client', () => {
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
         status: 422,
-        json: async () => ({
+        text: async () => JSON.stringify({
           detail: [
             {
               loc: ['path', 'job_id'],

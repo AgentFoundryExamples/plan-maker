@@ -74,18 +74,7 @@ import type {
   JobStatusResponse,
 } from './specClarifier';
 import { JobStatus } from './specClarifier';
-
-/**
- * Validate UUID format
- * @param uuid - UUID string to validate
- * @throws Error if UUID format is invalid
- */
-function validateUUID(uuid: string): void {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(uuid)) {
-    throw new Error(`Invalid UUID format: "${uuid}". Expected format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`);
-  }
-}
+import { validateUUID } from '../utils/validators';
 
 /**
  * Options for clarification operations
@@ -117,22 +106,19 @@ export async function clarifySpecs(
   );
 
   if (!response.ok) {
+    const errorText = await response.text();
     let errorMessage = `Request failed with status ${response.status}`;
     try {
-      const errorBody = await response.json();
-      // Only include sanitized error information
+      const errorBody = JSON.parse(errorText);
       if (errorBody.detail && typeof errorBody.detail === 'string') {
         errorMessage = errorBody.detail;
+      } else {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     } catch {
-      // If JSON parsing fails, try to get text
-      try {
-        const errorText = await response.text();
-        if (errorText) {
-          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
-        }
-      } catch {
-        // Ignore text parsing errors
+      // JSON parsing failed, use the raw text
+      if (errorText) {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     }
     throw new Error(`Failed to create clarification job: ${errorMessage}`);
@@ -166,22 +152,19 @@ export async function getClarifierStatus(
   );
 
   if (!response.ok) {
+    const errorText = await response.text();
     let errorMessage = `Request failed with status ${response.status}`;
     try {
-      const errorBody = await response.json();
-      // Only include sanitized error information
+      const errorBody = JSON.parse(errorText);
       if (errorBody.detail && typeof errorBody.detail === 'string') {
         errorMessage = errorBody.detail;
+      } else {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     } catch {
-      // If JSON parsing fails, try to get text
-      try {
-        const errorText = await response.text();
-        if (errorText) {
-          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
-        }
-      } catch {
-        // Ignore text parsing errors
+      // JSON parsing failed, use the raw text
+      if (errorText) {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     }
     throw new Error(`Failed to get clarification status: ${errorMessage}`);
@@ -302,22 +285,19 @@ export async function getClarifierDebug(
       throw new Error('Debug endpoint is disabled');
     }
 
+    const errorText = await response.text();
     let errorMessage = `Request failed with status ${response.status}`;
     try {
-      const errorBody = await response.json();
-      // Only include sanitized error information
+      const errorBody = JSON.parse(errorText);
       if (errorBody.detail && typeof errorBody.detail === 'string') {
         errorMessage = errorBody.detail;
+      } else {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     } catch {
-      // If JSON parsing fails, try to get text
-      try {
-        const errorText = await response.text();
-        if (errorText) {
-          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
-        }
-      } catch {
-        // Ignore text parsing errors
+      // JSON parsing failed, use the raw text
+      if (errorText) {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     }
     throw new Error(`Failed to get clarification debug info: ${errorMessage}`);

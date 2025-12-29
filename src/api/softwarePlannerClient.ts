@@ -19,6 +19,7 @@
 import { getSoftwarePlannerConfig, createHeaders } from './clientConfig';
 import type { PlanRequest, PlanResponse } from './softwarePlanner';
 import { getPlannerStatusMetadata, type StatusMetadata } from '../utils/statusMappings';
+import { validateUUID, validateLimit } from '../utils/validators';
 
 /**
  * Job metadata returned from async plan creation
@@ -103,22 +104,19 @@ export async function createPlan(
   });
 
   if (!response.ok) {
+    const errorText = await response.text();
     let errorMessage = `Request failed with status ${response.status}`;
     try {
-      const errorBody = await response.json();
-      // Only include sanitized error information
+      const errorBody = JSON.parse(errorText);
       if (errorBody.error && typeof errorBody.error === 'string') {
         errorMessage = errorBody.error;
+      } else {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     } catch {
-      // If JSON parsing fails, try to get text
-      try {
-        const errorText = await response.text();
-        if (errorText) {
-          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
-        }
-      } catch {
-        // Ignore text parsing errors
+      // JSON parsing failed, use the raw text
+      if (errorText) {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     }
     throw new Error(`Failed to create plan: ${errorMessage}`);
@@ -149,51 +147,25 @@ export async function createPlanAsync(
   });
 
   if (!response.ok) {
+    const errorText = await response.text();
     let errorMessage = `Request failed with status ${response.status}`;
     try {
-      const errorBody = await response.json();
-      // Only include sanitized error information
+      const errorBody = JSON.parse(errorText);
       if (errorBody.error && typeof errorBody.error === 'string') {
         errorMessage = errorBody.error;
+      } else {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     } catch {
-      // If JSON parsing fails, try to get text
-      try {
-        const errorText = await response.text();
-        if (errorText) {
-          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
-        }
-      } catch {
-        // Ignore text parsing errors
+      // JSON parsing failed, use the raw text
+      if (errorText) {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     }
     throw new Error(`Failed to create async plan: ${errorMessage}`);
   }
 
   return response.json();
-}
-
-/**
- * Validate UUID format
- * @param uuid - UUID string to validate
- * @throws Error if UUID format is invalid
- */
-function validateUUID(uuid: string): void {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(uuid)) {
-    throw new Error(`Invalid UUID format: "${uuid}". Expected format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`);
-  }
-}
-
-/**
- * Validate limit parameter for list operations
- * @param limit - Limit value to validate
- * @throws Error if limit is outside acceptable range
- */
-function validateLimit(limit: number): void {
-  if (!Number.isFinite(limit) || limit < 1 || limit > 1000) {
-    throw new Error(`Invalid limit: ${limit}. Limit must be between 1 and 1000.`);
-  }
 }
 
 /**
@@ -221,22 +193,19 @@ export async function getPlanById(
   );
 
   if (!response.ok) {
+    const errorText = await response.text();
     let errorMessage = `Request failed with status ${response.status}`;
     try {
-      const errorBody = await response.json();
-      // Only include sanitized error information
+      const errorBody = JSON.parse(errorText);
       if (errorBody.error && typeof errorBody.error === 'string') {
         errorMessage = errorBody.error;
+      } else {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     } catch {
-      // If JSON parsing fails, try to get text
-      try {
-        const errorText = await response.text();
-        if (errorText) {
-          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
-        }
-      } catch {
-        // Ignore text parsing errors
+      // JSON parsing failed, use the raw text
+      if (errorText) {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     }
     throw new Error(`Failed to get plan status: ${errorMessage}`);
@@ -287,22 +256,19 @@ export async function listPlans(
   });
 
   if (!response.ok) {
+    const errorText = await response.text();
     let errorMessage = `Request failed with status ${response.status}`;
     try {
-      const errorBody = await response.json();
-      // Only include sanitized error information
+      const errorBody = JSON.parse(errorText);
       if (errorBody.error && typeof errorBody.error === 'string') {
         errorMessage = errorBody.error;
+      } else {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     } catch {
-      // If JSON parsing fails, try to get text
-      try {
-        const errorText = await response.text();
-        if (errorText) {
-          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
-        }
-      } catch {
-        // Ignore text parsing errors
+      // JSON parsing failed, use the raw text
+      if (errorText) {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     }
     throw new Error(`Failed to list plans: ${errorMessage}`);

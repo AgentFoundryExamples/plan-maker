@@ -1150,7 +1150,7 @@ describe('useSubmitClarifications', () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 422,
-      json: async () => ({ detail: 'Invalid request payload' }),
+      text: async () => JSON.stringify({ detail: 'Invalid request payload' }),
     });
 
     let errorResult: Error | null = null;

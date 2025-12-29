@@ -76,13 +76,8 @@ export function usePlan(
   return useQuery<PlanJobStatus, Error>({
     queryKey: ['plan', planId],
     queryFn: async () => {
-      if (!planId) {
-        throw new Error('Plan ID is required but was not provided');
-      }
-      
-      // React Query handles cancellation via AbortSignal
-      // The fetch implementation should respect the signal if provided
-      return getPlanById(planId);
+      // The enabled option ensures planId is defined when this runs
+      return getPlanById(planId!);
     },
     enabled: !!planId, // Only run if planId is truthy
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
@@ -125,11 +120,8 @@ export function usePlanDetail(
   return useQuery<PlanJobStatus, Error>({
     queryKey: ['plan', 'detail', planId],
     queryFn: async () => {
-      // Double-check planId exists even though enabled should prevent this
-      if (!planId) {
-        throw new Error('Plan ID is required but was not provided');
-      }
-      return getPlanById(planId);
+      // The enabled option ensures planId is defined when this runs
+      return getPlanById(planId!);
     },
     enabled: !!planId, // Only run if planId is truthy
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
