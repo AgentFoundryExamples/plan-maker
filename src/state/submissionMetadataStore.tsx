@@ -148,7 +148,7 @@ export const SubmissionMetadataProvider: React.FC<SubmissionMetadataProviderProp
       clearTimeout(saveTimeoutRef.current);
     }
 
-    saveTimeoutRef.current = window.setTimeout(() => {
+    saveTimeoutRef.current = setTimeout(() => {
       saveDraft(config.storageKey, state);
       saveTimeoutRef.current = null;
     }, config.storageDebounceMs);

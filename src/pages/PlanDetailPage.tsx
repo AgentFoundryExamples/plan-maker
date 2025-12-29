@@ -23,9 +23,7 @@ const PlanDetailPage: React.FC = () => {
   } | null>(null);
 
   // Get submission metadata for current plan
-  const submissionMetadata = useMemo(() => {
-    return id ? getSubmission(id) : null;
-  }, [id, getSubmission]);
+  const submissionMetadata = id ? getSubmission(id) : null;
 
   // Submission mutation
   const submitClarifications = useSubmitClarifications({
