@@ -1170,15 +1170,6 @@
   animation: fadeIn var(--transition-duration-base) var(--transition-timing-ease-out);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 .clarifier-debug-error-icon {
   flex-shrink: 0;
   font-size: var(--font-size-lg);

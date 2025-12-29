@@ -9,11 +9,33 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
+// Read CSS files once at module level for better performance
+const themeCss = readFileSync(
+  resolve(__dirname, '../styles/theme.css'),
+  'utf-8'
+);
+
+const planDetailCss = readFileSync(
+  resolve(__dirname, '../styles/PlanDetailPage.css'),
+  'utf-8'
+);
+
+const plannerInputCss = readFileSync(
+  resolve(__dirname, '../styles/PlannerInputPage.css'),
+  'utf-8'
+);
+
+const plansListCss = readFileSync(
+  resolve(__dirname, '../styles/PlansListPage.css'),
+  'utf-8'
+);
+
+const globalCss = readFileSync(
+  resolve(__dirname, '../styles/global.css'),
+  'utf-8'
+);
+
 describe('Mobile Optimization CSS Configuration', () => {
-  const themeCss = readFileSync(
-    resolve(__dirname, '../styles/theme.css'),
-    'utf-8'
-  );
 
   describe('Safe Area Insets', () => {
     it('should define safe area inset custom properties', () => {
@@ -78,11 +100,6 @@ describe('Mobile Optimization CSS Configuration', () => {
 });
 
 describe('Reduced Motion Support', () => {
-  const themeCss = readFileSync(
-    resolve(__dirname, '../styles/theme.css'),
-    'utf-8'
-  );
-
   it('should include prefers-reduced-motion media query', () => {
     expect(themeCss).toContain('@media (prefers-reduced-motion: reduce)');
   });
@@ -94,26 +111,6 @@ describe('Reduced Motion Support', () => {
 });
 
 describe('Page-specific Mobile Optimizations', () => {
-  const planDetailCss = readFileSync(
-    resolve(__dirname, '../styles/PlanDetailPage.css'),
-    'utf-8'
-  );
-
-  const plannerInputCss = readFileSync(
-    resolve(__dirname, '../styles/PlannerInputPage.css'),
-    'utf-8'
-  );
-
-  const plansListCss = readFileSync(
-    resolve(__dirname, '../styles/PlansListPage.css'),
-    'utf-8'
-  );
-
-  const globalCss = readFileSync(
-    resolve(__dirname, '../styles/global.css'),
-    'utf-8'
-  );
-
   describe('PlanDetailPage', () => {
     it('should have momentum scrolling for accordion list', () => {
       expect(planDetailCss).toContain('-webkit-overflow-scrolling: touch');
@@ -186,16 +183,14 @@ describe('Page-specific Mobile Optimizations', () => {
 
 describe('Mobile Breakpoints', () => {
   const files = [
-    { name: 'PlanDetailPage', path: '../styles/PlanDetailPage.css' },
-    { name: 'PlannerInputPage', path: '../styles/PlannerInputPage.css' },
-    { name: 'PlansListPage', path: '../styles/PlansListPage.css' },
-    { name: 'global', path: '../styles/global.css' },
+    { name: 'PlanDetailPage', css: planDetailCss },
+    { name: 'PlannerInputPage', css: plannerInputCss },
+    { name: 'PlansListPage', css: plansListCss },
+    { name: 'global', css: globalCss },
   ];
 
-  files.forEach(({ name, path: filePath }) => {
+  files.forEach(({ name, css }) => {
     describe(name, () => {
-      const css = readFileSync(resolve(__dirname, filePath), 'utf-8');
-
       it('should have mobile breakpoint (max-width: 767px)', () => {
         expect(css).toContain('@media (max-width: 767px)');
       });
@@ -210,11 +205,6 @@ describe('Mobile Breakpoints', () => {
 });
 
 describe('Animation Performance', () => {
-  const planDetailCss = readFileSync(
-    resolve(__dirname, '../styles/PlanDetailPage.css'),
-    'utf-8'
-  );
-
   it('should define slideDown animation under 200ms', () => {
     const match = planDetailCss.match(/animation:\s*slideDown\s+var\(--transition-duration-base\)/);
     expect(match).toBeTruthy();

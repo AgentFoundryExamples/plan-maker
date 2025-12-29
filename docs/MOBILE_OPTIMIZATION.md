@@ -276,7 +276,7 @@ Always write CSS mobile-first:
 
 ## Resources
 
-- [Apple Human Interface Guidelines - Touch Targets](https://developer.apple.com/design/human-interface-guidelines/touchbar)
+- [Apple Human Interface Guidelines - iOS Touch Targets](https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/adaptivity-and-layout/)
 - [WCAG 2.1 - Target Size](https://www.w3.org/WAI/WCAG21/Understanding/target-size.html)
 - [MDN - prefers-reduced-motion](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion)
 - [CSS Safe Area Insets](https://webkit.org/blog/7929/designing-websites-for-iphone-x/)
