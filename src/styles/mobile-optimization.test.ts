@@ -125,8 +125,10 @@ describe('Reduced Motion Support', () => {
 
 describe('Page-specific Mobile Optimizations', () => {
   describe('PlanDetailPage', () => {
-    it('should have momentum scrolling for accordion list', () => {
-      expect(planDetailCss).toContain('-webkit-overflow-scrolling: touch');
+    it('should not use deprecated webkit-overflow-scrolling (iOS 13+ handles this natively)', () => {
+      // Modern iOS handles momentum scrolling automatically
+      // The deprecated -webkit-overflow-scrolling: touch has been removed
+      expect(planDetailCss).not.toContain('-webkit-overflow-scrolling: touch');
     });
 
     it('should define keyboard offset for sticky bar', () => {
@@ -175,8 +177,10 @@ describe('Page-specific Mobile Optimizations', () => {
   });
 
   describe('Global Styles', () => {
-    it('should have momentum scrolling for body', () => {
-      expect(globalCss).toContain('-webkit-overflow-scrolling: touch');
+    it('should not use deprecated webkit-overflow-scrolling (modern browsers handle this natively)', () => {
+      // Modern browsers handle momentum scrolling automatically
+      // The deprecated -webkit-overflow-scrolling: touch has been removed
+      expect(globalCss).not.toContain('-webkit-overflow-scrolling: touch');
     });
 
     it('should have safe area padding for container', () => {
