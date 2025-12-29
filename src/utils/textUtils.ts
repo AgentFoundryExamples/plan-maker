@@ -27,3 +27,23 @@ export function countWords(text: string): number {
   // Split by whitespace - no need to filter as trimmed non-empty text won't produce empty strings
   return text.trim().split(/\s+/).length;
 }
+
+/**
+ * Truncate a job ID for display purposes.
+ * Useful for showing shortened IDs in breadcrumbs or UI elements.
+ * 
+ * @param jobId - The full job ID to truncate
+ * @param length - Number of characters to show (default: 8)
+ * @param suffix - Suffix to append (default: '...')
+ * @returns The truncated job ID
+ */
+export function truncateJobId(jobId: string, length: number = 8, suffix: string = '...'): string {
+  if (!jobId || jobId.length <= length) {
+    return jobId;
+  }
+  if (length <= 0) {
+    return '';
+  }
+  
+  return jobId.slice(0, length) + suffix;
+}

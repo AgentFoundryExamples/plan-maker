@@ -91,7 +91,7 @@ describe('PlanDetailPage', () => {
       expect(screen.getByRole('heading', { name: /plan details/i, level: 1 })).toBeInTheDocument();
     });
 
-    it('shows back to plans link during loading', () => {
+    it('shows breadcrumb navigation during loading', () => {
       mockUsePlanDetail.mockReturnValue({
         data: undefined,
         error: null,
@@ -103,9 +103,18 @@ describe('PlanDetailPage', () => {
 
       renderComponent();
 
-      const backLink = screen.getByRole('link', { name: /back to plans list/i });
-      expect(backLink).toBeInTheDocument();
-      expect(backLink).toHaveAttribute('href', '/plans');
+      // Check breadcrumb navigation is present
+      const breadcrumbNav = screen.getByRole('navigation', { name: /breadcrumb/i });
+      expect(breadcrumbNav).toBeInTheDocument();
+      
+      // Check breadcrumb links
+      const homeLink = screen.getByRole('link', { name: /home/i });
+      expect(homeLink).toBeInTheDocument();
+      expect(homeLink).toHaveAttribute('href', '/');
+      
+      const plansLink = screen.getByRole('link', { name: /plans/i });
+      expect(plansLink).toBeInTheDocument();
+      expect(plansLink).toHaveAttribute('href', '/plans');
     });
   });
 
@@ -160,7 +169,7 @@ describe('PlanDetailPage', () => {
       expect(screen.getByText(/no plan id provided/i)).toBeInTheDocument();
     });
 
-    it('provides back to plans link in error state', () => {
+    it('provides breadcrumb navigation in error state', () => {
       mockUsePlanDetail.mockReturnValue({
         data: undefined,
         error: new Error('Network error'),
@@ -172,9 +181,14 @@ describe('PlanDetailPage', () => {
 
       renderComponent();
 
-      const backLinks = screen.getAllByRole('link', { name: /back to plans/i });
-      expect(backLinks.length).toBeGreaterThanOrEqual(1);
-      expect(backLinks[0]).toHaveAttribute('href', '/plans');
+      // Check breadcrumb navigation is present
+      const breadcrumbNav = screen.getByRole('navigation', { name: /breadcrumb/i });
+      expect(breadcrumbNav).toBeInTheDocument();
+      
+      // Also check there's still a "Back to Plans" button in the error state
+      const backButton = screen.getByRole('link', { name: /back to plans/i });
+      expect(backButton).toBeInTheDocument();
+      expect(backButton).toHaveAttribute('href', '/plans');
     });
 
     it('handles 404 error appropriately', () => {

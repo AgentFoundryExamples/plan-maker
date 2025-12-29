@@ -89,9 +89,11 @@ const PlansListPage: React.FC = () => {
   return (
     <div className="container">
       <div className="plans-list-container">
-        <div className="plans-list-header">
-          <h1>Plans</h1>
-          <div className="plans-list-actions">
+        <div className="page-header-with-actions">
+          <div className="page-header">
+            <h1 className="page-title">Plans</h1>
+          </div>
+          <div className="page-actions">
             {lastUpdatedDisplay && (
               <span className="last-updated" aria-live="polite">
                 Last updated: {lastUpdatedDisplay}

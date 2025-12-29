@@ -17,13 +17,6 @@
   --keyboard-offset: 0px;
 }
 
-/* Back link styling */
-.back-link {
-  display: inline-block;
-  margin-bottom: var(--spacing-md);
-  transition: var(--transition-colors);
-}
-
 /* Plan header with actions */
 .plan-header {
   display: flex;

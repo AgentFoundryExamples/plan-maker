@@ -3,9 +3,11 @@ import { useParams, Link } from 'react-router-dom';
 import { usePlanDetail, useSubmitClarifications, useClarificationStatus } from '@/api/hooks';
 import { getStatusMetadata } from '@/api/softwarePlannerClient';
 import { formatTimestamp } from '@/utils/dateUtils';
+import { truncateJobId } from '@/utils/textUtils';
 import SpecAccordion from '@/components/SpecAccordion';
 import ClarifierPanel from '@/components/ClarifierPanel';
 import PlanTimeline from '@/components/PlanTimeline';
+import Breadcrumb, { type BreadcrumbItem } from '@/components/Breadcrumb';
 import { usePlanAnswers } from '@/state/planAnswersStore';
 import { useSubmissionMetadata } from '@/state/submissionMetadataStore';
 import { getClarifierJobId } from '@/utils/clarifierStorage';
@@ -168,14 +170,31 @@ const PlanDetailPage: React.FC = () => {
     setClarifierJobIdForTimeline(jobId);
   }, []);
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="container">
-        <Link to="/plans" className="back-link">
-          ← Back to Plans List
-        </Link>
-        <h1>Plan Details</h1>
+  // Compute breadcrumb items based on state
+  const breadcrumbItems = useMemo(() => {
+    const items: BreadcrumbItem[] = [
+      { label: 'Home', href: '/' },
+      { label: 'Plans', href: '/plans' },
+    ];
+
+    if (isLoading) {
+      items.push({ label: 'Loading...' });
+    } else if (error) {
+      items.push({ label: 'Error' });
+    } else if (!data) {
+      items.push({ label: 'Invalid' });
+    } else {
+      items.push({ label: truncateJobId(data.job_id) });
+    }
+
+    return items;
+  }, [isLoading, error, data]);
+
+  // Render page content based on state
+  const renderPageContent = () => {
+    // Loading state
+    if (isLoading) {
+      return (
         <div className="plans-skeleton" role="status" aria-label="Loading plan details">
           <div className="skeleton-card">
             <div className="skeleton-header">
@@ -187,18 +206,12 @@ const PlanDetailPage: React.FC = () => {
             <div className="skeleton-text" />
           </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  // Error state
-  if (error) {
-    return (
-      <div className="container">
-        <Link to="/plans" className="back-link">
-          ← Back to Plans List
-        </Link>
-        <h1>Plan Details</h1>
+    // Error state
+    if (error) {
+      return (
         <div className="error-state" role="alert">
           <h2>Failed to Load Plan</h2>
           <p>{error.message || 'Unable to fetch plan details. The plan may not exist or there was a network error.'}</p>
@@ -206,18 +219,12 @@ const PlanDetailPage: React.FC = () => {
             Back to Plans
           </Link>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  // Handle case where query is disabled (no planId) or data hasn't loaded yet
-  if (!data) {
-    return (
-      <div className="container">
-        <Link to="/plans" className="back-link">
-          ← Back to Plans List
-        </Link>
-        <h1>Plan Details</h1>
+    // Invalid state
+    if (!data) {
+      return (
         <div className="error-state" role="alert">
           <h2>Invalid Plan</h2>
           <p>No plan ID provided. Please select a plan from the list.</p>
@@ -225,209 +232,214 @@ const PlanDetailPage: React.FC = () => {
             Back to Plans
           </Link>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  // Get plan metadata
-  const statusMeta = getStatusMetadata(data.status);
-  const planResult = data.result;
-  const specs = planResult?.specs || [];
-  const hasQuestions = specs.some(spec => (spec.open_questions?.length || 0) > 0);
+    // Success state - render main content
+    const statusMeta = getStatusMetadata(data.status);
+    const planResult = data.result;
+    const specs = planResult?.specs || [];
+    const hasQuestions = specs.some(spec => (spec.open_questions?.length || 0) > 0);
 
-  return (
-    <div className="container">
-      <Link to="/plans" className="back-link">
-        ← Back to Plans List
-      </Link>
-      <h1>Plan Details</h1>
-      
-      {/* Plan Metadata Card */}
-      <div className="card mt-lg">
-        <div className="plan-card-header plan-header">
-          <h2>Plan #{data.job_id}</h2>
-          <div className="plan-header-actions">
-            <span
-              className="status-badge"
-              style={{
-                backgroundColor: statusMeta.color,
-                color: 'var(--color-background)',
-              }}
-              aria-label={`Status: ${statusMeta.label}`}
-            >
-              {statusMeta.label}
-            </span>
-            <button
-              type="button"
-              className="btn btn-secondary btn-refresh"
-              onClick={handleRefreshPlan}
-              aria-label="Refresh plan status"
-              title="Refresh plan status"
-            >
-              🔄 Refresh
-            </button>
-          </div>
-        </div>
-        
-        <div className="plan-card-metadata">
-          <div className="metadata-row">
-            <span className="metadata-label">Plan ID:</span>
-            <div className="metadata-value-with-action">
-              <span>{data.job_id}</span>
+    return (
+      <>
+        {/* Plan Metadata Card */}
+        <div className="card mt-lg">
+          <div className="plan-card-header plan-header">
+            <h2>Plan #{data.job_id}</h2>
+            <div className="plan-header-actions">
+              <span
+                className="status-badge"
+                style={{
+                  backgroundColor: statusMeta.color,
+                  color: 'var(--color-background)',
+                }}
+                aria-label={`Status: ${statusMeta.label}`}
+              >
+                {statusMeta.label}
+              </span>
               <button
                 type="button"
-                className="btn btn-text btn-copy-inline"
-                onClick={() => handleCopyJobId(data.job_id)}
-                aria-label="Copy plan ID to clipboard"
-                title="Copy to clipboard"
+                className="btn btn-secondary btn-refresh"
+                onClick={handleRefreshPlan}
+                aria-label="Refresh plan status"
+                title="Refresh plan status"
               >
-                📋
+                🔄 Refresh
               </button>
             </div>
           </div>
-          <div className="metadata-row">
-            <span className="metadata-label">Status:</span>
-            <span>{statusMeta.label}</span>
+          
+          <div className="plan-card-metadata">
+            <div className="metadata-row">
+              <span className="metadata-label">Plan ID:</span>
+              <div className="metadata-value-with-action">
+                <span>{data.job_id}</span>
+                <button
+                  type="button"
+                  className="btn btn-text btn-copy-inline"
+                  onClick={() => handleCopyJobId(data.job_id)}
+                  aria-label="Copy plan ID to clipboard"
+                  title="Copy to clipboard"
+                >
+                  📋
+                </button>
+              </div>
+            </div>
+            <div className="metadata-row">
+              <span className="metadata-label">Status:</span>
+              <span>{statusMeta.label}</span>
+            </div>
+            <div className="metadata-row">
+              <span className="metadata-label">Created:</span>
+              <time dateTime={data.created_at}>
+                {formatTimestamp(data.created_at)}
+              </time>
+            </div>
+            <div className="metadata-row">
+              <span className="metadata-label">Updated:</span>
+              <time dateTime={data.updated_at}>
+                {formatTimestamp(data.updated_at)}
+              </time>
+            </div>
           </div>
-          <div className="metadata-row">
-            <span className="metadata-label">Created:</span>
-            <time dateTime={data.created_at}>
-              {formatTimestamp(data.created_at)}
-            </time>
-          </div>
-          <div className="metadata-row">
-            <span className="metadata-label">Updated:</span>
-            <time dateTime={data.updated_at}>
-              {formatTimestamp(data.updated_at)}
-            </time>
-          </div>
+
+          {/* Error message if job failed */}
+          {data.status === 'FAILED' && data.error && (
+            <div className="plan-error-container">
+              <h3>Error</h3>
+              <p><strong>Type:</strong> {data.error.type}</p>
+              <p><strong>Message:</strong> {data.error.error}</p>
+            </div>
+          )}
         </div>
 
-        {/* Error message if job failed */}
-        {data.status === 'FAILED' && data.error && (
-          <div className="plan-error-container">
-            <h3>Error</h3>
-            <p><strong>Type:</strong> {data.error.type}</p>
-            <p><strong>Message:</strong> {data.error.error}</p>
-          </div>
-        )}
-      </div>
+        {/* Specs Section */}
+        <div className="card mt-lg">
+          <h2>Specifications</h2>
+          {specs.length === 0 ? (
+            <div className="empty-state">
+              <p>No specs available yet</p>
+            </div>
+          ) : (
+            <>
+              <SpecAccordion 
+                planId={data.job_id} 
+                specs={specs}
+                validationResult={validationResult || undefined}
+                showValidationErrors={showValidationErrors}
+              />
 
-      {/* Specs Section */}
-      <div className="card mt-lg">
-        <h2>Specifications</h2>
-        {specs.length === 0 ? (
-          <div className="empty-state">
-            <p>No specs available yet</p>
-          </div>
-        ) : (
-          <>
-            <SpecAccordion 
-              planId={data.job_id} 
-              specs={specs}
-              validationResult={validationResult || undefined}
-              showValidationErrors={showValidationErrors}
-            />
+              {/* Submission Section - Only show if there are questions */}
+              {hasQuestions && (
+                <div className="submission-section">
+                  {/* Submission Banner */}
+                  {submissionBanner && (
+                    <div 
+                      className={`submission-banner ${submissionBanner.type}`}
+                      role="alert"
+                    >
+                      <span className="submission-banner-icon">
+                        {submissionBanner.type === 'error' ? '⚠️' : '✓'}
+                      </span>
+                      <div className="submission-banner-content">
+                        <h3 className="submission-banner-title">
+                          {submissionBanner.title}
+                        </h3>
+                        <p className="submission-banner-message">
+                          {submissionBanner.message}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        className="btn btn-text"
+                        onClick={dismissBanner}
+                        aria-label="Dismiss message"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
 
-            {/* Submission Section - Only show if there are questions */}
-            {hasQuestions && (
-              <div className="submission-section">
-                {/* Submission Banner */}
-                {submissionBanner && (
-                  <div 
-                    className={`submission-banner ${submissionBanner.type}`}
-                    role="alert"
-                  >
-                    <span className="submission-banner-icon">
-                      {submissionBanner.type === 'error' ? '⚠️' : '✓'}
-                    </span>
-                    <div className="submission-banner-content">
-                      <h3 className="submission-banner-title">
-                        {submissionBanner.title}
-                      </h3>
-                      <p className="submission-banner-message">
-                        {submissionBanner.message}
-                      </p>
+                  {/* Submission Controls */}
+                  <div className="submission-controls">
+                    <div className="submission-info">
+                      {validationResult && (
+                        <span className="submission-status">
+                          {validationResult.isValid ? (
+                            <span style={{ color: 'var(--color-success)' }}>
+                              ✓ All questions answered
+                            </span>
+                          ) : (
+                            <span>
+                              {validationResult.unansweredCount} question{validationResult.unansweredCount !== 1 ? 's' : ''} remaining
+                            </span>
+                          )}
+                        </span>
+                      )}
+                      {submissionMetadata && (
+                        <span className="last-submitted">
+                          Last submitted: <time dateTime={submissionMetadata.submittedAt}>
+                            {formatTimestamp(submissionMetadata.submittedAt)}
+                          </time>
+                          {submissionMetadata.jobId && (
+                            <span className="submission-job-id"> (Job: {submissionMetadata.jobId})</span>
+                          )}
+                        </span>
+                      )}
                     </div>
                     <button
                       type="button"
-                      className="btn btn-text"
-                      onClick={dismissBanner}
-                      aria-label="Dismiss message"
+                      className="btn btn-primary btn-submit"
+                      onClick={handleSubmit}
+                      disabled={submitClarifications.isPending || (!!validationResult && !validationResult.isValid)}
+                      aria-busy={submitClarifications.isPending}
                     >
-                      ✕
+                      {submitClarifications.isPending ? (
+                        <span className="submission-loading">
+                          <span className="submission-spinner" aria-hidden="true" />
+                          Submitting...
+                        </span>
+                      ) : (
+                        'Submit Clarifications'
+                      )}
                     </button>
                   </div>
-                )}
-
-                {/* Submission Controls */}
-                <div className="submission-controls">
-                  <div className="submission-info">
-                    {validationResult && (
-                      <span className="submission-status">
-                        {validationResult.isValid ? (
-                          <span style={{ color: 'var(--color-success)' }}>
-                            ✓ All questions answered
-                          </span>
-                        ) : (
-                          <span>
-                            {validationResult.unansweredCount} question{validationResult.unansweredCount !== 1 ? 's' : ''} remaining
-                          </span>
-                        )}
-                      </span>
-                    )}
-                    {submissionMetadata && (
-                      <span className="last-submitted">
-                        Last submitted: <time dateTime={submissionMetadata.submittedAt}>
-                          {formatTimestamp(submissionMetadata.submittedAt)}
-                        </time>
-                        {submissionMetadata.jobId && (
-                          <span className="submission-job-id"> (Job: {submissionMetadata.jobId})</span>
-                        )}
-                      </span>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    className="btn btn-primary btn-submit"
-                    onClick={handleSubmit}
-                    disabled={submitClarifications.isPending || (!!validationResult && !validationResult.isValid)}
-                    aria-busy={submitClarifications.isPending}
-                  >
-                    {submitClarifications.isPending ? (
-                      <span className="submission-loading">
-                        <span className="submission-spinner" aria-hidden="true" />
-                        Submitting...
-                      </span>
-                    ) : (
-                      'Submit Clarifications'
-                    )}
-                  </button>
                 </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+              )}
+            </>
+          )}
+        </div>
 
-      {/* Activity Timeline */}
-      {data.status !== 'QUEUED' && (
+        {/* Activity Timeline */}
+        {data.status !== 'QUEUED' && (
+          <div className="card mt-lg">
+            <PlanTimeline
+              planJob={data}
+              clarifierJob={clarifierStatus || undefined}
+              clarifierCreatedAt={clarifierStatus?.created_at || null}
+            />
+          </div>
+        )}
+
+        {/* Clarification Panel */}
         <div className="card mt-lg">
-          <PlanTimeline
+          <ClarifierPanel
             planJob={data}
-            clarifierJob={clarifierStatus || undefined}
-            clarifierCreatedAt={clarifierStatus?.created_at || null}
+            onClarificationCreated={handleClarificationCreated}
           />
         </div>
-      )}
+      </>
+    );
+  };
 
-      {/* Clarification Panel */}
-      <div className="card mt-lg">
-        <ClarifierPanel
-          planJob={data}
-          onClarificationCreated={handleClarificationCreated}
-        />
+  return (
+    <div className="container">
+      <Breadcrumb items={breadcrumbItems} />
+      <div className="page-header">
+        <h1 className="page-title">Plan Details</h1>
       </div>
+      {renderPageContent()}
     </div>
   );
 };

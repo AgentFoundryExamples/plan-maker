@@ -182,6 +182,101 @@ a:focus-visible {
 }
 
 /* ===========================
+   PAGE HEADER UTILITIES
+   =========================== */
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
+}
+
+.page-header-with-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.page-title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin: 0;
+  line-height: var(--line-height-tight);
+}
+
+.page-subtitle {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+.page-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Breadcrumb styles */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.breadcrumb-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: var(--transition-colors);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  min-height: var(--input-height);
+}
+
+.breadcrumb-link:hover {
+  color: var(--color-primary-hover);
+  background-color: var(--color-primary-light);
+  text-decoration: none;
+}
+
+.breadcrumb-link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.breadcrumb-separator {
+  color: var(--color-border);
+  user-select: none;
+  margin: 0 var(--spacing-xs);
+}
+
+.breadcrumb-current {
+  color: var(--color-text);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Last updated indicator */
+.last-updated {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+/* ===========================
    BUTTON UTILITIES
    =========================== */
 
@@ -579,6 +674,34 @@ body {
 /* ===========================
    RESPONSIVE & ACCESSIBILITY
    =========================== */
+
+/* Page header responsive adjustments */
+@media (min-width: 768px) {
+  .page-header-with-actions {
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .page-actions {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 767px) {
+  .page-header-with-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .page-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .page-actions .btn {
+    width: 100%;
+  }
+}
 
 /* Improve touch targets on mobile */
 @media (max-width: 767px) {
