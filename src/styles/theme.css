@@ -261,7 +261,7 @@
 
 /**
  * Dark mode color palette
- * Applied when user selects dark theme via toggle or OS preference
+ * Applied when user explicitly selects dark theme via toggle
  * All colors maintain WCAG AA contrast ratios for accessibility
  */
 [data-theme="dark"] {
@@ -323,7 +323,15 @@
 
 /**
  * Automatic dark mode based on OS preference
- * Only applies if user hasn't manually set a theme preference
+ * Only applies when user is in "auto" mode (no explicit theme selected)
+ * 
+ * Note: The color values are intentionally duplicated from [data-theme="dark"]
+ * because both selectors serve different purposes:
+ * - [data-theme="dark"] applies when user explicitly chooses dark mode
+ * - This media query applies when user is in auto mode AND OS prefers dark
+ * 
+ * This duplication is necessary to support both explicit and automatic theming
+ * without complex CSS selector logic that could impact performance.
  */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
