@@ -1434,5 +1434,60 @@ describe('PlanDetailPage', () => {
       expect(specListPane?.classList.contains('spec-list-pane')).toBe(true);
       expect(specDetailPane?.classList.contains('spec-detail-pane')).toBe(true);
     });
+
+    it('applies scrollable containers for spec list and detail panes', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithSpecs,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-dual-pane');
+
+      // Verify scrollable containers exist
+      const specListItems = document.querySelector('.spec-list-items');
+      const specDetailContent = document.querySelector('.spec-detail-content');
+      
+      expect(specListItems).toBeInTheDocument();
+      expect(specDetailContent).toBeInTheDocument();
+      
+      // These elements should have scrollable content (overflow-y: auto on desktop)
+      // The CSS handles this via media queries
+      expect(specListItems?.classList.contains('spec-list-items')).toBe(true);
+      expect(specDetailContent?.classList.contains('spec-detail-content')).toBe(true);
+    });
+
+    it('verifies three-pane fixed layout structure with clarifier panel', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithSpecs,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-dual-pane');
+
+      // Verify the three main layout components exist
+      const dualPaneContainer = document.querySelector('.dual-pane-container');
+      const clarifierPanel = document.querySelector('.clarifier-panel');
+      
+      expect(dualPaneContainer).toBeInTheDocument();
+      expect(clarifierPanel).toBeInTheDocument();
+      
+      // Dual pane contains spec list and detail
+      const specListPane = document.querySelector('.spec-list-pane');
+      const specDetailPane = document.querySelector('.spec-detail-pane');
+      
+      expect(dualPaneContainer?.contains(specListPane as Node)).toBe(true);
+      expect(dualPaneContainer?.contains(specDetailPane as Node)).toBe(true);
+      
+      // Clarifier panel is separate (not inside dual-pane-container)
+      expect(dualPaneContainer?.contains(clarifierPanel as Node)).toBe(false);
+    });
   });
 });

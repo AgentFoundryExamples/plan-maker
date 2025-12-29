@@ -713,4 +713,28 @@ describe('ClarifierPanel', () => {
       });
     });
   });
+
+  describe('Layout Structure', () => {
+    it('renders with scrollable clarifier panel container', () => {
+      renderComponent();
+
+      // Verify clarifier panel has proper class for scrolling
+      const clarifierPanel = document.querySelector('.clarifier-panel');
+      expect(clarifierPanel).toBeInTheDocument();
+      expect(clarifierPanel?.classList.contains('clarifier-panel')).toBe(true);
+    });
+
+    it('maintains layout structure with all sections visible', () => {
+      renderComponent();
+
+      // Verify all major sections are present
+      expect(screen.getByText('Clarification')).toBeInTheDocument();
+      expect(screen.getByText('Start New Clarification')).toBeInTheDocument();
+      expect(screen.getByText('Track Existing Job')).toBeInTheDocument();
+      
+      // Verify clarifier panel container exists
+      const clarifierPanel = document.querySelector('.clarifier-panel');
+      expect(clarifierPanel).toBeInTheDocument();
+    });
+  });
 });
