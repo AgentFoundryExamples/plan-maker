@@ -37,6 +37,9 @@ const PlanDetailPage: React.FC = () => {
   
   // Dual-pane layout: Selected spec index (synced with URL)
   const [selectedSpecIndex, setSelectedSpecIndex] = useState<number | null>(null);
+  
+  // Track if spec selection has been initialized to prevent race conditions
+  const [isSpecInitialized, setIsSpecInitialized] = useState(false);
 
   // Initialize viewport detection after mount
   useEffect(() => {
@@ -54,7 +57,7 @@ const PlanDetailPage: React.FC = () => {
 
   // Initialize selected spec from URL or default
   useEffect(() => {
-    if (!data?.result?.specs) return;
+    if (!data?.result?.specs || isSpecInitialized) return;
     
     const specs = data.result.specs;
     if (specs.length === 0) return;
@@ -65,6 +68,7 @@ const PlanDetailPage: React.FC = () => {
       const paramIndex = parseInt(specParam, 10);
       if (!isNaN(paramIndex) && paramIndex >= 0 && paramIndex < specs.length) {
         setSelectedSpecIndex(paramIndex);
+        setIsSpecInitialized(true);
         return;
       }
     }
@@ -81,7 +85,8 @@ const PlanDetailPage: React.FC = () => {
       setSelectedSpecIndex(0);
       setSearchParams({ spec: '0' }, { replace: true });
     }
-  }, [data, searchParams, setSearchParams, validateAnswers]);
+    setIsSpecInitialized(true);
+  }, [data, searchParams, setSearchParams, validateAnswers, isSpecInitialized]);
 
   // Handle spec selection
   const handleSelectSpec = useCallback((index: number) => {

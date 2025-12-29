@@ -26,6 +26,14 @@ export const SpecListPane: React.FC<SpecListPaneProps> = ({
   onSelectSpec,
   getUnansweredCount,
 }) => {
+  // Use refs for focus management instead of DOM queries
+  const itemRefs = React.useRef<(HTMLDivElement | null)[]>([]);
+
+  // Ensure refs array matches specs length
+  React.useEffect(() => {
+    itemRefs.current = itemRefs.current.slice(0, specs.length);
+  }, [specs.length]);
+
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -34,17 +42,19 @@ export const SpecListPane: React.FC<SpecListPaneProps> = ({
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       const nextIndex = index + 1 < specs.length ? index + 1 : index;
-      onSelectSpec(nextIndex);
-      // Focus next item
-      const nextElement = document.getElementById(`spec-list-item-${nextIndex}`);
-      nextElement?.focus();
+      if (index !== nextIndex) {
+        onSelectSpec(nextIndex);
+        // Focus next item using ref
+        itemRefs.current[nextIndex]?.focus();
+      }
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       const prevIndex = index - 1 >= 0 ? index - 1 : index;
-      onSelectSpec(prevIndex);
-      // Focus previous item
-      const prevElement = document.getElementById(`spec-list-item-${prevIndex}`);
-      prevElement?.focus();
+      if (index !== prevIndex) {
+        onSelectSpec(prevIndex);
+        // Focus previous item using ref
+        itemRefs.current[prevIndex]?.focus();
+      }
     }
   };
 
@@ -64,6 +74,9 @@ export const SpecListPane: React.FC<SpecListPaneProps> = ({
           return (
             <div
               key={index}
+              ref={(el) => {
+                itemRefs.current[index] = el;
+              }}
               id={`spec-list-item-${index}`}
               className={`spec-list-item ${isSelected ? 'selected' : ''}`}
               onClick={() => onSelectSpec(index)}
