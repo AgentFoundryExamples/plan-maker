@@ -367,6 +367,10 @@
   overflow: visible;
 }
 
+/* ===========================
+   KEYFRAME ANIMATIONS
+   =========================== */
+
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -375,6 +379,26 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -392,25 +416,12 @@
     animation: none;
   }
   
-  @keyframes slideIn {
-    from, to {
-      opacity: 1;
-      transform: none;
-    }
+  .submission-banner {
+    animation: none;
   }
   
-  @keyframes slideDown {
-    from, to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  
-  @keyframes fadeInUp {
-    from, to {
-      opacity: 1;
-      transform: none;
-    }
+  .clarifier-debug-error {
+    animation: none;
   }
 }
 
@@ -614,21 +625,6 @@
   gap: var(--spacing-sm);
   border: var(--border-width-thin) solid;
   animation: fadeIn var(--transition-duration-base) var(--transition-timing-ease-out);
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .submission-banner {
-    animation: none;
-  }
 }
 
 .submission-banner.error {
@@ -853,17 +849,6 @@
   outline: none;
   /* Smooth appearance animation */
   animation: fadeInUp var(--transition-duration-base) var(--transition-timing-ease-out);
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(0.5rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .timeline-item:focus {
@@ -1215,22 +1200,5 @@
     padding: var(--spacing-sm);
     padding-left: max(var(--spacing-sm), var(--safe-area-inset-left));
     padding-right: max(var(--spacing-sm), var(--safe-area-inset-right));
-  }
-}
-
-/* Reduced motion support for clarifier */
-@media (prefers-reduced-motion: reduce) {
-  .clarifier-banner {
-    animation: none;
-  }
-  
-  .clarifier-debug-error {
-    animation: none;
-  }
-  
-  @keyframes fadeIn {
-    from, to {
-      opacity: 1;
-    }
   }
 }
