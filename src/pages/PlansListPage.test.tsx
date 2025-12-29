@@ -103,7 +103,7 @@ describe('PlansListPage', () => {
         },
       ],
       total: 3,
-      limit: 25,
+      limit: 50,
     };
 
     it('renders plan cards with all required information', () => {
@@ -119,15 +119,15 @@ describe('PlansListPage', () => {
 
       renderComponent();
 
-      // Check that all plans are rendered
-      expect(screen.getByText('job-123')).toBeInTheDocument();
-      expect(screen.getByText('job-456')).toBeInTheDocument();
-      expect(screen.getByText('job-789')).toBeInTheDocument();
+      // Check that all plans are rendered (they appear in both timeline and cards)
+      expect(screen.getAllByText('job-123').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('job-456').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('job-789').length).toBeGreaterThanOrEqual(1);
 
-      // Check status badges
-      expect(screen.getByText('Succeeded')).toBeInTheDocument();
-      expect(screen.getByText('Running')).toBeInTheDocument();
-      expect(screen.getByText('Queued')).toBeInTheDocument();
+      // Check status badges (they appear in both timeline and cards)
+      expect(screen.getAllByText('Succeeded').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Running').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Queued').length).toBeGreaterThanOrEqual(1);
     });
 
     it('displays created and updated timestamps in human-readable format', () => {
@@ -187,9 +187,10 @@ describe('PlansListPage', () => {
 
       renderComponent();
 
-      const succeededBadge = screen.getByText('Succeeded');
-      expect(succeededBadge).toHaveClass('status-badge');
-      expect(succeededBadge).toHaveStyle({ color: 'var(--color-background)' });
+      const succeededBadges = screen.getAllByText('Succeeded');
+      // Check at least one badge has the right classes and styles
+      expect(succeededBadges[0]).toHaveClass('status-badge');
+      expect(succeededBadges[0]).toHaveStyle({ color: 'var(--color-background)' });
     });
 
     it('handles missing updated_at gracefully', () => {
@@ -203,7 +204,7 @@ describe('PlansListPage', () => {
           },
         ],
         total: 1,
-        limit: 25,
+        limit: 50,
       };
 
       mockUsePlansList.mockReturnValue({
@@ -218,7 +219,9 @@ describe('PlansListPage', () => {
 
       renderComponent();
 
-      expect(screen.getByText('job-no-update')).toBeInTheDocument();
+      // Job ID appears in both timeline and card
+      const jobIdElements = screen.getAllByText('job-no-update');
+      expect(jobIdElements.length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText('Created:')).toBeInTheDocument();
     });
   });
@@ -226,7 +229,7 @@ describe('PlansListPage', () => {
   describe('Empty State', () => {
     it('displays empty state when no plans exist', () => {
       mockUsePlansList.mockReturnValue({
-        data: { jobs: [], total: 0, limit: 25 },
+        data: { jobs: [], total: 0, limit: 50 },
         error: null,
         isLoading: false,
         isError: false,
@@ -247,7 +250,7 @@ describe('PlansListPage', () => {
 
     it('displays empty state icon', () => {
       mockUsePlansList.mockReturnValue({
-        data: { jobs: [], total: 0, limit: 25 },
+        data: { jobs: [], total: 0, limit: 50 },
         error: null,
         isLoading: false,
         isError: false,
@@ -329,7 +332,7 @@ describe('PlansListPage', () => {
       const user = userEvent.setup();
 
       mockUsePlansList.mockReturnValue({
-        data: { jobs: [], total: 0, limit: 25 },
+        data: { jobs: [], total: 0, limit: 50 },
         error: null,
         isLoading: false,
         isError: false,
@@ -350,7 +353,7 @@ describe('PlansListPage', () => {
       const lastUpdated = Date.now() - 120000; // 2 minutes ago
 
       mockUsePlansList.mockReturnValue({
-        data: { jobs: [], total: 0, limit: 25 },
+        data: { jobs: [], total: 0, limit: 50 },
         error: null,
         isLoading: false,
         isError: false,
@@ -369,7 +372,7 @@ describe('PlansListPage', () => {
       const lastUpdated = Date.now() - 5000; // 5 seconds ago
 
       mockUsePlansList.mockReturnValue({
-        data: { jobs: [], total: 0, limit: 25 },
+        data: { jobs: [], total: 0, limit: 50 },
         error: null,
         isLoading: false,
         isError: false,
@@ -389,7 +392,7 @@ describe('PlansListPage', () => {
       const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
 
       mockUsePlansList.mockReturnValue({
-        data: { jobs: [], total: 0, limit: 25 },
+        data: { jobs: [], total: 0, limit: 50 },
         error: null,
         isLoading: false,
         isError: false,
@@ -410,7 +413,7 @@ describe('PlansListPage', () => {
       const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
 
       mockUsePlansList.mockReturnValue({
-        data: { jobs: [], total: 0, limit: 25 },
+        data: { jobs: [], total: 0, limit: 50 },
         error: null,
         isLoading: false,
         isError: false,
@@ -435,7 +438,7 @@ describe('PlansListPage', () => {
       });
 
       mockUsePlansList.mockReturnValue({
-        data: { jobs: [], total: 0, limit: 25 },
+        data: { jobs: [], total: 0, limit: 50 },
         error: null,
         isLoading: false,
         isError: false,
@@ -461,7 +464,7 @@ describe('PlansListPage', () => {
       });
 
       mockUsePlansList.mockReturnValue({
-        data: { jobs: [], total: 0, limit: 25 },
+        data: { jobs: [], total: 0, limit: 50 },
         error: null,
         isLoading: false,
         isError: false,
@@ -499,7 +502,7 @@ describe('PlansListPage', () => {
           },
         ],
         total: 1,
-        limit: 25,
+        limit: 50,
       };
 
       mockUsePlansList.mockReturnValue({
@@ -514,7 +517,9 @@ describe('PlansListPage', () => {
 
       renderComponent();
 
-      expect(screen.getByText('Failed')).toBeInTheDocument();
+      // Now we have multiple "Failed" badges (timeline + card), so check for at least one
+      const failedBadges = screen.getAllByText('Failed');
+      expect(failedBadges.length).toBeGreaterThanOrEqual(1);
     });
 
     it('falls back gracefully for unknown status values', () => {
@@ -528,7 +533,7 @@ describe('PlansListPage', () => {
           },
         ],
         total: 1,
-        limit: 25,
+        limit: 50,
       };
 
       mockUsePlansList.mockReturnValue({
@@ -543,15 +548,19 @@ describe('PlansListPage', () => {
 
       renderComponent();
 
-      expect(screen.getByText('Unknown')).toBeInTheDocument();
-      expect(screen.getByText('job-unknown')).toBeInTheDocument();
+      // Now we have multiple "Unknown" badges (timeline + card), so check for at least one
+      const unknownBadges = screen.getAllByText('Unknown');
+      expect(unknownBadges.length).toBeGreaterThanOrEqual(1);
+      // Job ID appears in both timeline and card
+      const jobIdElements = screen.getAllByText('job-unknown');
+      expect(jobIdElements.length).toBeGreaterThanOrEqual(1);
     });
   });
 
   describe('Accessibility', () => {
     it('has proper ARIA labels for interactive elements', () => {
       mockUsePlansList.mockReturnValue({
-        data: { jobs: [], total: 0, limit: 25 },
+        data: { jobs: [], total: 0, limit: 50 },
         error: null,
         isLoading: false,
         isError: false,
@@ -576,7 +585,7 @@ describe('PlansListPage', () => {
           },
         ],
         total: 1,
-        limit: 25,
+        limit: 50,
       };
 
       mockUsePlansList.mockReturnValue({
@@ -597,7 +606,7 @@ describe('PlansListPage', () => {
 
     it('provides aria-live region for last updated', () => {
       mockUsePlansList.mockReturnValue({
-        data: { jobs: [], total: 0, limit: 25 },
+        data: { jobs: [], total: 0, limit: 50 },
         error: null,
         isLoading: false,
         isError: false,
@@ -633,7 +642,7 @@ describe('PlansListPage', () => {
 
     it('handles rapid navigation away and back', () => {
       mockUsePlansList.mockReturnValue({
-        data: { jobs: [], total: 0, limit: 25 },
+        data: { jobs: [], total: 0, limit: 50 },
         error: null,
         isLoading: false,
         isError: false,
@@ -659,7 +668,7 @@ describe('PlansListPage', () => {
 
     it('displays page title', () => {
       mockUsePlansList.mockReturnValue({
-        data: { jobs: [], total: 0, limit: 25 },
+        data: { jobs: [], total: 0, limit: 50 },
         error: null,
         isLoading: false,
         isError: false,
@@ -671,6 +680,151 @@ describe('PlansListPage', () => {
       renderComponent();
 
       expect(screen.getByRole('heading', { name: /^plans$/i, level: 1 })).toBeInTheDocument();
+    });
+  });
+
+  describe('Recent Activity Timeline', () => {
+    it('displays recent activity section when plans exist', () => {
+      const mockPlansData: PlanJobsList = {
+        jobs: [
+          {
+            job_id: 'job-1',
+            status: 'SUCCEEDED',
+            created_at: '2025-01-15T10:30:00Z',
+            updated_at: '2025-01-15T10:35:00Z',
+          },
+          {
+            job_id: 'job-2',
+            status: 'RUNNING',
+            created_at: '2025-01-15T11:00:00Z',
+            updated_at: '2025-01-15T11:05:00Z',
+          },
+        ],
+        total: 2,
+        limit: 50,
+      };
+
+      mockUsePlansList.mockReturnValue({
+        data: mockPlansData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        lastUpdated: Date.now(),
+        refetch: vi.fn(),
+      });
+
+      renderComponent();
+
+      expect(screen.getByRole('heading', { name: /recent activity/i })).toBeInTheDocument();
+    });
+
+    it('displays up to 5 most recent jobs in timeline', () => {
+      const mockPlansData: PlanJobsList = {
+        jobs: Array.from({ length: 10 }, (_, i) => ({
+          job_id: `job-${i}`,
+          status: 'SUCCEEDED',
+          created_at: '2025-01-15T10:30:00Z',
+          updated_at: '2025-01-15T10:35:00Z',
+        })),
+        total: 10,
+        limit: 50,
+      };
+
+      mockUsePlansList.mockReturnValue({
+        data: mockPlansData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        lastUpdated: Date.now(),
+        refetch: vi.fn(),
+      });
+
+      renderComponent();
+
+      // Check that exactly 5 timeline items are rendered
+      const timelineItems = screen.getAllByRole('link').filter(link => 
+        link.className.includes('timeline-link')
+      );
+      expect(timelineItems.length).toBe(5);
+    });
+
+    it('timeline items show job_id, status, and timestamp', () => {
+      const mockPlansData: PlanJobsList = {
+        jobs: [
+          {
+            job_id: 'test-job-123',
+            status: 'RUNNING',
+            created_at: '2025-01-15T10:30:00Z',
+            updated_at: '2025-01-15T10:35:00Z',
+          },
+        ],
+        total: 1,
+        limit: 50,
+      };
+
+      mockUsePlansList.mockReturnValue({
+        data: mockPlansData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        lastUpdated: Date.now(),
+        refetch: vi.fn(),
+      });
+
+      renderComponent();
+
+      // Check for job_id in timeline
+      const timelineJobId = screen.getAllByText('test-job-123')[0];
+      expect(timelineJobId).toBeInTheDocument();
+
+      // Check for status badge (should be multiple - one in timeline, one in card)
+      const statusBadges = screen.getAllByText('Running');
+      expect(statusBadges.length).toBeGreaterThanOrEqual(1);
+
+      // Check for timestamp
+      const timestamps = screen.getAllByRole('time');
+      expect(timestamps.length).toBeGreaterThan(0);
+    });
+
+    it('does not render timeline when no plans exist', () => {
+      mockUsePlansList.mockReturnValue({
+        data: { jobs: [], total: 0, limit: 50 },
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        lastUpdated: Date.now(),
+        refetch: vi.fn(),
+      });
+
+      renderComponent();
+
+      expect(screen.queryByRole('heading', { name: /recent activity/i })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Configuration', () => {
+    it('uses limit of 50 by default', () => {
+      mockUsePlansList.mockReturnValue({
+        data: { jobs: [], total: 0, limit: 50 },
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        lastUpdated: Date.now(),
+        refetch: vi.fn(),
+      });
+
+      renderComponent();
+
+      expect(mockUsePlansList).toHaveBeenCalledWith(
+        expect.objectContaining({
+          limit: 50,
+        })
+      );
     });
   });
 });

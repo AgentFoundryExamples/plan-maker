@@ -26,6 +26,91 @@
   gap: var(--spacing-xs);
 }
 
+/* Recent Activity Timeline */
+.recent-activity {
+  margin-bottom: var(--spacing-2xl);
+  padding: var(--spacing-lg);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+}
+
+.recent-activity h2 {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text);
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.timeline-item {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: flex-start;
+  position: relative;
+}
+
+.timeline-marker {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  min-height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  margin-top: 6px;
+  position: relative;
+  z-index: 1;
+}
+
+.timeline-item:not(:last-child) .timeline-marker::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: calc(var(--spacing-md) + 6px);
+  background-color: var(--color-border);
+}
+
+.timeline-content {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  align-items: center;
+  min-height: 24px;
+}
+
+.timeline-link {
+  text-decoration: none;
+  color: var(--color-primary);
+  transition: color 0.2s;
+}
+
+.timeline-link:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+.timeline-job-id {
+  font-family: monospace;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  word-break: break-all;
+}
+
+.timeline-timestamp {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
 .plans-grid {
   display: flex;
   flex-direction: column;
@@ -263,6 +348,30 @@
 
   .plans-list-actions .btn {
     width: 100%;
+  }
+
+  /* Timeline adjustments for mobile */
+  .recent-activity {
+    padding: var(--spacing-md);
+  }
+
+  .timeline-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .timeline-timestamp {
+    margin-left: 0;
+  }
+}
+
+/* Extra small screens - ensure no horizontal scroll */
+@media (max-width: 479px) {
+  .timeline-job-id {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
