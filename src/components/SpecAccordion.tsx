@@ -32,8 +32,9 @@ interface SpecAccordionProps {
  * Performance:
  * - Unanswered counts are memoized per spec to avoid O(n²) recalculations
  * - Total unanswered count is derived from memoized per-spec counts
+ * - Component is wrapped with React.memo to prevent unnecessary re-renders
  */
-const SpecAccordion: React.FC<SpecAccordionProps> = ({ 
+const SpecAccordion: React.FC<SpecAccordionProps> = React.memo(({ 
   planId, 
   specs, 
   stickyPosition = 'bottom',
@@ -438,6 +439,21 @@ const SpecAccordion: React.FC<SpecAccordionProps> = ({
       </div>
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison function to prevent unnecessary re-renders
+  // Only re-render if these props actually change
+  return (
+    prevProps.planId === nextProps.planId &&
+    prevProps.specs === nextProps.specs && // Reference equality check
+    prevProps.stickyPosition === nextProps.stickyPosition &&
+    prevProps.showStickySummary === nextProps.showStickySummary &&
+    prevProps.maxUnansweredSpecLinks === nextProps.maxUnansweredSpecLinks &&
+    prevProps.validationResult === nextProps.validationResult &&
+    prevProps.showValidationErrors === nextProps.showValidationErrors
+  );
+});
+
+// Display name for debugging
+SpecAccordion.displayName = 'SpecAccordion';
 
 export default SpecAccordion;

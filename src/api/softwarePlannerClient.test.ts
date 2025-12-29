@@ -18,7 +18,6 @@ import {
   getPlanById,
   listPlans,
   getStatusMetadata,
-  PLANNER_STATUS_MAP,
 } from './softwarePlannerClient';
 import { clearEnvCache } from './env';
 import type { PlanResponse } from './softwarePlanner';

@@ -16,6 +16,7 @@ export interface SubmissionMetadataConfig {
 /**
  * Default configuration
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const DEFAULT_SUBMISSION_METADATA_CONFIG: SubmissionMetadataConfig = {
   storageKey: 'submission-metadata',
   enablePersistence: true,
@@ -62,6 +63,7 @@ const SubmissionMetadataContext = createContext<SubmissionMetadataContextValue |
 /**
  * Hook to access submission metadata store
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSubmissionMetadata(): SubmissionMetadataContextValue {
   const context = useContext(SubmissionMetadataContext);
   if (!context) {

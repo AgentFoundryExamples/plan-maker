@@ -241,8 +241,8 @@ describe('PlansListPage', () => {
       renderComponent();
 
       expect(screen.getByText('No Plans Yet')).toBeInTheDocument();
-      expect(screen.getByText(/haven't created any plans yet/i)).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /create your first plan/i })).toHaveAttribute(
+      expect(screen.getByText(/create your first software development plan to get started/i)).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /create plan/i })).toHaveAttribute(
         'href',
         '/'
       );

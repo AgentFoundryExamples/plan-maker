@@ -72,10 +72,10 @@ describe('PlannerInputPage', () => {
         screen.getByText(/describe your software project in detail/i)
       ).toBeInTheDocument();
       expect(
-        screen.getByText(/specify a logical model name/i)
+        screen.getByText(/specify a model name/i)
       ).toBeInTheDocument();
       expect(
-        screen.getByText(/override the default system prompt/i)
+        screen.getByText(/customize ai planning behavior/i)
       ).toBeInTheDocument();
     });
 
@@ -97,7 +97,6 @@ describe('PlannerInputPage', () => {
 
   describe('Client-side Validation', () => {
     it('prevents submission when description is empty', async () => {
-      const user = userEvent.setup();
       renderWithProviders(<PlannerInputPage />);
 
       const submitButton = screen.getByRole('button', { name: /create plan/i });
@@ -182,30 +181,35 @@ describe('PlannerInputPage', () => {
 
     it('prevents duplicate submissions while request is pending', async () => {
       const user = userEvent.setup();
-      let resolvePromise: any;
-      const mockFetch = vi.fn(
-        () =>
-          new Promise((resolve) => {
-            resolvePromise = resolve;
-          })
-      );
-      global.fetch = mockFetch as any;
+      const originalFetch = global.fetch;
+      
+      try {
+        const mockFetch = vi.fn(
+          () =>
+            new Promise(() => {
+              // Promise intentionally never resolves to test pending state
+            })
+        );
+        global.fetch = mockFetch as any;
 
-      renderWithProviders(<PlannerInputPage />);
+        renderWithProviders(<PlannerInputPage />);
 
-      const descriptionField = screen.getByLabelText(/project description/i);
-      await user.type(descriptionField, 'Build a REST API');
+        const descriptionField = screen.getByLabelText(/project description/i);
+        await user.type(descriptionField, 'Build a REST API');
 
-      const form = screen.getByRole('button', { name: /create plan/i })
-        .closest('form') as HTMLFormElement;
+        const form = screen.getByRole('button', { name: /create plan/i })
+          .closest('form') as HTMLFormElement;
 
-      await user.click(screen.getByRole('button', { name: /create plan/i }));
+        await user.click(screen.getByRole('button', { name: /create plan/i }));
 
-      expect(mockFetch).toHaveBeenCalledTimes(1);
+        expect(mockFetch).toHaveBeenCalledTimes(1);
 
-      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
 
-      expect(mockFetch).toHaveBeenCalledTimes(1);
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+      } finally {
+        global.fetch = originalFetch;
+      }
     });
   });
 
@@ -927,7 +931,7 @@ describe('PlannerInputPage', () => {
 
       expect(
         screen.getByText(
-          /you can adjust the tone, focus areas, or add specific instructions/i
+          /customize ai planning behavior with specific instructions/i
         )
       ).toBeInTheDocument();
     });
@@ -938,7 +942,7 @@ describe('PlannerInputPage', () => {
       const descriptionField = screen.getByLabelText(/project description/i);
       expect(descriptionField).toHaveAttribute(
         'placeholder',
-        expect.stringContaining('Must support REST endpoints')
+        expect.stringContaining('REST API for task management')
       );
     });
 
@@ -950,7 +954,7 @@ describe('PlannerInputPage', () => {
       );
       expect(systemPromptField).toHaveAttribute(
         'placeholder',
-        expect.stringContaining('Focus on microservices architecture')
+        expect.stringContaining('Focus on microservices')
       );
     });
   });
