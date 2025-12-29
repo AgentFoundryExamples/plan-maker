@@ -172,10 +172,20 @@ const PlanDetailPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="container">
-        <Link to="/plans" className="back-link">
-          ← Back to Plans List
-        </Link>
-        <h1>Plan Details</h1>
+        <nav className="breadcrumb" aria-label="Breadcrumb">
+          <Link to="/" className="breadcrumb-link">
+            Home
+          </Link>
+          <span className="breadcrumb-separator" aria-hidden="true">/</span>
+          <Link to="/plans" className="breadcrumb-link">
+            Plans
+          </Link>
+          <span className="breadcrumb-separator" aria-hidden="true">/</span>
+          <span className="breadcrumb-current">Loading...</span>
+        </nav>
+        <div className="page-header">
+          <h1 className="page-title">Plan Details</h1>
+        </div>
         <div className="plans-skeleton" role="status" aria-label="Loading plan details">
           <div className="skeleton-card">
             <div className="skeleton-header">
@@ -195,10 +205,20 @@ const PlanDetailPage: React.FC = () => {
   if (error) {
     return (
       <div className="container">
-        <Link to="/plans" className="back-link">
-          ← Back to Plans List
-        </Link>
-        <h1>Plan Details</h1>
+        <nav className="breadcrumb" aria-label="Breadcrumb">
+          <Link to="/" className="breadcrumb-link">
+            Home
+          </Link>
+          <span className="breadcrumb-separator" aria-hidden="true">/</span>
+          <Link to="/plans" className="breadcrumb-link">
+            Plans
+          </Link>
+          <span className="breadcrumb-separator" aria-hidden="true">/</span>
+          <span className="breadcrumb-current">Error</span>
+        </nav>
+        <div className="page-header">
+          <h1 className="page-title">Plan Details</h1>
+        </div>
         <div className="error-state" role="alert">
           <h2>Failed to Load Plan</h2>
           <p>{error.message || 'Unable to fetch plan details. The plan may not exist or there was a network error.'}</p>
@@ -214,10 +234,20 @@ const PlanDetailPage: React.FC = () => {
   if (!data) {
     return (
       <div className="container">
-        <Link to="/plans" className="back-link">
-          ← Back to Plans List
-        </Link>
-        <h1>Plan Details</h1>
+        <nav className="breadcrumb" aria-label="Breadcrumb">
+          <Link to="/" className="breadcrumb-link">
+            Home
+          </Link>
+          <span className="breadcrumb-separator" aria-hidden="true">/</span>
+          <Link to="/plans" className="breadcrumb-link">
+            Plans
+          </Link>
+          <span className="breadcrumb-separator" aria-hidden="true">/</span>
+          <span className="breadcrumb-current">Invalid</span>
+        </nav>
+        <div className="page-header">
+          <h1 className="page-title">Plan Details</h1>
+        </div>
         <div className="error-state" role="alert">
           <h2>Invalid Plan</h2>
           <p>No plan ID provided. Please select a plan from the list.</p>
@@ -237,10 +267,20 @@ const PlanDetailPage: React.FC = () => {
 
   return (
     <div className="container">
-      <Link to="/plans" className="back-link">
-        ← Back to Plans List
-      </Link>
-      <h1>Plan Details</h1>
+      <nav className="breadcrumb" aria-label="Breadcrumb">
+        <Link to="/" className="breadcrumb-link">
+          Home
+        </Link>
+        <span className="breadcrumb-separator" aria-hidden="true">/</span>
+        <Link to="/plans" className="breadcrumb-link">
+          Plans
+        </Link>
+        <span className="breadcrumb-separator" aria-hidden="true">/</span>
+        <span className="breadcrumb-current">{data.job_id.slice(0, 8)}...</span>
+      </nav>
+      <div className="page-header">
+        <h1 className="page-title">Plan Details</h1>
+      </div>
       
       {/* Plan Metadata Card */}
       <div className="card mt-lg">

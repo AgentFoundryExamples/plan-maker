@@ -168,11 +168,18 @@ const PlannerInputPage: React.FC = () => {
 
   return (
     <div className="container">
-      <h1>Create Software Plan</h1>
-      <p>
-        Describe your software project below and our AI will generate a
-        comprehensive development plan.
-      </p>
+      <nav className="breadcrumb" aria-label="Breadcrumb">
+        <Link to="/" className="breadcrumb-link">
+          ← Home
+        </Link>
+      </nav>
+      <div className="page-header">
+        <h1 className="page-title">Create Software Plan</h1>
+        <p className="page-subtitle">
+          Describe your software project below and our AI will generate a
+          comprehensive development plan.
+        </p>
+      </div>
 
       {submittedPlan && statusConfig ? (
         <div className="card mt-lg confirmation-card" role="status">

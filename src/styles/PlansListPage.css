@@ -4,28 +4,6 @@
   width: 100%;
 }
 
-.plans-list-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
-}
-
-.plans-list-actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  align-items: stretch;
-}
-
-.last-updated {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-}
-
 /* Recent Activity Timeline */
 .recent-activity {
   margin-bottom: var(--spacing-2xl);
@@ -309,12 +287,6 @@
 
 /* Responsive adjustments */
 @media (min-width: 480px) {
-  .plans-list-actions {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-
   .plan-card {
     padding: var(--spacing-lg);
   }
@@ -354,10 +326,6 @@
   .btn {
     padding: var(--spacing-md) var(--spacing-lg);
     min-height: 44px;
-    width: 100%;
-  }
-
-  .plans-list-actions .btn {
     width: 100%;
   }
 

@@ -3,6 +3,17 @@
  * Uses design tokens from theme.css for consistent styling
  */
 
+/**
+ * Configuration for navigation behavior
+ * These can be adjusted without changing component logic
+ */
+:root {
+  --nav-active-bg: var(--color-primary-light);
+  --nav-active-color: var(--color-primary);
+  --nav-active-border-color: var(--color-primary-border);
+  --nav-mobile-breakpoint: 480px;
+}
+
 .app-layout {
   min-height: 100vh;
   display: flex;
@@ -94,10 +105,11 @@
 }
 
 .nav-list a.active {
-  color: var(--color-primary);
-  background-color: var(--color-primary-light);
+  color: var(--nav-active-color);
+  background-color: var(--nav-active-bg);
   font-weight: var(--font-weight-bold);
-  border: var(--border-width-thin) solid var(--color-primary-border);
+  border: var(--border-width-thin) solid var(--nav-active-border-color);
+  box-shadow: inset 0 2px 4px rgba(0, 102, 204, 0.1);
 }
 
 .app-main {
