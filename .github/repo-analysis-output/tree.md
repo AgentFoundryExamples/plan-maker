@@ -16,6 +16,7 @@
   └── workflows
     └── af_maintenance.yml
 ├── docs
+  ├── MOBILE_OPTIMIZATION.md
   └── status-workflows.md
 ├── src
   ├── api
@@ -86,6 +87,7 @@
     └── submissionMetadataStore.tsx
   ├── styles
     ├── global.css
+    ├── mobile-optimization.test.ts
     ├── PlanDetailPage.css
     ├── PlannerInputPage.css
     ├── PlansListPage.css

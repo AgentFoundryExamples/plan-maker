@@ -309,6 +309,20 @@
       }
     },
     {
+      "id": "src/styles/mobile-optimization.test.ts",
+      "path": "src/styles/mobile-optimization.test.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [
+          "fs",
+          "path"
+        ],
+        "third-party": [
+          "vitest"
+        ]
+      }
+    },
+    {
       "id": "src/test/setup.ts",
       "path": "src/test/setup.ts",
       "type": "file",
@@ -652,6 +666,7 @@
   ],
   "external_dependencies_summary": {
     "stdlib": [
+      "fs",
       "path"
     ],
     "third-party": [
@@ -672,7 +687,7 @@
       "vitest",
       "vitest/config"
     ],
-    "stdlib_count": 1,
+    "stdlib_count": 2,
     "third-party_count": 16
   }
 }

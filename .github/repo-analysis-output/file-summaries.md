@@ -4,7 +4,7 @@ Heuristic summaries of source files based on filenames, extensions, and paths.
 
 Schema Version: 2.0
 
-Total files: 47
+Total files: 48
 
 ## eslint.config.js
 **Language:** JavaScript  
@@ -292,6 +292,15 @@ Total files: 47
 **Summary:** TypeScript core implementation  
 **Size:** 10.30 KB  
 **LOC:** 260  
+**TODOs/FIXMEs:** 0  
+
+## src/styles/mobile-optimization.test.ts
+**Language:** TypeScript  
+**Role:** implementation  
+**Role Justification:** general implementation file (default classification)  
+**Summary:** TypeScript core implementation  
+**Size:** 7.52 KB  
+**LOC:** 177  
 **TODOs/FIXMEs:** 0  
 
 ## src/test/setup.ts

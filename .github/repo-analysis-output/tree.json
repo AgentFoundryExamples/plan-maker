@@ -76,6 +76,10 @@
       "children": [
         {
           "type": "file",
+          "name": "MOBILE_OPTIMIZATION.md"
+        },
+        {
+          "type": "file",
           "name": "status-workflows.md"
         }
       ]
@@ -373,6 +377,10 @@
             {
               "type": "file",
               "name": "global.css"
+            },
+            {
+              "type": "file",
+              "name": "mobile-optimization.test.ts"
             },
             {
               "type": "file",
