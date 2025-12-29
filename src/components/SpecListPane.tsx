@@ -36,16 +36,21 @@ export const SpecListPane: React.FC<SpecListPaneProps> = ({
   
   // Use refs for focus management instead of DOM queries
   const itemRefs = React.useRef<(HTMLDivElement | null)[]>([]);
+  
+  // Track if component is mounted to prevent state updates after unmount
+  const isMountedRef = React.useRef(true);
 
   // Detect if we're on mobile (< 768px)
   const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+      if (isMountedRef.current) {
+        setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+      }
     };
     
-    checkMobile();
+    checkMobile(); // Initial check
     
     // Debounced resize handler to avoid excessive re-renders
     let resizeTimeout: ReturnType<typeof setTimeout>;
@@ -56,6 +61,7 @@ export const SpecListPane: React.FC<SpecListPaneProps> = ({
     
     window.addEventListener('resize', debouncedResize);
     return () => {
+      isMountedRef.current = false;
       clearTimeout(resizeTimeout);
       window.removeEventListener('resize', debouncedResize);
     };

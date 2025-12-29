@@ -44,25 +44,24 @@ const PlanDetailPage: React.FC = () => {
   // Track if spec selection has been initialized to prevent race conditions
   const [isSpecInitialized, setIsSpecInitialized] = useState(false);
 
-  // Initialize viewport detection after mount
+  // Handle viewport resize with debouncing (consolidated with initial check)
   useEffect(() => {
-    setIsDesktop(window.innerWidth >= MOBILE_BREAKPOINT);
-  }, []);
-
-  // Handle viewport resize with debouncing
-  useEffect(() => {
-    let resizeTimeout: ReturnType<typeof setTimeout>;
     const handleResize = () => {
+      setIsDesktop(window.innerWidth >= MOBILE_BREAKPOINT);
+    };
+
+    handleResize(); // Initial check
+
+    let resizeTimeout: ReturnType<typeof setTimeout>;
+    const debouncedResize = () => {
       clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        setIsDesktop(window.innerWidth >= MOBILE_BREAKPOINT);
-      }, 150);
+      resizeTimeout = setTimeout(handleResize, 150);
     };
     
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', debouncedResize);
     return () => {
       clearTimeout(resizeTimeout);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', debouncedResize);
     };
   }, []);
 

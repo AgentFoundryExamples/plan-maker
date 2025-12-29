@@ -162,12 +162,11 @@
   .spec-list-pane .spec-list-items {
     overflow: hidden;
     transition: max-height var(--transition-duration-base) var(--transition-timing-ease-out);
-    max-height: 600px; /* Reasonable max for expanded state */
+    max-height: 400px; /* Reduced for better performance */
   }
 
   .spec-list-pane.collapsed .spec-list-items {
     max-height: 0;
-    transition: max-height var(--transition-duration-base) var(--transition-timing-ease-out);
   }
 }
 
@@ -175,8 +174,8 @@
 @media (min-width: 768px) {
   .spec-list-pane {
     overflow-y: auto;
+    overflow-x: hidden;
     height: 100%;
-    overflow: hidden;
   }
 }
 
