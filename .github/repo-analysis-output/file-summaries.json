@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0",
-  "total_files": 48,
+  "total_files": 50,
   "files": [
     {
       "schema_version": "2.0",
@@ -447,6 +447,34 @@
       "metrics": {
         "size_bytes": 10551,
         "loc": 260,
+        "todo_count": 0
+      }
+    },
+    {
+      "schema_version": "2.0",
+      "path": "src/hooks/useTheme.test.ts",
+      "language": "TypeScript",
+      "role": "implementation",
+      "role_justification": "general implementation file (default classification)",
+      "summary": "TypeScript core implementation",
+      "summary_text": "TypeScript core implementation",
+      "metrics": {
+        "size_bytes": 7196,
+        "loc": 183,
+        "todo_count": 0
+      }
+    },
+    {
+      "schema_version": "2.0",
+      "path": "src/hooks/useTheme.ts",
+      "language": "TypeScript",
+      "role": "implementation",
+      "role_justification": "general implementation file (default classification)",
+      "summary": "TypeScript core implementation",
+      "summary_text": "TypeScript core implementation",
+      "metrics": {
+        "size_bytes": 5986,
+        "loc": 167,
         "todo_count": 0
       }
     },

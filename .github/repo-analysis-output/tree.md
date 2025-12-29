@@ -70,7 +70,12 @@
     ├── SpecDetailPane.tsx
     ├── SpecListPane.tsx
     ├── StatusBadge.test.tsx
-    └── StatusBadge.tsx
+    ├── StatusBadge.tsx
+    ├── ThemeToggle.test.tsx
+    └── ThemeToggle.tsx
+  ├── hooks
+    ├── useTheme.test.ts
+    └── useTheme.ts
   ├── layout
     ├── AppLayout.css
     ├── AppLayout.test.tsx

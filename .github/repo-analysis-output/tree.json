@@ -305,6 +305,28 @@
             {
               "type": "file",
               "name": "StatusBadge.tsx"
+            },
+            {
+              "type": "file",
+              "name": "ThemeToggle.test.tsx"
+            },
+            {
+              "type": "file",
+              "name": "ThemeToggle.tsx"
+            }
+          ]
+        },
+        {
+          "type": "directory",
+          "name": "hooks",
+          "children": [
+            {
+              "type": "file",
+              "name": "useTheme.test.ts"
+            },
+            {
+              "type": "file",
+              "name": "useTheme.ts"
             }
           ]
         },

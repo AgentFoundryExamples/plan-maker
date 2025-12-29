@@ -309,6 +309,29 @@
       }
     },
     {
+      "id": "src/hooks/useTheme.test.ts",
+      "path": "src/hooks/useTheme.test.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "@testing-library/react",
+          "vitest"
+        ]
+      }
+    },
+    {
+      "id": "src/hooks/useTheme.ts",
+      "path": "src/hooks/useTheme.ts",
+      "type": "file",
+      "external_dependencies": {
+        "stdlib": [],
+        "third-party": [
+          "react"
+        ]
+      }
+    },
+    {
       "id": "src/styles/mobile-optimization.test.ts",
       "path": "src/styles/mobile-optimization.test.ts",
       "type": "file",
@@ -636,6 +659,10 @@
       "target": "src/utils/validators.ts"
     },
     {
+      "source": "src/hooks/useTheme.test.ts",
+      "target": "src/hooks/useTheme.ts"
+    },
+    {
       "source": "src/utils/clarifierStorage.test.ts",
       "target": "src/utils/clarifierStorage.ts"
     },
@@ -683,11 +710,12 @@
       "eslint-plugin-react-hooks",
       "eslint-plugin-react-refresh",
       "globals",
+      "react",
       "vite",
       "vitest",
       "vitest/config"
     ],
     "stdlib_count": 2,
-    "third-party_count": 16
+    "third-party_count": 17
   }
 }

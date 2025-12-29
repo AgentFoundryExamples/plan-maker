@@ -8,10 +8,10 @@ Includes classification of external dependencies as stdlib vs third-party.
 
 ## Statistics
 
-- **Total files**: 48
-- **Intra-repo dependencies**: 45
+- **Total files**: 50
+- **Intra-repo dependencies**: 46
 - **External stdlib dependencies**: 2
-- **External third-party dependencies**: 16
+- **External third-party dependencies**: 17
 
 ## External Dependencies
 
@@ -24,7 +24,7 @@ Total: 2 unique modules
 
 ### Third-Party Packages
 
-Total: 16 unique packages
+Total: 17 unique packages
 
 - `@eslint/js`
 - `@tanstack/react-query`
@@ -39,6 +39,7 @@ Total: 16 unique packages
 - `eslint-plugin-react-hooks`
 - `eslint-plugin-react-refresh`
 - `globals`
+- `react`
 - `vite`
 - `vitest`
 - `vitest/config`
