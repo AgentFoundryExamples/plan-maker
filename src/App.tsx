@@ -8,6 +8,7 @@ import PlanDetailPage from '@/pages/PlanDetailPage';
 import PlannerInputPage from '@/pages/PlannerInputPage';
 import PlansListPage from '@/pages/PlansListPage';
 import { PlanAnswersProvider } from '@/state/planAnswersStore';
+import { SubmissionMetadataProvider } from '@/state/submissionMetadataStore';
 
 const router = createBrowserRouter([
   {
@@ -37,9 +38,11 @@ const router = createBrowserRouter([
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <PlanAnswersProvider>
-        <RouterProvider router={router} />
-      </PlanAnswersProvider>
+      <SubmissionMetadataProvider>
+        <PlanAnswersProvider>
+          <RouterProvider router={router} />
+        </PlanAnswersProvider>
+      </SubmissionMetadataProvider>
     </ErrorBoundary>
   );
 };

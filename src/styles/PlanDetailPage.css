@@ -533,17 +533,36 @@
   display: flex;
   gap: var(--spacing-md);
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   flex-wrap: wrap;
+}
+
+.submission-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+  min-width: 200px;
 }
 
 .btn-submit {
   min-width: 150px;
+  flex-shrink: 0;
 }
 
 .submission-status {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+}
+
+.last-submitted {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.submission-job-id {
+  font-family: var(--font-family-mono, monospace);
+  font-size: var(--font-size-xs);
 }
 
 /* Submission loading state */

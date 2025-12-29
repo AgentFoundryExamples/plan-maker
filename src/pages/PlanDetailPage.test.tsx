@@ -7,6 +7,7 @@ import * as hooks from '@/api/hooks';
 import type { PlanJobStatus } from '@/api/softwarePlannerClient';
 import type { PlanResponse } from '@/api/softwarePlanner/models/PlanResponse';
 import { PlanAnswersProvider } from '@/state/planAnswersStore';
+import { SubmissionMetadataProvider } from '@/state/submissionMetadataStore';
 
 // Mock the hooks module
 vi.mock('@/api/hooks', async () => {
@@ -14,6 +15,14 @@ vi.mock('@/api/hooks', async () => {
   return {
     ...actual,
     usePlanDetail: vi.fn(),
+    useSubmitClarifications: vi.fn(() => ({
+      mutate: vi.fn(),
+      isPending: false,
+      isError: false,
+      isSuccess: false,
+      error: null,
+      data: null,
+    })),
   };
 });
 
@@ -37,13 +46,15 @@ describe('PlanDetailPage', () => {
   const renderComponent = (planId = '123') => {
     return render(
       <QueryClientProvider client={queryClient}>
-        <PlanAnswersProvider config={{ enableSessionStorage: false }}>
-          <MemoryRouter initialEntries={[`/plans/${planId}`]}>
-            <Routes>
-              <Route path="/plans/:id" element={<PlanDetailPage />} />
-            </Routes>
-          </MemoryRouter>
-        </PlanAnswersProvider>
+        <SubmissionMetadataProvider config={{ enablePersistence: false }}>
+          <PlanAnswersProvider config={{ enableSessionStorage: false }}>
+            <MemoryRouter initialEntries={[`/plans/${planId}`]}>
+              <Routes>
+                <Route path="/plans/:id" element={<PlanDetailPage />} />
+              </Routes>
+            </MemoryRouter>
+          </PlanAnswersProvider>
+        </SubmissionMetadataProvider>
       </QueryClientProvider>
     );
   };
