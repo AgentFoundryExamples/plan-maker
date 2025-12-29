@@ -1,3 +1,8 @@
+/**
+ * App Layout Styles
+ * Uses design tokens from theme.css for consistent styling
+ */
+
 .app-layout {
   min-height: 100vh;
   display: flex;
@@ -6,14 +11,15 @@
 
 .app-header {
   background-color: var(--color-surface);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: var(--border-width-thin) solid var(--color-border);
   height: var(--header-height);
   display: flex;
   align-items: center;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: var(--z-index-sticky);
   box-shadow: var(--shadow-sm);
+  transition: var(--transition-colors);
 }
 
 .header-content {
@@ -30,16 +36,24 @@
   font-weight: var(--font-weight-bold);
   margin: 0;
   white-space: nowrap;
+  line-height: var(--line-height-tight);
 }
 
 .app-title a {
   color: var(--color-text);
   text-decoration: none;
+  transition: var(--transition-colors);
 }
 
 .app-title a:hover {
   color: var(--color-primary);
   text-decoration: none;
+}
+
+.app-title a:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--border-radius-sm);
 }
 
 .app-nav {
@@ -58,28 +72,33 @@
 .nav-list a {
   color: var(--color-text-secondary);
   font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-base);
   padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--border-radius-md);
-  transition:
-    background-color 0.2s,
-    color 0.2s;
+  border-radius: var(--button-border-radius);
+  transition: var(--button-transition);
+  text-decoration: none;
+  display: inline-block;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .nav-list a:hover {
   color: var(--color-primary);
-  background-color: rgba(0, 102, 204, 0.1);
+  background-color: var(--color-primary-light);
   text-decoration: none;
 }
 
 .nav-list a:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 .nav-list a.active {
   color: var(--color-primary);
-  background-color: rgba(0, 102, 204, 0.15);
+  background-color: var(--color-primary-light);
   font-weight: var(--font-weight-bold);
+  border: var(--border-width-thin) solid var(--color-primary-border);
 }
 
 .app-main {
@@ -87,7 +106,10 @@
   padding: var(--spacing-lg) 0;
 }
 
-/* Mobile responsive adjustments */
+/* ===========================
+   MOBILE RESPONSIVE ADJUSTMENTS
+   =========================== */
+
 @media (max-width: 480px) {
   .app-header {
     height: auto;
@@ -111,12 +133,16 @@
   }
 
   .nav-list a {
-    display: block;
+    display: flex;
     width: 100%;
+    justify-content: flex-start;
   }
 }
 
-/* Tablet and desktop */
+/* ===========================
+   TABLET AND DESKTOP
+   =========================== */
+
 @media (min-width: 768px) {
   .app-main {
     padding: var(--spacing-xl) 0;
