@@ -116,6 +116,8 @@
   padding: var(--spacing-lg) 0;
   /* Allow natural scrolling - no max-height on mobile */
   overflow: visible;
+  /* Enable momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Enable smooth scrolling for the entire page */

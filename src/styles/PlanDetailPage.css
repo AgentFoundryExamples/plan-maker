@@ -245,6 +245,14 @@
   gap: var(--spacing-xs);
 }
 
+/* Enable momentum scrolling on desktop for spec list */
+@media (min-width: 768px) {
+  .spec-list-items {
+    /* Enable smooth momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* Individual spec list item */
 .spec-list-item {
   padding: var(--spacing-md);
@@ -390,6 +398,22 @@
   padding: var(--spacing-lg);
   flex: 1;
   overflow-y: visible;
+}
+
+/* Enable momentum scrolling on desktop for detail pane */
+@media (min-width: 768px) {
+  .spec-detail-content {
+    /* Enable smooth momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* On mobile, ensure adequate padding for touch interaction */
+@media (max-width: 767px) {
+  .spec-detail-content {
+    /* Enable smooth momentum scrolling for page-level scroll */
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* Empty state for detail pane */
