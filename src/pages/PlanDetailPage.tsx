@@ -5,6 +5,7 @@ import { getStatusMetadata } from '@/api/softwarePlannerClient';
 import { formatTimestamp } from '@/utils/dateUtils';
 import SpecAccordion from '@/components/SpecAccordion';
 import { usePlanAnswers } from '@/state/planAnswersStore';
+import { useSubmissionMetadata } from '@/state/submissionMetadataStore';
 import type { QuestionAnswer } from '@/api/specClarifier/models/QuestionAnswer';
 import '@/styles/PlansListPage.css';
 import '@/styles/PlanDetailPage.css';
@@ -13,6 +14,7 @@ const PlanDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error } = usePlanDetail(id);
   const { validateAnswers, getAnswer } = usePlanAnswers();
+  const { getSubmission, setSubmission } = useSubmissionMetadata();
   const [showValidationErrors, setShowValidationErrors] = useState(false);
   const [submissionBanner, setSubmissionBanner] = useState<{
     type: 'error' | 'success';
@@ -20,9 +22,20 @@ const PlanDetailPage: React.FC = () => {
     message: string;
   } | null>(null);
 
+  // Get submission metadata for current plan
+  const submissionMetadata = id ? getSubmission(id) : null;
+
   // Submission mutation
   const submitClarifications = useSubmitClarifications({
     onSuccess: (response) => {
+      // Save submission metadata using plan ID from route
+      if (id) {
+        setSubmission(id, {
+          jobId: response.id,
+          submittedAt: new Date().toISOString(),
+        });
+      }
+
       setSubmissionBanner({
         type: 'success',
         title: 'Submission Successful',
@@ -269,19 +282,31 @@ const PlanDetailPage: React.FC = () => {
 
                 {/* Submission Controls */}
                 <div className="submission-controls">
-                  {validationResult && (
-                    <span className="submission-status">
-                      {validationResult.isValid ? (
-                        <span style={{ color: 'var(--color-success)' }}>
-                          ✓ All questions answered
-                        </span>
-                      ) : (
-                        <span>
-                          {validationResult.unansweredCount} question{validationResult.unansweredCount !== 1 ? 's' : ''} remaining
-                        </span>
-                      )}
-                    </span>
-                  )}
+                  <div className="submission-info">
+                    {validationResult && (
+                      <span className="submission-status">
+                        {validationResult.isValid ? (
+                          <span style={{ color: 'var(--color-success)' }}>
+                            ✓ All questions answered
+                          </span>
+                        ) : (
+                          <span>
+                            {validationResult.unansweredCount} question{validationResult.unansweredCount !== 1 ? 's' : ''} remaining
+                          </span>
+                        )}
+                      </span>
+                    )}
+                    {submissionMetadata && (
+                      <span className="last-submitted">
+                        Last submitted: <time dateTime={submissionMetadata.submittedAt}>
+                          {formatTimestamp(submissionMetadata.submittedAt)}
+                        </time>
+                        {submissionMetadata.jobId && (
+                          <span className="submission-job-id"> (Job: {submissionMetadata.jobId})</span>
+                        )}
+                      </span>
+                    )}
+                  </div>
                   <button
                     type="button"
                     className="btn btn-primary btn-submit"
