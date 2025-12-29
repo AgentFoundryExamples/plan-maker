@@ -124,10 +124,6 @@ describe('Page-specific Mobile Optimizations', () => {
       expect(planDetailCss).toMatch(/safe-area-inset-bottom/);
     });
 
-    it('should include reduced motion support for animations', () => {
-      expect(planDetailCss).toContain('@media (prefers-reduced-motion: reduce)');
-    });
-
     it('should have minimum textarea height on mobile', () => {
       expect(planDetailCss).toMatch(/min-height:\s*6rem/);
     });

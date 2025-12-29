@@ -407,29 +407,6 @@
   }
 }
 
-/* Reduce motion for accessibility */
-@media (prefers-reduced-motion: reduce) {
-  .accordion-content {
-    animation: none;
-  }
-  
-  .sticky-summary-bar {
-    animation: none;
-  }
-  
-  .timeline-item {
-    animation: none;
-  }
-  
-  .submission-banner {
-    animation: none;
-  }
-  
-  .clarifier-debug-error {
-    animation: none;
-  }
-}
-
 /* Spec Details */
 .spec-details {
   margin-bottom: var(--spacing-lg);
@@ -778,11 +755,11 @@
 
   /* Add safe area for sticky summary on mobile */
   .sticky-summary-bar[data-position="bottom"] {
-    padding-bottom: max(var(--spacing-md), calc(var(--spacing-md) + var(--safe-area-inset-bottom)));
+    padding-bottom: calc(var(--spacing-md) + var(--safe-area-inset-bottom));
   }
 
   .sticky-summary-bar[data-position="top"] {
-    padding-top: max(var(--spacing-md), calc(var(--spacing-md) + var(--safe-area-inset-top)));
+    padding-top: calc(var(--spacing-md) + var(--safe-area-inset-top));
   }
   
   /* Prevent content from being hidden behind sticky bar */
