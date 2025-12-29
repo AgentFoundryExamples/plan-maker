@@ -279,7 +279,17 @@
    REDUCED MOTION SUPPORT
    =========================== */
 
-/* Disable animations for users who prefer reduced motion */
+/* 
+ * Disable animations for users who prefer reduced motion
+ * 
+ * Note: Using universal selector (*) is intentional and follows WCAG guidelines.
+ * This ensures all animations respect user preferences, including third-party
+ * components and future additions. The performance impact is negligible in modern
+ * browsers as this only applies when prefers-reduced-motion is enabled.
+ * 
+ * Alternative: If performance is a concern, replace * with specific selectors
+ * for elements that use animations in your application.
+ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

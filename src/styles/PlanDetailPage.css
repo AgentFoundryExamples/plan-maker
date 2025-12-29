@@ -9,7 +9,12 @@
   --sticky-summary-offset: 0px; /* Offset from edge */
   --sticky-summary-z-index: var(--z-index-sticky); /* Z-index for layering */
   --sticky-summary-height: 5rem; /* Approximate height for scroll calculations */
-  --keyboard-offset: 0px; /* Dynamic offset for virtual keyboard */
+  /* 
+   * Dynamic keyboard offset for virtual keyboard support
+   * Can be updated via JavaScript when virtual keyboard appears/disappears
+   * Example: document.documentElement.style.setProperty('--keyboard-offset', `${keyboardHeight}px`)
+   */
+  --keyboard-offset: 0px;
 }
 
 /* Back link styling */

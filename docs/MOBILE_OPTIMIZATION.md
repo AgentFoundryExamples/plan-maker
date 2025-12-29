@@ -62,7 +62,7 @@ Applied to:
 Primary actions remain accessible on mobile:
 
 - **Sticky Summary Bar**: Positioned at bottom (configurable)
-- **Keyboard Offset**: Dynamic adjustment for virtual keyboards
+- **Keyboard Offset**: Dynamic adjustment for virtual keyboards via `--keyboard-offset` CSS variable
 - **Safe Area Padding**: Respects device notches/home indicators
 
 Configuration:
@@ -70,8 +70,20 @@ Configuration:
 :root {
   --sticky-summary-position: bottom; /* top or bottom */
   --sticky-summary-offset: 0px;
-  --keyboard-offset: 0px; /* Dynamic */
+  --keyboard-offset: 0px; /* Update via JS when keyboard appears */
 }
+```
+
+**JavaScript Integration for Virtual Keyboard:**
+```javascript
+// Example: Update keyboard offset when virtual keyboard appears
+window.visualViewport?.addEventListener('resize', () => {
+  const keyboardHeight = window.innerHeight - window.visualViewport.height;
+  document.documentElement.style.setProperty(
+    '--keyboard-offset', 
+    `${Math.max(0, keyboardHeight)}px`
+  );
+});
 ```
 
 ### 6. Reduced Motion Support
@@ -83,6 +95,30 @@ All animations respect user preferences:
   * {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+}
+```
+
+**Why Universal Selector?**
+
+The universal selector (`*`) is intentional and follows WCAG accessibility guidelines. It ensures:
+- All animations respect user preferences
+- Third-party components honor the setting
+- Future additions automatically comply
+- No animations slip through the cracks
+
+**Performance Note:** The performance impact is negligible in modern browsers as this rule only activates when `prefers-reduced-motion: reduce` is set (typically <5% of users).
+
+**Alternative Approach:** If performance is critical, replace with specific selectors:
+```css
+@media (prefers-reduced-motion: reduce) {
+  .accordion-content,
+  .timeline-item,
+  .submission-banner,
+  /* ...other animated elements */
+  {
+    animation: none !important;
+    transition: none !important;
   }
 }
 ```
