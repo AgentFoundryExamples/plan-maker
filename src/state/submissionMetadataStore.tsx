@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { saveDraft, getDraft } from '@/utils/localStorage';
 
 /**
@@ -136,7 +136,7 @@ export const SubmissionMetadataProvider: React.FC<SubmissionMetadataProviderProp
     return {};
   });
 
-  const [saveTimeout, setSaveTimeout] = useState<number | null>(null);
+  const saveTimeoutRef = useRef<number | null>(null);
 
   /**
    * Debounced save to localStorage
@@ -144,18 +144,14 @@ export const SubmissionMetadataProvider: React.FC<SubmissionMetadataProviderProp
   const saveToStorage = useCallback((state: SubmissionMetadataState) => {
     if (!config.enablePersistence) return;
 
-    setSaveTimeout((prev) => {
-      if (prev !== null) {
-        clearTimeout(prev);
-      }
+    if (saveTimeoutRef.current !== null) {
+      clearTimeout(saveTimeoutRef.current);
+    }
 
-      const timeout = window.setTimeout(() => {
-        saveDraft(config.storageKey, state);
-        setSaveTimeout(null);
-      }, config.storageDebounceMs);
-
-      return timeout;
-    });
+    saveTimeoutRef.current = window.setTimeout(() => {
+      saveDraft(config.storageKey, state);
+      saveTimeoutRef.current = null;
+    }, config.storageDebounceMs);
   }, [config.enablePersistence, config.storageKey, config.storageDebounceMs]);
 
   // Save to storage whenever metadata changes
@@ -168,11 +164,11 @@ export const SubmissionMetadataProvider: React.FC<SubmissionMetadataProviderProp
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
-      if (saveTimeout !== null) {
-        clearTimeout(saveTimeout);
+      if (saveTimeoutRef.current !== null) {
+        clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [saveTimeout]);
+  }, []);
 
   /**
    * Get submission metadata for a plan
