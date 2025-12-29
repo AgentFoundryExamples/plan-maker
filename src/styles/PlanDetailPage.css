@@ -9,6 +9,7 @@
   --sticky-summary-offset: 0px; /* Offset from edge */
   --sticky-summary-z-index: var(--z-index-sticky); /* Z-index for layering */
   --sticky-summary-height: 5rem; /* Approximate height for scroll calculations */
+  --keyboard-offset: 0px; /* Dynamic offset for virtual keyboard */
 }
 
 /* Back link styling */
@@ -125,6 +126,8 @@
   flex-direction: column;
   gap: var(--spacing-sm);
   animation: slideIn var(--transition-duration-slow) var(--transition-timing-ease-out);
+  /* Smooth scrolling behavior for mobile */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Position sticky bar based on configuration */
@@ -135,9 +138,11 @@
 }
 
 .sticky-summary-bar[data-position="bottom"] {
-  bottom: var(--sticky-summary-offset);
+  bottom: calc(var(--sticky-summary-offset) + var(--keyboard-offset));
   border-bottom: none;
   border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+  /* Add safe area padding for mobile devices with notches */
+  padding-bottom: max(var(--spacing-md), var(--safe-area-inset-bottom));
 }
 
 @keyframes slideIn {
@@ -230,6 +235,10 @@
   max-height: var(--accordion-list-max-height);
   overflow-y: auto;
   padding-right: var(--spacing-xs);
+  /* Enable momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Smooth scrolling behavior */
+  scroll-behavior: smooth;
 }
 
 /* Custom scrollbar for accordion list */
@@ -354,6 +363,8 @@
   border-top: var(--border-width-thin) solid var(--color-border);
   background-color: var(--color-background);
   animation: slideDown var(--transition-duration-base) var(--transition-timing-ease-out);
+  /* Ensure content doesn't get clipped */
+  overflow: visible;
 }
 
 @keyframes slideDown {
@@ -364,6 +375,42 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .accordion-content {
+    animation: none;
+  }
+  
+  .sticky-summary-bar {
+    animation: none;
+  }
+  
+  .timeline-item {
+    animation: none;
+  }
+  
+  @keyframes slideIn {
+    from, to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  
+  @keyframes slideDown {
+    from, to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  
+  @keyframes fadeInUp {
+    from, to {
+      opacity: 1;
+      transform: none;
+    }
   }
 }
 
@@ -546,6 +593,16 @@
   margin-top: var(--spacing-xl);
   padding-top: var(--spacing-lg);
   border-top: var(--border-width-thin) solid var(--color-border);
+  /* Ensure section is positioned correctly relative to sticky elements */
+  position: relative;
+}
+
+/* Sticky submission controls for mobile */
+@media (max-width: 767px) {
+  .submission-section {
+    /* Reserve space at bottom for sticky controls */
+    padding-bottom: calc(var(--sticky-summary-height) + var(--spacing-lg));
+  }
 }
 
 .submission-banner {
@@ -556,6 +613,22 @@
   align-items: flex-start;
   gap: var(--spacing-sm);
   border: var(--border-width-thin) solid;
+  animation: fadeIn var(--transition-duration-base) var(--transition-timing-ease-out);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .submission-banner {
+    animation: none;
+  }
 }
 
 .submission-banner.error {
@@ -698,15 +771,32 @@
   .answer-textarea {
     font-size: var(--font-size-base);
     padding: var(--spacing-md);
+    /* Ensure adequate minimum touch height */
+    min-height: 6rem;
   }
 
   /* Add safe area for sticky summary on mobile */
   .sticky-summary-bar[data-position="bottom"] {
-    padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom));
+    padding-bottom: max(var(--spacing-md), calc(var(--spacing-md) + var(--safe-area-inset-bottom)));
   }
 
   .sticky-summary-bar[data-position="top"] {
-    padding-top: calc(var(--spacing-md) + env(safe-area-inset-top));
+    padding-top: max(var(--spacing-md), calc(var(--spacing-md) + var(--safe-area-inset-top)));
+  }
+  
+  /* Prevent content from being hidden behind sticky bar */
+  .accordion-list {
+    padding-bottom: calc(var(--sticky-summary-height) + var(--spacing-md));
+  }
+  
+  /* Ensure buttons are full width and adequate touch targets */
+  .submission-controls {
+    flex-direction: column;
+  }
+  
+  .btn-submit {
+    width: 100%;
+    min-height: 48px;
   }
 }
 
@@ -761,6 +851,19 @@
   position: relative;
   padding: 0 0 var(--spacing-lg) var(--spacing-xl);
   outline: none;
+  /* Smooth appearance animation */
+  animation: fadeInUp var(--transition-duration-base) var(--transition-timing-ease-out);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .timeline-item:focus {
@@ -1051,6 +1154,8 @@
   overflow-x: auto;
   max-height: var(--debug-output-max-height);
   overflow-y: auto;
+  /* Enable momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 .clarifier-debug-error {
@@ -1062,6 +1167,16 @@
   border: var(--border-width-thin) solid var(--color-error);
   border-radius: var(--border-radius-md);
   margin-top: var(--spacing-lg);
+  animation: fadeIn var(--transition-duration-base) var(--transition-timing-ease-out);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .clarifier-debug-error-icon {
@@ -1084,6 +1199,8 @@
 
   .clarifier-input {
     min-width: 100%;
+    padding-left: max(var(--input-padding-x), var(--safe-area-inset-left));
+    padding-right: max(var(--input-padding-x), var(--safe-area-inset-right));
   }
 
   .clarifier-actions {
@@ -1092,5 +1209,37 @@
 
   .clarifier-actions button {
     width: 100%;
+    min-height: 48px;
+  }
+  
+  .clarifier-panel {
+    padding-left: max(var(--spacing-md), var(--safe-area-inset-left));
+    padding-right: max(var(--spacing-md), var(--safe-area-inset-right));
+  }
+}
+
+/* Very small screens */
+@media (max-width: 320px) {
+  .clarifier-panel {
+    padding: var(--spacing-sm);
+    padding-left: max(var(--spacing-sm), var(--safe-area-inset-left));
+    padding-right: max(var(--spacing-sm), var(--safe-area-inset-right));
+  }
+}
+
+/* Reduced motion support for clarifier */
+@media (prefers-reduced-motion: reduce) {
+  .clarifier-banner {
+    animation: none;
+  }
+  
+  .clarifier-debug-error {
+    animation: none;
+  }
+  
+  @keyframes fadeIn {
+    from, to {
+      opacity: 1;
+    }
   }
 }

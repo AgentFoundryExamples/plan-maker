@@ -33,6 +33,8 @@
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
+  /* Smooth scrolling for mobile */
+  -webkit-overflow-scrolling: touch;
 }
 
 .recent-activity h2 {
@@ -45,6 +47,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  /* Prevent horizontal scroll */
+  overflow-x: hidden;
 }
 
 .timeline-item {
@@ -115,6 +119,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  /* Prevent horizontal scroll */
+  overflow-x: hidden;
 }
 
 .plan-card {
@@ -125,9 +131,11 @@
   border-radius: var(--border-radius-md);
   text-decoration: none;
   color: inherit;
-  transition: all 0.2s ease;
+  transition: all var(--transition-duration-base) ease;
   cursor: pointer;
   min-height: 44px; /* Adequate touch target */
+  /* Smooth scrolling context */
+  -webkit-overflow-scrolling: touch;
 }
 
 .plan-card:hover {
@@ -338,6 +346,9 @@
   .plan-card {
     min-height: 88px;
     padding: var(--spacing-md);
+    /* Add safe area padding for devices with notches */
+    padding-left: max(var(--spacing-md), var(--safe-area-inset-left));
+    padding-right: max(var(--spacing-md), var(--safe-area-inset-right));
   }
 
   .btn {
@@ -353,6 +364,9 @@
   /* Timeline adjustments for mobile */
   .recent-activity {
     padding: var(--spacing-md);
+    /* Add safe area padding */
+    padding-left: max(var(--spacing-md), var(--safe-area-inset-left));
+    padding-right: max(var(--spacing-md), var(--safe-area-inset-right));
   }
 
   .timeline-content {
@@ -373,6 +387,30 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  
+  /* Slightly reduce font size for tiny screens */
+  .plan-card {
+    font-size: 0.9375rem; /* 15px */
+  }
+}
+
+/* Very small screens (320px) - critical mobile optimization */
+@media (max-width: 320px) {
+  .plan-card {
+    padding: var(--spacing-sm);
+    padding-left: max(var(--spacing-sm), var(--safe-area-inset-left));
+    padding-right: max(var(--spacing-sm), var(--safe-area-inset-right));
+  }
+  
+  .recent-activity {
+    padding: var(--spacing-sm);
+    padding-left: max(var(--spacing-sm), var(--safe-area-inset-left));
+    padding-right: max(var(--spacing-sm), var(--safe-area-inset-right));
+  }
+  
+  .timeline-job-id {
+    max-width: 150px;
+  }
 }
 
 /* Print styles */
@@ -389,5 +427,24 @@
   .plan-card:hover {
     transform: none;
     box-shadow: none;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .plan-card {
+    transition: none;
+  }
+  
+  .plan-card:hover {
+    transform: none;
+  }
+  
+  .plan-card:active {
+    transform: none;
+  }
+  
+  .skeleton-card {
+    animation: none;
   }
 }

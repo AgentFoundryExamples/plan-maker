@@ -81,18 +81,25 @@ a:focus-visible {
   max-width: var(--container-max-width);
   margin: 0 auto;
   padding: 0 var(--spacing-md);
+  /* Add safe area padding for devices with notches */
+  padding-left: max(var(--spacing-md), var(--safe-area-inset-left));
+  padding-right: max(var(--spacing-md), var(--safe-area-inset-right));
 }
 
 /* Mobile-first responsive container */
 @media (min-width: 480px) {
   .container {
     padding: 0 var(--spacing-lg);
+    padding-left: max(var(--spacing-lg), var(--safe-area-inset-left));
+    padding-right: max(var(--spacing-lg), var(--safe-area-inset-right));
   }
 }
 
 @media (min-width: 768px) {
   .container {
     padding: 0 var(--spacing-xl);
+    padding-left: max(var(--spacing-xl), var(--safe-area-inset-left));
+    padding-right: max(var(--spacing-xl), var(--safe-area-inset-right));
   }
 }
 
@@ -558,6 +565,8 @@ html,
 body {
   overflow-x: hidden;
   max-width: 100%;
+  /* Enable momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Responsive text sizing for very small screens */
@@ -584,5 +593,24 @@ body {
   input[type="radio"] {
     min-width: 24px;
     min-height: 24px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .btn:hover {
+    transform: none;
+  }
+  
+  .btn:active {
+    transform: none;
+  }
+  
+  .card {
+    transition: none;
+  }
+  
+  .card:hover {
+    box-shadow: var(--card-shadow);
   }
 }
