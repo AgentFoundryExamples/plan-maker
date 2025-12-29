@@ -247,6 +247,12 @@
   --z-index-modal: 1050;
   --z-index-popover: 1060;
   --z-index-tooltip: 1070;
+
+  /* Safe area insets for mobile devices */
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
 }
 
 /* ===========================
@@ -266,5 +272,31 @@
     /* Larger typography on desktop */
     --font-size-3xl: 2rem;    /* 32px - h2 on desktop */
     --font-size-4xl: 2.5rem;  /* 40px - h1 on desktop */
+  }
+}
+
+/* ===========================
+   REDUCED MOTION SUPPORT
+   =========================== */
+
+/* 
+ * Disable animations for users who prefer reduced motion
+ * 
+ * Note: Using universal selector (*) is intentional and follows WCAG guidelines.
+ * This ensures all animations respect user preferences, including third-party
+ * components and future additions. The performance impact is negligible in modern
+ * browsers as this only applies when prefers-reduced-motion is enabled.
+ * 
+ * Alternative: If performance is a concern, replace * with specific selectors
+ * for elements that use animations in your application.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

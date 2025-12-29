@@ -258,5 +258,53 @@
     padding: var(--spacing-md);
     font-size: var(--font-size-lg);
     min-height: 44px;
+    /* Add safe area padding for devices with notches */
+    padding-left: max(var(--spacing-md), var(--safe-area-inset-left));
+    padding-right: max(var(--spacing-md), var(--safe-area-inset-right));
+  }
+  
+  /* Ensure form container has safe padding */
+  .plan-form .card {
+    padding-left: max(var(--card-padding), var(--safe-area-inset-left));
+    padding-right: max(var(--card-padding), var(--safe-area-inset-right));
+  }
+  
+  /* Full width submit button for better mobile UX */
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .btn-submit {
+    width: 100%;
+    min-height: 48px;
+  }
+}
+
+/* Very small screens (320px width) */
+@media (max-width: 320px) {
+  .form-input,
+  .form-textarea {
+    padding: var(--spacing-sm);
+    padding-left: max(var(--spacing-sm), var(--safe-area-inset-left));
+    padding-right: max(var(--spacing-sm), var(--safe-area-inset-right));
+  }
+  
+  .plan-form .card {
+    padding: var(--spacing-sm);
+    padding-left: max(var(--spacing-sm), var(--safe-area-inset-left));
+    padding-right: max(var(--spacing-sm), var(--safe-area-inset-right));
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+  
+  @keyframes spin {
+    from, to {
+      transform: none;
+    }
   }
 }
