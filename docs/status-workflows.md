@@ -171,6 +171,8 @@ If the backend has debug mode enabled (via `APP_ENABLE_DEBUG_ENDPOINT=true`), yo
 
 ### Clarification Job Status
 
+**Note:** Clarification jobs use different status terminology than plan jobs. Initial state is `PENDING` (not `QUEUED`), and success state is `SUCCESS` (not `SUCCEEDED`).
+
 | Status      | Badge Color | Meaning                                      |
 |-------------|-------------|----------------------------------------------|
 | `PENDING`   | Blue        | Job is waiting to be processed               |
@@ -318,9 +320,12 @@ Plan Maker uses a **manual, on-demand refresh strategy** rather than aggressive 
 
 | Page         | Automatic Polling | Manual Refresh | Recommendation                          |
 |--------------|-------------------|----------------|-----------------------------------------|
-| Plans List   | 60 seconds        | Available      | Use manual refresh when actively monitoring |
+| Plans List   | 60 seconds        | Available      | Auto-refresh is for passive monitoring; use manual refresh when actively tracking a specific job |
 | Plan Detail  | None              | Available      | Check every 5-10 seconds for active jobs |
 | Clarifier    | None              | Available      | Check every 10-30 seconds for LLM jobs |
+
+**Clarification on Auto-Refresh:**
+The 60-second auto-refresh on Plans List is designed for passive monitoring when you have the page open but aren't actively watching a specific job. When you're actively monitoring a running job, use the manual refresh button and refresh every 5-10 seconds for more timely updates. The auto-refresh continues in the background, so you'll see updates eventually even if you don't manually refresh.
 
 ### Best Practices
 
@@ -593,6 +598,19 @@ All endpoints may return standard HTTP error responses:
   "detail": "Internal server error"
 }
 ```
+
+**When it occurs:** Server-side error during request processing (database issues, LLM API failures, etc.)
+
+**What you'll see:**
+- Generic error message in banner
+- Request fails without specific details
+
+**What to do:**
+- Wait a few minutes and try again (may be temporary)
+- Check if backend services are operational
+- Review backend logs if you have access
+- Contact your administrator if error persists
+- For plan/clarification jobs: The error typically means the job failed to start; check Plans List or manually query the job ID later to see if it eventually processed
 
 ## Limitations and Known Issues
 

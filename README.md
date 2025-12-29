@@ -490,7 +490,7 @@ The UI follows an "integrate if available" approach - features are only shown wh
 **Workarounds:**
 - To "delete" a plan, simply ignore it - it won't affect functionality
 - To duplicate a plan, manually re-enter the description on the Plan Input page
-- Old clarification jobs expire automatically after 7 days from localStorage
+- The local reference to old clarification jobs is removed from your browser's localStorage after 7 days. The job itself persists on the backend.
 
 ### Detailed Documentation
 
