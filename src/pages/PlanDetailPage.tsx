@@ -24,15 +24,15 @@ const PlanDetailPage: React.FC = () => {
 
   // Get submission metadata for current plan
   const submissionMetadata = useMemo(() => {
-    return data?.job_id ? getSubmission(data.job_id) : null;
-  }, [data, getSubmission]);
+    return id ? getSubmission(id) : null;
+  }, [id, getSubmission]);
 
   // Submission mutation
   const submitClarifications = useSubmitClarifications({
     onSuccess: (response) => {
-      // Save submission metadata
-      if (data?.job_id) {
-        setSubmission(data.job_id, {
+      // Save submission metadata using plan ID from route
+      if (id) {
+        setSubmission(id, {
           jobId: response.id,
           submittedAt: new Date().toISOString(),
         });
