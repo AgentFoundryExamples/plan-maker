@@ -14,16 +14,16 @@ const PlanDetailPage = React.lazy(() => import('@/pages/PlanDetailPage'));
 
 // Loading fallback component for code-split routes
 const PageLoadingFallback: React.FC = () => (
-  <div className="container">
-    <div className="plans-skeleton" role="status" aria-label="Loading page">
+  <div className="container" role="status" aria-busy="true" aria-label="Loading page">
+    <div className="plans-skeleton">
       <div className="skeleton-card">
         <div className="skeleton-header">
-          <div className="skeleton-id" />
-          <div className="skeleton-status" />
+          <div className="skeleton-id" aria-hidden="true" />
+          <div className="skeleton-status" aria-hidden="true" />
         </div>
-        <div className="skeleton-text" />
-        <div className="skeleton-text" />
-        <div className="skeleton-text" />
+        <div className="skeleton-text" aria-hidden="true" />
+        <div className="skeleton-text" aria-hidden="true" />
+        <div className="skeleton-text" aria-hidden="true" />
       </div>
     </div>
   </div>

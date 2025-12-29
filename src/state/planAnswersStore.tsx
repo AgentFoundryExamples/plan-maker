@@ -206,16 +206,15 @@ export const PlanAnswersProvider: React.FC<PlanAnswersProviderProps> = ({
     if (Object.keys(answers).length > 0) {
       saveToStorage(answers);
     }
-  }, [answers, saveToStorage]);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
+    
+    // Cleanup timeout on unmount or before next save
     return () => {
       if (saveTimeoutRef.current !== null) {
         clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
       }
     };
-  }, []);
+  }, [answers, saveToStorage]);
 
   /**
    * Generate a storage key for a specific question

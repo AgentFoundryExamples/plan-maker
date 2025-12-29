@@ -439,6 +439,18 @@ const SpecAccordion: React.FC<SpecAccordionProps> = React.memo(({
       </div>
     </div>
   );
+}, (prevProps, nextProps) => {
+  // Custom comparison function to prevent unnecessary re-renders
+  // Only re-render if these props actually change
+  return (
+    prevProps.planId === nextProps.planId &&
+    prevProps.specs === nextProps.specs && // Reference equality check
+    prevProps.stickyPosition === nextProps.stickyPosition &&
+    prevProps.showStickySummary === nextProps.showStickySummary &&
+    prevProps.maxUnansweredSpecLinks === nextProps.maxUnansweredSpecLinks &&
+    prevProps.validationResult === nextProps.validationResult &&
+    prevProps.showValidationErrors === nextProps.showValidationErrors
+  );
 });
 
 // Display name for debugging
