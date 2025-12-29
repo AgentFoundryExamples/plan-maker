@@ -23,8 +23,23 @@ vi.mock('@/api/hooks', async () => {
       error: null,
       data: null,
     })),
+    useClarificationStatus: vi.fn(() => ({
+      data: undefined,
+      refetch: vi.fn(),
+      isLoading: false,
+      isError: false,
+      isSuccess: false,
+      error: null,
+    })),
   };
 });
+
+// Mock clarifierStorage
+vi.mock('@/utils/clarifierStorage', () => ({
+  getClarifierJobId: vi.fn(() => null),
+  setClarifierJobId: vi.fn(),
+  removeClarifierJobId: vi.fn(),
+}));
 
 describe('PlanDetailPage', () => {
   let queryClient: QueryClient;
@@ -815,6 +830,193 @@ describe('PlanDetailPage', () => {
           expect(submitButton).not.toBeDisabled();
         })
       );
+    });
+  });
+
+  describe('Enhanced Features', () => {
+    const mockPlanData: PlanJobStatus = {
+      job_id: 'plan-123',
+      status: 'SUCCEEDED',
+      created_at: '2025-01-15T10:30:00Z',
+      updated_at: '2025-01-15T10:35:00Z',
+      result: {
+        specs: [
+          {
+            purpose: 'Build REST API',
+            vision: 'Create a scalable REST API',
+            must: ['Authentication'],
+            open_questions: ['Which database?'],
+          },
+        ],
+      },
+    };
+
+    it('renders refresh button', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-123');
+
+      expect(screen.getByRole('button', { name: /refresh plan status/i })).toBeInTheDocument();
+    });
+
+    it('calls refetch when refresh button is clicked', async () => {
+      const user = (await import('@testing-library/user-event')).default.setup();
+      const refetchMock = vi.fn();
+
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: refetchMock,
+      } as any);
+
+      renderComponent('plan-123');
+
+      const refreshButton = screen.getByRole('button', { name: /refresh plan status/i });
+      await user.click(refreshButton);
+
+      expect(refetchMock).toHaveBeenCalled();
+    });
+
+    it('renders copy button for plan ID', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-123');
+
+      expect(screen.getByRole('button', { name: /copy plan id to clipboard/i })).toBeInTheDocument();
+    });
+
+    it('copies plan ID to clipboard when copy button is clicked', async () => {
+      const user = (await import('@testing-library/user-event')).default.setup();
+      const writeTextMock = vi.fn().mockResolvedValue(undefined);
+
+      Object.defineProperty(navigator, 'clipboard', {
+        value: {
+          writeText: writeTextMock,
+        },
+        writable: true,
+        configurable: true,
+      });
+
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-123');
+
+      const copyButton = screen.getByRole('button', { name: /copy plan id to clipboard/i });
+      await user.click(copyButton);
+
+      expect(writeTextMock).toHaveBeenCalledWith('plan-123');
+    });
+
+    it('renders ClarifierPanel component', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-123');
+
+      expect(screen.getByText('Clarification')).toBeInTheDocument();
+      expect(screen.getByText('Start New Clarification')).toBeInTheDocument();
+    });
+
+    it('renders PlanTimeline component for non-QUEUED plans', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-123');
+
+      expect(screen.getByText('Activity Timeline')).toBeInTheDocument();
+    });
+
+    it('does not render PlanTimeline for QUEUED plans', () => {
+      const queuedPlan: PlanJobStatus = {
+        ...mockPlanData,
+        status: 'QUEUED',
+      };
+
+      mockUsePlanDetail.mockReturnValue({
+        data: queuedPlan,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-123');
+
+      expect(screen.queryByText('Activity Timeline')).not.toBeInTheDocument();
+    });
+
+    it('handles clarification creation callback', async () => {
+      // This test verifies the integration exists
+      // Full clarification workflow is tested in ClarifierPanel.test.tsx
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-123');
+
+      // Verify clarifier panel is present and can be interacted with
+      expect(screen.getByText('Start New Clarification')).toBeInTheDocument();
+    });
+
+    it('displays plan metadata with proper formatting', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanData,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-123');
+
+      // Check that metadata rows are displayed
+      expect(screen.getByText('Plan ID:')).toBeInTheDocument();
+      expect(screen.getByText('Status:')).toBeInTheDocument();
+      expect(screen.getByText('Created:')).toBeInTheDocument();
+      expect(screen.getByText('Updated:')).toBeInTheDocument();
     });
   });
 });

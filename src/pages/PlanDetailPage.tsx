@@ -1,18 +1,21 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { usePlanDetail, useSubmitClarifications } from '@/api/hooks';
+import { usePlanDetail, useSubmitClarifications, useClarificationStatus } from '@/api/hooks';
 import { getStatusMetadata } from '@/api/softwarePlannerClient';
 import { formatTimestamp } from '@/utils/dateUtils';
 import SpecAccordion from '@/components/SpecAccordion';
+import ClarifierPanel from '@/components/ClarifierPanel';
+import PlanTimeline from '@/components/PlanTimeline';
 import { usePlanAnswers } from '@/state/planAnswersStore';
 import { useSubmissionMetadata } from '@/state/submissionMetadataStore';
+import { getClarifierJobId } from '@/utils/clarifierStorage';
 import type { QuestionAnswer } from '@/api/specClarifier/models/QuestionAnswer';
 import '@/styles/PlansListPage.css';
 import '@/styles/PlanDetailPage.css';
 
 const PlanDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { data, isLoading, error } = usePlanDetail(id);
+  const { data, isLoading, error, refetch } = usePlanDetail(id);
   const { validateAnswers, getAnswer } = usePlanAnswers();
   const { getSubmission, setSubmission } = useSubmissionMetadata();
   const [showValidationErrors, setShowValidationErrors] = useState(false);
@@ -21,6 +24,26 @@ const PlanDetailPage: React.FC = () => {
     title: string;
     message: string;
   } | null>(null);
+  const [clarifierJobIdForTimeline, setClarifierJobIdForTimeline] = useState<string | null>(null);
+
+  // Load stored clarifier job ID for timeline
+  React.useEffect(() => {
+    if (id) {
+      const stored = getClarifierJobId(id);
+      if (stored) {
+        setClarifierJobIdForTimeline(stored.jobId);
+      }
+    }
+  }, [id]);
+
+  // Fetch clarifier status for timeline (only if we have a job ID)
+  const { data: clarifierStatus } = useClarificationStatus(
+    clarifierJobIdForTimeline || undefined,
+    {
+      enabled: !!clarifierJobIdForTimeline,
+      refetchInterval: false, // No auto-polling
+    }
+  );
 
   // Get submission metadata for current plan
   const submissionMetadata = id ? getSubmission(id) : null;
@@ -110,6 +133,29 @@ const PlanDetailPage: React.FC = () => {
     setSubmissionBanner(null);
   }, []);
 
+  // Handle refresh plan status
+  const handleRefreshPlan = useCallback(async () => {
+    try {
+      await refetch();
+    } catch (err) {
+      // Error is already handled by query
+    }
+  }, [refetch]);
+
+  // Handle copy job ID to clipboard
+  const handleCopyJobId = useCallback((jobId: string) => {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(jobId).catch(() => {
+        // Failed silently
+      });
+    }
+  }, []);
+
+  // Handle clarification created callback
+  const handleClarificationCreated = useCallback((jobId: string) => {
+    setClarifierJobIdForTimeline(jobId);
+  }, []);
+
   // Loading state
   if (isLoading) {
     return (
@@ -188,22 +234,44 @@ const PlanDetailPage: React.FC = () => {
       <div className="card mt-lg">
         <div className="plan-card-header plan-header">
           <h2>Plan #{data.job_id}</h2>
-          <span
-            className="status-badge"
-            style={{
-              backgroundColor: statusMeta.color,
-              color: 'var(--color-background)',
-            }}
-            aria-label={`Status: ${statusMeta.label}`}
-          >
-            {statusMeta.label}
-          </span>
+          <div className="plan-header-actions">
+            <span
+              className="status-badge"
+              style={{
+                backgroundColor: statusMeta.color,
+                color: 'var(--color-background)',
+              }}
+              aria-label={`Status: ${statusMeta.label}`}
+            >
+              {statusMeta.label}
+            </span>
+            <button
+              type="button"
+              className="btn btn-secondary btn-refresh"
+              onClick={handleRefreshPlan}
+              aria-label="Refresh plan status"
+              title="Refresh plan status"
+            >
+              🔄 Refresh
+            </button>
+          </div>
         </div>
         
         <div className="plan-card-metadata">
           <div className="metadata-row">
             <span className="metadata-label">Plan ID:</span>
-            <span>{data.job_id}</span>
+            <div className="metadata-value-with-action">
+              <span>{data.job_id}</span>
+              <button
+                type="button"
+                className="btn btn-text btn-copy-inline"
+                onClick={() => handleCopyJobId(data.job_id)}
+                aria-label="Copy plan ID to clipboard"
+                title="Copy to clipboard"
+              >
+                📋
+              </button>
+            </div>
           </div>
           <div className="metadata-row">
             <span className="metadata-label">Status:</span>
@@ -328,6 +396,25 @@ const PlanDetailPage: React.FC = () => {
             )}
           </>
         )}
+      </div>
+
+      {/* Activity Timeline */}
+      {data.status !== 'QUEUED' && (
+        <div className="card mt-lg">
+          <PlanTimeline
+            planJob={data}
+            clarifierJob={clarifierStatus || undefined}
+            clarifierCreatedAt={clarifierStatus?.created_at || null}
+          />
+        </div>
+      )}
+
+      {/* Clarification Panel */}
+      <div className="card mt-lg">
+        <ClarifierPanel
+          planJob={data}
+          onClarificationCreated={handleClarificationCreated}
+        />
       </div>
     </div>
   );

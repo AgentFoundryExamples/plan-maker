@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSubmitClarifications, useClarificationStatus } from '@/api/hooks';
 import { getClarifierDebug, type ClarifierDebugResponse } from '@/api/specClarifierClient';
-import { getClarifierStatusMetadata } from '@/utils/statusMappings';
 import { formatTimestamp } from '@/utils/dateUtils';
 import StatusBadge from './StatusBadge';
 import type { PlanJobStatus } from '@/api/softwarePlannerClient';
