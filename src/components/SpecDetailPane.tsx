@@ -91,9 +91,13 @@ export const SpecDetailPane: React.FC<SpecDetailPaneProps> = ({
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     } else if (onNavigateSpec && specIndex < totalSpecs - 1) {
-      // Move to next spec
-      onNavigateSpec(specIndex + 1);
-      setCurrentQuestionIndex(0);
+      // Validate before navigating
+      const nextSpecIndex = specIndex + 1;
+      if (nextSpecIndex >= 0 && nextSpecIndex < totalSpecs) {
+        // Move to next spec
+        onNavigateSpec(nextSpecIndex);
+        setCurrentQuestionIndex(0);
+      }
     }
   }, [spec, specIndex, currentQuestionIndex, onNavigateSpec, totalSpecs]);
 
@@ -114,10 +118,14 @@ export const SpecDetailPane: React.FC<SpecDetailPaneProps> = ({
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     } else if (onNavigateSpec && specIndex > 0) {
-      // Move to previous spec
-      onNavigateSpec(specIndex - 1);
-      // Set to last question of previous spec (will be handled by useEffect)
-      setCurrentQuestionIndex(-1); // Special value to indicate "go to last"
+      // Validate before navigating
+      const prevSpecIndex = specIndex - 1;
+      if (prevSpecIndex >= 0) {
+        // Move to previous spec
+        onNavigateSpec(prevSpecIndex);
+        // Set to last question of previous spec (will be handled by useEffect)
+        setCurrentQuestionIndex(-1); // Special value to indicate "go to last"
+      }
     }
   }, [spec, specIndex, currentQuestionIndex, onNavigateSpec]);
 
@@ -153,14 +161,19 @@ export const SpecDetailPane: React.FC<SpecDetailPaneProps> = ({
     if (!spec || specIndex === null) return;
     const questions = spec.open_questions || [];
     
-    if (currentQuestionIndex === -1 && questions.length > 0) {
-      // Special case: go to last question
-      setCurrentQuestionIndex(questions.length - 1);
-    } else if (currentQuestionIndex >= questions.length) {
-      // Reset to first question if index is out of bounds
-      setCurrentQuestionIndex(0);
-    }
-  }, [spec, specIndex, currentQuestionIndex]);
+    setCurrentQuestionIndex(prevIndex => {
+      if (prevIndex === -1 && questions.length > 0) {
+        // Special case from handlePrevious: go to last question
+        return questions.length - 1;
+      }
+      if (prevIndex >= questions.length) {
+        // Reset to first question if index is out of bounds (e.g. new spec has fewer questions)
+        return 0;
+      }
+      // No change needed
+      return prevIndex;
+    });
+  }, [spec, specIndex]);
 
   // Empty state
   if (!spec || specIndex === null) {

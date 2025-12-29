@@ -140,6 +140,20 @@ const SpecAccordion: React.FC<SpecAccordionProps> = React.memo(({
     });
   }, []);
 
+  // Scroll to a specific spec
+  const scrollToSpec = useCallback((specIndex: number) => {
+    const element = document.getElementById(`spec-${specIndex}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Expand the spec
+      setExpandedSpecs((prev) => {
+        const next = new Set(prev);
+        next.add(specIndex);
+        return next;
+      });
+    }
+  }, [setExpandedSpecs]);
+
   // Navigate to next question or spec
   const handleNext = useCallback((specIndex: number) => {
     const spec = specs[specIndex];
@@ -159,11 +173,15 @@ const SpecAccordion: React.FC<SpecAccordionProps> = React.memo(({
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     } else if (specIndex < specs.length - 1) {
-      // Move to next spec
-      scrollToSpec(specIndex + 1);
-      setCurrentQuestion(specIndex + 1, 0);
+      // Validate next spec index
+      const nextSpecIndex = specIndex + 1;
+      if (nextSpecIndex >= 0 && nextSpecIndex < specs.length) {
+        // Move to next spec
+        scrollToSpec(nextSpecIndex);
+        setCurrentQuestion(nextSpecIndex, 0);
+      }
     }
-  }, [specs, getCurrentQuestion, setCurrentQuestion]);
+  }, [specs, getCurrentQuestion, setCurrentQuestion, scrollToSpec]);
 
   // Navigate to previous question or spec
   const handlePrevious = useCallback((specIndex: number) => {
@@ -183,12 +201,15 @@ const SpecAccordion: React.FC<SpecAccordionProps> = React.memo(({
       }
     } else if (specIndex > 0) {
       // Move to previous spec
-      const prevSpec = specs[specIndex - 1];
+      const prevSpecIndex = specIndex - 1;
+      const prevSpec = specs[prevSpecIndex];
       const prevQuestions = prevSpec.open_questions || [];
-      scrollToSpec(specIndex - 1);
-      setCurrentQuestion(specIndex - 1, Math.max(0, prevQuestions.length - 1));
+      
+      // Ensure the previous spec is expanded and then scroll to it
+      scrollToSpec(prevSpecIndex);
+      setCurrentQuestion(prevSpecIndex, Math.max(0, prevQuestions.length - 1));
     }
-  }, [specs, getCurrentQuestion, setCurrentQuestion]);
+  }, [specs, getCurrentQuestion, setCurrentQuestion, scrollToSpec]);
 
   // Jump to specific question within a spec
   const handleJumpToQuestion = useCallback((specIndex: number, questionIndex: number) => {
@@ -211,20 +232,6 @@ const SpecAccordion: React.FC<SpecAccordionProps> = React.memo(({
       handleNext(specIndex);
     }
   }, [handleNext]);
-
-  // Scroll to a specific spec
-  const scrollToSpec = useCallback((specIndex: number) => {
-    const element = document.getElementById(`spec-${specIndex}`);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // Expand the spec
-      setExpandedSpecs((prev) => {
-        const next = new Set(prev);
-        next.add(specIndex);
-        return next;
-      });
-    }
-  }, [setExpandedSpecs]);
 
   /**
    * Check if a specific question has a validation error
