@@ -383,7 +383,7 @@ describe('Software Planner Client', () => {
         label: 'Queued',
         description: 'Job is waiting to be processed',
         color: 'var(--color-info)',
-        icon: 'clock',
+        icon: '⏱️',
         progress: 0,
       });
     });
@@ -395,7 +395,7 @@ describe('Software Planner Client', () => {
         label: 'Running',
         description: 'Job is currently being processed',
         color: 'var(--color-warning)',
-        icon: 'spinner',
+        icon: '⚙️',
         progress: 50,
       });
     });
@@ -407,7 +407,7 @@ describe('Software Planner Client', () => {
         label: 'Succeeded',
         description: 'Job completed successfully',
         color: 'var(--color-success)',
-        icon: 'check',
+        icon: '✓',
         progress: 100,
       });
     });
@@ -418,8 +418,8 @@ describe('Software Planner Client', () => {
       expect(metadata).toEqual({
         label: 'Failed',
         description: 'Job failed to complete',
-        color: 'var(--color-danger)',
-        icon: 'error',
+        color: 'var(--color-error)',
+        icon: '✗',
         progress: 100,
       });
     });
@@ -430,8 +430,8 @@ describe('Software Planner Client', () => {
       expect(metadata).toEqual({
         label: 'Unknown',
         description: 'Status: UNKNOWN_STATUS',
-        color: 'var(--color-text-secondary)',
-        icon: 'question',
+        color: 'var(--color-neutral)',
+        icon: '?',
         progress: 0,
       });
     });
