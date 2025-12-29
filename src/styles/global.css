@@ -396,6 +396,25 @@ a:focus-visible {
   min-height: 48px;
 }
 
+/* Text-only button variant */
+.btn-text {
+  background-color: transparent;
+  color: var(--color-primary);
+  border-color: transparent;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  min-height: 36px;
+}
+
+.btn-text:hover:not(:disabled) {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-hover);
+}
+
+.btn-text:active:not(:disabled) {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-active);
+}
+
 /* ===========================
    INPUT UTILITIES
    =========================== */

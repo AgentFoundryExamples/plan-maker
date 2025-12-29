@@ -245,7 +245,7 @@ const PlannerInputPage: React.FC = () => {
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={8}
-                placeholder="Example: Build a task management API with user authentication, task CRUD operations, and real-time notifications. Must support REST endpoints, use PostgreSQL database, and include rate limiting..."
+                placeholder="Describe your software project. Example: Build a REST API for task management with user auth, CRUD operations, and notifications using PostgreSQL..."
                 aria-required="true"
                 aria-invalid={!!validationErrors.description}
                 aria-describedby={
@@ -279,8 +279,7 @@ const PlannerInputPage: React.FC = () => {
                 Model (Optional)
               </label>
               <p className="form-helper-text">
-                Specify a logical model name (e.g., &apos;gpt-4-turbo&apos;,
-                &apos;claude-opus&apos;). Leave empty to use the default model.
+                Specify a model name. Leave empty to use default.
               </p>
               <input
                 type="text"
@@ -289,7 +288,7 @@ const PlannerInputPage: React.FC = () => {
                 className="form-input"
                 value={formData.model}
                 onChange={handleInputChange}
-                placeholder="e.g., gpt-4-turbo"
+                placeholder="gpt-4-turbo or claude-opus"
                 disabled={createPlan.isPending}
               />
             </div>
@@ -299,7 +298,7 @@ const PlannerInputPage: React.FC = () => {
                 Custom System Prompt (Optional)
               </label>
               <p className="form-helper-text">
-                {`Override the default system prompt to customize planning behavior. You can adjust the tone, focus areas, or add specific instructions for the AI planner. (Optional, max 32768 characters)`}
+                {`Customize AI planning behavior with specific instructions (max 32768 characters).`}
               </p>
               <textarea
                 id="system_prompt"
@@ -308,7 +307,7 @@ const PlannerInputPage: React.FC = () => {
                 value={formData.system_prompt}
                 onChange={handleInputChange}
                 rows={6}
-                placeholder="Example: Focus on microservices architecture. Emphasize security best practices and scalability considerations. Include detailed API documentation requirements..."
+                placeholder="Example: Focus on microservices, emphasize security, include detailed API docs..."
                 disabled={createPlan.isPending}
               />
               {formData.system_prompt && (

@@ -143,11 +143,10 @@ const PlansListPage: React.FC = () => {
             <div className="empty-state-icon" aria-hidden="true">📋</div>
             <h2>No Plans Yet</h2>
             <p>
-              You haven&apos;t created any plans yet. Get started by creating your first
-              software development plan.
+              Create your first software development plan to get started.
             </p>
             <Link to="/" className="btn btn-primary">
-              Create Your First Plan
+              Create Plan
             </Link>
           </div>
         )}

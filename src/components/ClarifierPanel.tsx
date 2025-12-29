@@ -294,13 +294,13 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
       <div className="clarifier-section">
         <h4 className="clarifier-section-heading">Track Existing Job</h4>
         <p className="clarifier-help-text">
-          Enter a clarification job ID to track its status:
+          Enter a clarification job ID to monitor its status:
         </p>
         <div className="clarifier-input-group">
           <input
             type="text"
             className="clarifier-input"
-            placeholder="Enter job ID (UUID format)"
+            placeholder="Enter job ID (UUID format, e.g., 123e4567-e89b-...)"
             value={manualJobId}
             onChange={(e) => setManualJobId(e.target.value)}
             onKeyDown={(e) => {
