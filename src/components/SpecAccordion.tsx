@@ -46,6 +46,8 @@ const SpecAccordion: React.FC<SpecAccordionProps> = React.memo(({
   const [expandedSpecs, setExpandedSpecs] = useState<Set<number>>(new Set());
   const { getAnswer, setAnswer, getAnswersForPlan } = usePlanAnswers();
   const questionRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
+  const [currentQuestionsBySpec, setCurrentQuestionsBySpec] = useState<Map<number, number>>(new Map());
+  const [showSaveIndicator, setShowSaveIndicator] = useState<string | null>(null);
 
   // Get all answers for current plan to use in memoization
   const planAnswers = getAnswersForPlan(planId);
@@ -70,6 +72,11 @@ const SpecAccordion: React.FC<SpecAccordionProps> = React.memo(({
     value: string
   ) => {
     setAnswer(planId, specIndex, questionIndex, value);
+    
+    // Show save indicator with optimistic UI feedback
+    const key = `${specIndex}-${questionIndex}`;
+    setShowSaveIndicator(key);
+    setTimeout(() => setShowSaveIndicator(null), 2000);
   };
 
   // Check if a question is answered
@@ -118,6 +125,92 @@ const SpecAccordion: React.FC<SpecAccordionProps> = React.memo(({
       .map((spec, idx) => ({ spec, idx, count: unansweredCounts[idx] }))
       .filter(item => item.count > 0);
   }, [specs, unansweredCounts]);
+
+  // Get current question index for a spec
+  const getCurrentQuestion = useCallback((specIndex: number): number => {
+    return currentQuestionsBySpec.get(specIndex) || 0;
+  }, [currentQuestionsBySpec]);
+
+  // Set current question index for a spec
+  const setCurrentQuestion = useCallback((specIndex: number, questionIndex: number) => {
+    setCurrentQuestionsBySpec((prev) => {
+      const next = new Map(prev);
+      next.set(specIndex, questionIndex);
+      return next;
+    });
+  }, []);
+
+  // Navigate to next question or spec
+  const handleNext = useCallback((specIndex: number) => {
+    const spec = specs[specIndex];
+    const questions = spec.open_questions || [];
+    const currentQ = getCurrentQuestion(specIndex);
+    
+    if (currentQ < questions.length - 1) {
+      // Move to next question in current spec
+      const nextQ = currentQ + 1;
+      setCurrentQuestion(specIndex, nextQ);
+      
+      // Focus the next question
+      const refKey = `${specIndex}-${nextQ}`;
+      const element = questionRefs.current.get(refKey);
+      if (element) {
+        element.focus();
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } else if (specIndex < specs.length - 1) {
+      // Move to next spec
+      scrollToSpec(specIndex + 1);
+      setCurrentQuestion(specIndex + 1, 0);
+    }
+  }, [specs, getCurrentQuestion, setCurrentQuestion]);
+
+  // Navigate to previous question or spec
+  const handlePrevious = useCallback((specIndex: number) => {
+    const currentQ = getCurrentQuestion(specIndex);
+    
+    if (currentQ > 0) {
+      // Move to previous question in current spec
+      const prevQ = currentQ - 1;
+      setCurrentQuestion(specIndex, prevQ);
+      
+      // Focus the previous question
+      const refKey = `${specIndex}-${prevQ}`;
+      const element = questionRefs.current.get(refKey);
+      if (element) {
+        element.focus();
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } else if (specIndex > 0) {
+      // Move to previous spec
+      const prevSpec = specs[specIndex - 1];
+      const prevQuestions = prevSpec.open_questions || [];
+      scrollToSpec(specIndex - 1);
+      setCurrentQuestion(specIndex - 1, Math.max(0, prevQuestions.length - 1));
+    }
+  }, [specs, getCurrentQuestion, setCurrentQuestion]);
+
+  // Jump to specific question within a spec
+  const handleJumpToQuestion = useCallback((specIndex: number, questionIndex: number) => {
+    setCurrentQuestion(specIndex, questionIndex);
+    
+    // Focus the target question
+    const refKey = `${specIndex}-${questionIndex}`;
+    const element = questionRefs.current.get(refKey);
+    if (element) {
+      element.focus();
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [setCurrentQuestion]);
+
+  // Handle keyboard shortcuts
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>, specIndex: number) => {
+    // Ctrl/Cmd + Enter to advance to next question
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      handleNext(specIndex);
+    }
+  }, [handleNext]);
 
   // Scroll to a specific spec
   const scrollToSpec = useCallback((specIndex: number) => {
@@ -367,11 +460,75 @@ const SpecAccordion: React.FC<SpecAccordionProps> = React.memo(({
 
                   {/* Questions Section */}
                   <div className="questions-section">
-                    <h4>Questions</h4>
+                    <div className="questions-header">
+                      <h4>Questions</h4>
+                      {hasQuestions && (
+                        <div className="question-progress">
+                          <span className="question-progress-text">
+                            Question {getCurrentQuestion(specIndex) + 1} of {questions.length}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                     {!hasQuestions ? (
                       <p className="no-questions-message">No questions for this spec</p>
                     ) : (
-                      <div className="questions-list">
+                      <>
+                        {/* Q&A Navigation Controls */}
+                        <div className="qa-navigation-controls" role="navigation" aria-label="Question navigation">
+                          <div className="qa-nav-buttons">
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-qa-nav"
+                              onClick={() => handlePrevious(specIndex)}
+                              disabled={getCurrentQuestion(specIndex) === 0 && specIndex === 0}
+                              aria-label="Previous question"
+                              title="Previous question (or previous spec)"
+                            >
+                              ← Previous
+                            </button>
+                            
+                            <select
+                              className="qa-jump-select"
+                              value={getCurrentQuestion(specIndex)}
+                              onChange={(e) => handleJumpToQuestion(specIndex, parseInt(e.target.value, 10))}
+                              aria-label="Jump to question"
+                            >
+                              {questions.map((question, idx) => {
+                                const answered = isQuestionAnswered(specIndex, idx);
+                                return (
+                                  <option key={idx} value={idx}>
+                                    Q{idx + 1}: {question.substring(0, 40)}{question.length > 40 ? '...' : ''} {answered ? '✓' : '○'}
+                                  </option>
+                                );
+                              })}
+                            </select>
+                            
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-qa-nav"
+                              onClick={() => handleNext(specIndex)}
+                              disabled={getCurrentQuestion(specIndex) === questions.length - 1 && specIndex === specs.length - 1}
+                              aria-label="Next question"
+                              title="Next question (or next spec) - Ctrl/Cmd + Enter"
+                            >
+                              Next →
+                            </button>
+                          </div>
+                          <p className="qa-keyboard-hint">
+                            <span className="qa-hint-icon">⌨️</span>
+                            Press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (or <kbd>Cmd</kbd>+<kbd>Enter</kbd>) to advance to next question
+                          </p>
+                          {/* Autosave indicator */}
+                          {showSaveIndicator && showSaveIndicator.startsWith(`${specIndex}-`) && (
+                            <div className="autosave-indicator" role="status" aria-live="polite">
+                              <span className="autosave-icon">💾</span>
+                              <span className="autosave-text">Saved</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="questions-list">
                         {questions.map((question, qIndex) => {
                           const answered = isQuestionAnswered(specIndex, qIndex);
                           const answer = getAnswerValue(specIndex, qIndex);
@@ -402,6 +559,7 @@ const SpecAccordion: React.FC<SpecAccordionProps> = React.memo(({
                                 onChange={(e) =>
                                   handleAnswerChange(specIndex, qIndex, e.target.value)
                                 }
+                                onKeyDown={(e) => handleKeyDown(e, specIndex)}
                                 placeholder="Enter your answer here..."
                                 rows={3}
                                 aria-describedby={`answer-status-${specIndex}-${qIndex}`}
@@ -429,6 +587,7 @@ const SpecAccordion: React.FC<SpecAccordionProps> = React.memo(({
                           );
                         })}
                       </div>
+                      </>
                     )}
                   </div>
                 </div>
