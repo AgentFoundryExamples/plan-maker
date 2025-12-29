@@ -6,7 +6,7 @@
 /* Configuration for sticky summary bar */
 :root {
   --sticky-summary-position: bottom; /* Options: top, bottom */
-  --sticky-summary-offset: 0; /* Offset from edge */
+  --sticky-summary-offset: 0px; /* Offset from edge */
   --sticky-summary-z-index: var(--z-index-sticky); /* Z-index for layering */
   --sticky-summary-height: 5rem; /* Approximate height for scroll calculations */
 }
