@@ -41,6 +41,9 @@ export function truncateJobId(jobId: string, length: number = 8, suffix: string 
   if (!jobId || jobId.length <= length) {
     return jobId;
   }
+  if (length <= 0) {
+    return '';
+  }
   
   return jobId.slice(0, length) + suffix;
 }

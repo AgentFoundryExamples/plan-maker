@@ -93,5 +93,15 @@ describe('textUtils', () => {
       const uuid = '550e8400-e29b-41d4-a716-446655440000';
       expect(truncateJobId(uuid)).toBe('550e8400...');
     });
+
+    it('handles zero-length truncation', () => {
+      const jobId = 'abc123';
+      expect(truncateJobId(jobId, 0)).toBe('');
+    });
+
+    it('handles negative-length truncation', () => {
+      const jobId = 'abc123';
+      expect(truncateJobId(jobId, -5)).toBe('');
+    });
   });
 });

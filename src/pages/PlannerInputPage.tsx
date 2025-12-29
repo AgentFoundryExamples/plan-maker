@@ -1,6 +1,7 @@
 import React, { useState, FormEvent, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCreatePlanAsync } from '@/api/hooks';
+import Breadcrumb from '@/components/Breadcrumb';
 import type { AsyncPlanJob } from '@/api/softwarePlannerClient';
 import type { PlanRequest } from '@/api/softwarePlanner/models/PlanRequest';
 import { getDraft, saveDraft, removeDraft } from '@/utils/localStorage';
@@ -168,11 +169,7 @@ const PlannerInputPage: React.FC = () => {
 
   return (
     <div className="container">
-      <nav className="breadcrumb" aria-label="Breadcrumb">
-        <Link to="/" className="breadcrumb-link">
-          <span aria-hidden="true">← </span>Home
-        </Link>
-      </nav>
+      <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Create Plan' }]} />
       <div className="page-header">
         <h1 className="page-title">Create Software Plan</h1>
         <p className="page-subtitle">
