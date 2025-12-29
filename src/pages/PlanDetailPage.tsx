@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { usePlanDetail, useSubmitClarifications, useClarificationStatus } from '@/api/hooks';
 import { getStatusMetadata } from '@/api/softwarePlannerClient';
 import { formatTimestamp } from '@/utils/dateUtils';
-import { truncateJobId } from '@/utils/textUtils';
+import { truncateJobId, formatQuestionCount, getQuestionText } from '@/utils/textUtils';
 import SpecAccordion from '@/components/SpecAccordion';
 import ClarifierPanel from '@/components/ClarifierPanel';
 import PlanTimeline from '@/components/PlanTimeline';
@@ -96,7 +96,7 @@ const PlanDetailPage: React.FC = () => {
       setSubmissionBanner({
         type: 'error',
         title: 'Incomplete Answers',
-        message: `Please answer all ${currentValidation.unansweredCount} remaining question${currentValidation.unansweredCount !== 1 ? 's' : ''} before submitting.`,
+        message: `Please answer all ${formatQuestionCount(currentValidation.unansweredCount, ' remaining')} before submitting.`,
       });
       return;
     }
@@ -337,7 +337,7 @@ const PlanDetailPage: React.FC = () => {
                   <div className="readiness-banner-content">
                     <h3 className="readiness-banner-title">Ready to Submit!</h3>
                     <p className="readiness-banner-message">
-                      All {validationResult.totalQuestions} question{validationResult.totalQuestions !== 1 ? 's have' : ' has'} been answered. 
+                      All {formatQuestionCount(validationResult.totalQuestions)} {validationResult.totalQuestions !== 1 ? 'have' : 'has'} been answered. 
                       You can now submit your clarifications for processing.
                     </p>
                   </div>
@@ -387,13 +387,13 @@ const PlanDetailPage: React.FC = () => {
                               </span>
                             ) : (
                               <span>
-                                ⚠ {validationResult.unansweredCount} question{validationResult.unansweredCount !== 1 ? 's' : ''} remaining
+                                ⚠ {formatQuestionCount(validationResult.unansweredCount, ' remaining')}
                               </span>
                             )}
                           </span>
                           {!validationResult.isValid && (
                             <span className="submission-helper-text">
-                              Please answer all questions before submitting.
+                              Please answer all {getQuestionText(validationResult.unansweredCount)} before submitting.
                             </span>
                           )}
                         </>
@@ -417,7 +417,7 @@ const PlanDetailPage: React.FC = () => {
                       aria-busy={submitClarifications.isPending}
                       title={
                         validationResult && !validationResult.isValid
-                          ? `Please answer ${validationResult.unansweredCount} remaining question${validationResult.unansweredCount !== 1 ? 's' : ''}`
+                          ? `Please answer ${formatQuestionCount(validationResult.unansweredCount, ' remaining')}`
                           : 'Submit your answers for clarification'
                       }
                     >

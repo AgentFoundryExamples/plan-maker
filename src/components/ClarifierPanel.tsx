@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSubmitClarifications, useClarificationStatus } from '@/api/hooks';
 import { getClarifierDebug, type ClarifierDebugResponse } from '@/api/specClarifierClient';
 import { formatTimestamp } from '@/utils/dateUtils';
+import { formatQuestionCount, getQuestionText } from '@/utils/textUtils';
 import StatusBadge from './StatusBadge';
 import type { PlanJobStatus } from '@/api/softwarePlannerClient';
 import type { PlanValidationResult } from '@/state/planAnswersStore';
@@ -252,10 +253,10 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
             <span className="clarifier-readiness-icon">⚠️</span>
             <div className="clarifier-readiness-content">
               <p className="clarifier-readiness-text">
-                <strong>Not ready to submit:</strong> {validationResult.unansweredCount} question{validationResult.unansweredCount !== 1 ? 's' : ''} still need{validationResult.unansweredCount === 1 ? 's' : ''} an answer.
+                <strong>Not ready to submit:</strong> {formatQuestionCount(validationResult.unansweredCount)} still {validationResult.unansweredCount === 1 ? 'needs' : 'need'} an answer.
               </p>
               <p className="clarifier-readiness-helper">
-                Please scroll up and answer all questions in the specifications before starting clarification.
+                Please scroll up and answer all {getQuestionText(validationResult.unansweredCount)} in the specifications before starting clarification.
               </p>
             </div>
           </div>
@@ -265,7 +266,7 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
             <span className="clarifier-readiness-icon">✓</span>
             <div className="clarifier-readiness-content">
               <p className="clarifier-readiness-text">
-                <strong>Ready to submit:</strong> All {validationResult.totalQuestions} question{validationResult.totalQuestions !== 1 ? 's have' : ' has'} been answered.
+                <strong>Ready to submit:</strong> All {formatQuestionCount(validationResult.totalQuestions)} {validationResult.totalQuestions !== 1 ? 'have' : 'has'} been answered.
               </p>
               <p className="clarifier-readiness-helper">
                 Click below to start the clarification process. Your answers will be processed and used to refine the specifications.

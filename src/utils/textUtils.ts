@@ -47,3 +47,34 @@ export function truncateJobId(jobId: string, length: number = 8, suffix: string 
   
   return jobId.slice(0, length) + suffix;
 }
+
+/**
+ * Pluralizes "question" based on count
+ * @param count - Number of questions
+ * @param suffix - Optional suffix to add (e.g., " remaining")
+ * @returns Formatted string with proper pluralization
+ * 
+ * @example
+ * getQuestionText(1) // "question"
+ * getQuestionText(2) // "questions"
+ * getQuestionText(1, " remaining") // "question remaining"
+ * getQuestionText(5, " remaining") // "questions remaining"
+ */
+export function getQuestionText(count: number, suffix = ''): string {
+  return `question${count !== 1 ? 's' : ''}${suffix}`;
+}
+
+/**
+ * Formats a count with question text and optional suffix
+ * @param count - Number of questions
+ * @param suffix - Optional suffix to add
+ * @returns Formatted string like "5 questions remaining"
+ * 
+ * @example
+ * formatQuestionCount(1) // "1 question"
+ * formatQuestionCount(5, " remaining") // "5 questions remaining"
+ */
+export function formatQuestionCount(count: number, suffix = ''): string {
+  return `${count} ${getQuestionText(count, suffix)}`;
+}
+
