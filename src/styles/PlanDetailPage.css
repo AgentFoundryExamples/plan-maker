@@ -16,16 +16,29 @@
    */
   --keyboard-offset: 0px;
 
-  /* Dual-pane layout configuration */
-  --dual-pane-enabled: true; /* Enable dual-pane layout on desktop */
-  --dual-pane-breakpoint: 768px; /* Minimum width for dual-pane layout */
-  --dual-pane-gap: var(--spacing-lg); /* Gap between list and detail panes */
-  --spec-list-width: 320px; /* Fixed width for spec list on desktop */
+  /* Three-pane fixed layout configuration */
+  --three-pane-enabled: true; /* Enable three-pane fixed layout on desktop */
+  --three-pane-breakpoint: 768px; /* Minimum width for three-pane layout */
+  --pane-gap: var(--spacing-lg); /* Gap between panes */
+  
+  /* Spec list pane configuration (left pane) */
+  --spec-list-width-percent: 35%; /* Spec list width as percentage (35-40%) */
   --spec-list-min-width: 280px; /* Minimum width for spec list */
-  --spec-list-max-width: 400px; /* Maximum width for spec list */
+  --spec-list-max-width: 450px; /* Maximum width for spec list */
+  
+  /* Spec detail pane configuration (right pane) */
+  --spec-detail-width-percent: 65%; /* Spec detail width as percentage (60-65%) */
   --detail-pane-min-width: 400px; /* Minimum width for detail pane */
-  --dual-pane-min-height: 500px; /* Minimum height for panes */
-  --dual-pane-max-height: calc(100vh - 200px); /* Maximum height (viewport - header/footer space) */
+  
+  /* Pane height configuration - fixed to viewport */
+  --pane-viewport-offset: 400px; /* Offset for header, metadata, and clarifier space - adjust as needed */
+  --pane-row-height: calc(100vh - var(--pane-viewport-offset)); /* Height for top row (viewport - offset) */
+  --pane-min-height: 400px; /* Minimum height for panes */
+  --pane-max-height: calc(100vh - 350px); /* Maximum height for panes */
+  
+  /* Clarifier panel configuration (bottom pane) */
+  --clarifier-panel-max-height: 500px; /* Maximum height for clarifier panel */
+  --clarifier-panel-min-height: 200px; /* Minimum height for clarifier panel */
 }
 
 /* Plan header with actions */
@@ -105,14 +118,14 @@
 }
 
 /* ===========================
-   DUAL-PANE LAYOUT STYLES
+   THREE-PANE FIXED LAYOUT STYLES
    =========================== */
 
-/* Container for dual-pane layout */
+/* Container for three-pane layout (spec list + spec detail in top row) */
 .dual-pane-container {
   display: flex;
   flex-direction: column;
-  gap: var(--dual-pane-gap);
+  gap: var(--pane-gap);
   width: 100%;
   /* No min-height on mobile to allow natural scrolling */
 }
@@ -124,13 +137,15 @@
   }
 }
 
-/* Desktop: Enable dual-pane layout */
+/* Desktop: Enable fixed two-pane layout (top row) */
 @media (min-width: 768px) {
   .dual-pane-container {
     display: grid;
-    grid-template-columns: var(--spec-list-width) 1fr;
-    min-height: var(--dual-pane-min-height);
-    max-height: var(--dual-pane-max-height);
+    grid-template-columns: var(--spec-list-width-percent) 1fr;
+    gap: var(--pane-gap);
+    height: max(var(--pane-min-height), var(--pane-row-height));
+    min-height: var(--pane-min-height);
+    max-height: var(--pane-max-height);
   }
 }
 
@@ -141,7 +156,7 @@
   background-color: var(--color-background);
   border-radius: var(--border-radius-md);
   border: var(--border-width-thin) solid var(--color-border);
-  overflow: visible;
+  overflow: hidden; /* Changed from visible to hidden for proper scrolling */
 }
 
 /* Mobile: Collapsible spec list */
@@ -151,6 +166,7 @@
     top: calc(var(--header-height) + var(--spacing-sm));
     z-index: calc(var(--z-index-sticky) - 1);
     box-shadow: var(--shadow-md);
+    overflow: visible; /* Allow collapse/expand animation on mobile */
   }
 
   /* When collapsed on mobile, only show header */
@@ -170,12 +186,19 @@
   }
 }
 
-/* Desktop: Make spec list scrollable */
+/* Desktop: Fixed height with scrollable content */
 @media (min-width: 768px) {
   .spec-list-pane {
+    height: 100%; /* Fill grid row height */
+    min-width: var(--spec-list-min-width);
+    max-width: var(--spec-list-max-width);
+  }
+  
+  /* Spec list items container scrolls */
+  .spec-list-pane .spec-list-items {
     overflow-y: auto;
     overflow-x: hidden;
-    height: 100%;
+    flex: 1; /* Take remaining space after header */
   }
 }
 
@@ -247,6 +270,7 @@
   flex-direction: column;
   padding: var(--spacing-sm);
   gap: var(--spacing-xs);
+  /* On desktop, this will be scrollable via parent .spec-list-pane styling */
 }
 
 /* Individual spec list item */
@@ -300,6 +324,12 @@
   line-height: var(--line-height-normal);
   margin: 0;
   word-wrap: break-word;
+  /* Text clamping to prevent overflow */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .spec-list-item-badge {
@@ -332,23 +362,29 @@
   background-color: var(--color-background);
   border-radius: var(--border-radius-md);
   border: var(--border-width-thin) solid var(--color-border);
-  /* Allow natural scrolling on mobile */
-  overflow: visible;
+  overflow: hidden; /* Changed from visible to hidden for proper scrolling */
 }
 
 /* Mobile: Natural scrolling, no fixed height */
 @media (max-width: 767px) {
   .spec-detail-pane {
     min-height: 300px;
+    overflow: visible; /* Allow natural page scroll on mobile */
   }
 }
 
-/* Desktop: Make detail pane scrollable within fixed height */
+/* Desktop: Fixed height with scrollable content */
 @media (min-width: 768px) {
   .spec-detail-pane {
+    height: 100%; /* Fill grid row height */
+    min-width: var(--detail-pane-min-width);
+  }
+  
+  /* Detail content scrolls */
+  .spec-detail-pane .spec-detail-content {
     overflow-y: auto;
     overflow-x: hidden;
-    height: 100%;
+    flex: 1; /* Take remaining space after header */
   }
 }
 
@@ -377,6 +413,12 @@
   font-weight: var(--font-weight-bold);
   color: var(--color-text);
   word-wrap: break-word;
+  /* Text clamping for long titles */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .spec-detail-number {
@@ -391,7 +433,8 @@
 .spec-detail-content {
   padding: var(--spacing-lg);
   flex: 1;
-  overflow-y: visible;
+  /* On mobile, overflow is visible for natural scrolling */
+  /* On desktop (set in media query above), overflow-y: auto for scrollable content */
 }
 
 /* Empty state for detail pane */
@@ -413,27 +456,27 @@
   line-height: var(--line-height-relaxed);
 }
 
-/* Custom scrollbar for dual panes */
+/* Custom scrollbar for dual panes on desktop */
 @media (min-width: 768px) {
-  .spec-list-pane::-webkit-scrollbar,
-  .spec-detail-pane::-webkit-scrollbar {
+  .spec-list-pane .spec-list-items::-webkit-scrollbar,
+  .spec-detail-pane .spec-detail-content::-webkit-scrollbar {
     width: 0.5rem;
   }
 
-  .spec-list-pane::-webkit-scrollbar-track,
-  .spec-detail-pane::-webkit-scrollbar-track {
+  .spec-list-pane .spec-list-items::-webkit-scrollbar-track,
+  .spec-detail-pane .spec-detail-content::-webkit-scrollbar-track {
     background: var(--color-surface);
     border-radius: var(--border-radius-sm);
   }
 
-  .spec-list-pane::-webkit-scrollbar-thumb,
-  .spec-detail-pane::-webkit-scrollbar-thumb {
+  .spec-list-pane .spec-list-items::-webkit-scrollbar-thumb,
+  .spec-detail-pane .spec-detail-content::-webkit-scrollbar-thumb {
     background: var(--color-border);
     border-radius: var(--border-radius-sm);
   }
 
-  .spec-list-pane::-webkit-scrollbar-thumb:hover,
-  .spec-detail-pane::-webkit-scrollbar-thumb:hover {
+  .spec-list-pane .spec-list-items::-webkit-scrollbar-thumb:hover,
+  .spec-detail-pane .spec-detail-content::-webkit-scrollbar-thumb:hover {
     background: var(--color-text-secondary);
   }
 }
@@ -665,6 +708,12 @@
   font-weight: var(--font-weight-semibold);
   color: var(--color-text);
   word-wrap: break-word;
+  /* Text clamping for long titles to prevent overflow in accordion */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Question Badge */
@@ -768,6 +817,8 @@
   color: var(--color-text);
   line-height: var(--line-height-relaxed);
   font-size: var(--font-size-base);
+  /* Allow long paragraphs to wrap gracefully */
+  overflow-wrap: break-word;
 }
 
 .spec-details .spec-section ul {
@@ -781,6 +832,8 @@
   color: var(--color-text);
   line-height: var(--line-height-normal);
   font-size: var(--font-size-base);
+  /* Allow long list items to wrap gracefully */
+  overflow-wrap: break-word;
 }
 
 /* Questions Section */
@@ -832,6 +885,8 @@
   min-width: 0;
   word-wrap: break-word;
   font-size: var(--font-size-base);
+  /* Allow long questions to wrap naturally */
+  overflow-wrap: break-word;
 }
 
 /* Answer Indicator */
@@ -1306,6 +1361,31 @@
 
 .clarifier-panel {
   padding: var(--spacing-md);
+  /* Desktop: Fixed max height with scrolling */
+  max-height: var(--clarifier-panel-max-height);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar for clarifier panel on desktop */
+@media (min-width: 768px) {
+  .clarifier-panel::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+
+  .clarifier-panel::-webkit-scrollbar-track {
+    background: var(--color-surface);
+    border-radius: var(--border-radius-sm);
+  }
+
+  .clarifier-panel::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: var(--border-radius-sm);
+  }
+
+  .clarifier-panel::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-secondary);
+  }
 }
 
 .clarifier-panel-heading {
