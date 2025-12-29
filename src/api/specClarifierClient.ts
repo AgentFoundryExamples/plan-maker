@@ -74,6 +74,7 @@ import type {
   JobStatusResponse,
 } from './specClarifier';
 import { JobStatus } from './specClarifier';
+import { validateUUID } from '../utils/validators';
 
 /**
  * Options for clarification operations
@@ -105,22 +106,19 @@ export async function clarifySpecs(
   );
 
   if (!response.ok) {
+    const errorText = await response.text();
     let errorMessage = `Request failed with status ${response.status}`;
     try {
-      const errorBody = await response.json();
-      // Only include sanitized error information
+      const errorBody = JSON.parse(errorText);
       if (errorBody.detail && typeof errorBody.detail === 'string') {
         errorMessage = errorBody.detail;
+      } else {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     } catch {
-      // If JSON parsing fails, try to get text
-      try {
-        const errorText = await response.text();
-        if (errorText) {
-          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
-        }
-      } catch {
-        // Ignore text parsing errors
+      // JSON parsing failed, use the raw text
+      if (errorText) {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     }
     throw new Error(`Failed to create clarification job: ${errorMessage}`);
@@ -131,14 +129,18 @@ export async function clarifySpecs(
 
 /**
  * Get the status and result of a clarification job
- * @param jobId - The job ID to check
+ * @param jobId - The job ID to check (must be valid UUID format)
  * @param fetchImpl - Optional custom fetch implementation
  * @returns Job status with optional result
+ * @throws Error if jobId is not a valid UUID or request fails
  */
 export async function getClarifierStatus(
   jobId: string,
   fetchImpl?: typeof fetch
 ): Promise<JobStatusResponse> {
+  // Validate UUID format before making request
+  validateUUID(jobId);
+  
   const config = getSpecClarifierConfig(fetchImpl);
 
   const response = await config.fetchImpl(
@@ -150,22 +152,19 @@ export async function getClarifierStatus(
   );
 
   if (!response.ok) {
+    const errorText = await response.text();
     let errorMessage = `Request failed with status ${response.status}`;
     try {
-      const errorBody = await response.json();
-      // Only include sanitized error information
+      const errorBody = JSON.parse(errorText);
       if (errorBody.detail && typeof errorBody.detail === 'string') {
         errorMessage = errorBody.detail;
+      } else {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     } catch {
-      // If JSON parsing fails, try to get text
-      try {
-        const errorText = await response.text();
-        if (errorText) {
-          errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
-        }
-      } catch {
-        // Ignore text parsing errors
+      // JSON parsing failed, use the raw text
+      if (errorText) {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
       }
     }
     throw new Error(`Failed to get clarification status: ${errorMessage}`);
@@ -235,4 +234,74 @@ export async function waitForClarification(
     `Clarification job did not complete within ${maxAttempts} attempts. ` +
       `Please check the job status or increase maxAttempts if needed.`
   );
+}
+
+/**
+ * Debug information response structure
+ */
+export interface ClarifierDebugResponse {
+  id: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  config?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+/**
+ * Get debug information for a clarification job
+ * 
+ * This endpoint provides detailed debug information for development and troubleshooting.
+ * It is disabled by default in production environments.
+ * 
+ * @param jobId - The job ID to get debug info for (must be valid UUID format)
+ * @param fetchImpl - Optional custom fetch implementation
+ * @returns Debug information for the job
+ * @throws Error with message "Debug endpoint is disabled" when endpoint returns 403
+ * @throws Error if jobId is not a valid UUID
+ * @throws Error for other failures (404, 422, network errors)
+ */
+export async function getClarifierDebug(
+  jobId: string,
+  fetchImpl?: typeof fetch
+): Promise<ClarifierDebugResponse> {
+  // Validate UUID format before making request
+  validateUUID(jobId);
+  
+  const config = getSpecClarifierConfig(fetchImpl);
+
+  const response = await config.fetchImpl(
+    `${config.baseUrl}/v1/clarifications/${jobId}/debug`,
+    {
+      method: 'GET',
+      headers: createHeaders(),
+    }
+  );
+
+  if (!response.ok) {
+    // Handle 403 specially - this means debug endpoint is disabled
+    if (response.status === 403) {
+      throw new Error('Debug endpoint is disabled');
+    }
+
+    const errorText = await response.text();
+    let errorMessage = `Request failed with status ${response.status}`;
+    try {
+      const errorBody = JSON.parse(errorText);
+      if (errorBody.detail && typeof errorBody.detail === 'string') {
+        errorMessage = errorBody.detail;
+      } else {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
+      }
+    } catch {
+      // JSON parsing failed, use the raw text
+      if (errorText) {
+        errorMessage = `${errorMessage}: ${errorText.substring(0, 100)}`;
+      }
+    }
+    throw new Error(`Failed to get clarification debug info: ${errorMessage}`);
+  }
+
+  return response.json();
 }

@@ -44,38 +44,43 @@ import {
   type AsyncPlanJob,
   type CreatePlanOptions,
   type PlanJobStatus,
+  type PlanJobsList,
 } from './softwarePlannerClient';
 import { clarifySpecs, getClarifierStatus, type ClarifyOptions } from './specClarifierClient';
 
 /**
- * Example hook stub for fetching a plan by ID.
+ * Hook for fetching a single plan job's status and result.
  *
- * @warning NOT IMPLEMENTED - This hook will throw an error if called.
- * Connect to the actual API client before using in production.
+ * This hook fetches plan job metadata including status, timestamps, and result/error.
+ * It automatically manages caching and provides refetch capability.
  *
  * Usage:
  * ```tsx
- * const { data, isLoading, error } = usePlan(planId);
+ * const { data, isLoading, error, refetch } = usePlan(planId);
+ *
+ * if (isLoading) return <Spinner />;
+ * if (error) return <ErrorMessage error={error} />;
+ * if (data?.result) {
+ *   return <PlanDetails plan={data.result} />;
+ * }
  * ```
  *
- * @param planId - The ID of the plan to fetch
+ * @param planId - The ID of the plan to fetch (must be valid UUID)
  * @param options - React Query options (excluding queryKey and queryFn)
  * @returns React Query result with data, loading state, and error
  */
 export function usePlan(
-  planId: string,
-  options?: Omit<UseQueryOptions<PlanResponse, Error>, 'queryKey' | 'queryFn'>
+  planId: string | undefined,
+  options?: Omit<UseQueryOptions<PlanJobStatus, Error>, 'queryKey' | 'queryFn'>
 ) {
-  return useQuery<PlanResponse, Error>({
+  return useQuery<PlanJobStatus, Error>({
     queryKey: ['plan', planId],
     queryFn: async () => {
-      // TODO: Replace with actual API call from softwarePlannerClient
-      // Example: return await getPlanById(planId);
-      throw new Error(
-        'usePlan is not yet implemented. Connect to softwarePlannerClient before using.'
-      );
+      // The enabled option ensures planId is defined when this runs
+      return getPlanById(planId!);
     },
     enabled: !!planId, // Only run if planId is truthy
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
     ...options,
   });
 }
@@ -115,11 +120,8 @@ export function usePlanDetail(
   return useQuery<PlanJobStatus, Error>({
     queryKey: ['plan', 'detail', planId],
     queryFn: async () => {
-      // Double-check planId exists even though enabled should prevent this
-      if (!planId) {
-        throw new Error('Plan ID is required but was not provided');
-      }
-      return getPlanById(planId);
+      // The enabled option ensures planId is defined when this runs
+      return getPlanById(planId!);
     },
     enabled: !!planId, // Only run if planId is truthy
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
@@ -128,33 +130,43 @@ export function usePlanDetail(
 }
 
 /**
- * Example hook stub for fetching multiple plans.
+ * Hook for fetching a paginated list of planning jobs.
  *
- * @warning NOT IMPLEMENTED - This hook will throw an error if called.
- * Connect to the actual API client before using in production.
+ * This hook provides a query interface for listing planning jobs.
+ * It does NOT automatically poll - use refetchInterval option if polling is needed.
+ * By default, this uses manual refresh only.
  *
  * Usage:
  * ```tsx
- * const { data: plans, isLoading } = usePlans({ limit: 10 });
+ * const { data: plans, isLoading, refetch } = usePlans({ limit: 50 });
+ *
+ * if (isLoading) return <Spinner />;
+ * return (
+ *   <div>
+ *     <button onClick={() => refetch()}>Refresh</button>
+ *     {plans?.jobs.map(job => <PlanCard key={job.job_id} job={job} />)}
+ *   </div>
+ * );
  * ```
  *
- * @param params - Query parameters (e.g., limit)
+ * @param params - Query parameters (e.g., limit, cursor)
  * @param options - React Query options (excluding queryKey and queryFn)
  * @returns React Query result with data, loading state, and error
  */
 export function usePlans(
-  params?: { limit?: number },
-  options?: Omit<UseQueryOptions<PlanResponse[], Error>, 'queryKey' | 'queryFn'>
+  params?: { limit?: number; cursor?: string },
+  options?: Omit<UseQueryOptions<PlanJobsList, Error>, 'queryKey' | 'queryFn'>
 ) {
-  return useQuery<PlanResponse[], Error>({
+  return useQuery<PlanJobsList, Error>({
     queryKey: ['plans', params],
     queryFn: async () => {
-      // TODO: Replace with actual API call from softwarePlannerClient
-      // Example: return await listPlans(params?.limit);
-      throw new Error(
-        'usePlans is not yet implemented. Connect to softwarePlannerClient before using.'
-      );
+      // React Query handles cancellation via AbortSignal
+      return listPlans(params);
     },
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    // No automatic refetching - manual only
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
     ...options,
   });
 }

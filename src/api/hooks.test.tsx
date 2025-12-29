@@ -723,7 +723,7 @@ describe('usePlansList', () => {
         },
       ],
       total: 1,
-      limit: 25,
+      limit: 100,
     };
 
     const mockFetch = vi.fn().mockResolvedValue({
@@ -763,7 +763,7 @@ describe('usePlansList', () => {
 
     expect(queryData).toEqual(mockResponse);
     expect(mockFetch).toHaveBeenCalledWith(
-      'http://localhost:8080/api/v1/plans?limit=25',
+      'http://localhost:8080/api/v1/plans?limit=100',
       expect.any(Object)
     );
   });
@@ -803,7 +803,7 @@ describe('usePlansList', () => {
 
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ jobs: [], total: 0, limit: 25 }),
+      json: async () => ({ jobs: [], total: 0, limit: 100 }),
     });
 
     function TestComponent() {
@@ -826,7 +826,7 @@ describe('usePlansList', () => {
     });
 
     expect(mockFetch).toHaveBeenCalledWith(
-      'http://localhost:8080/api/v1/plans?limit=25&cursor=next-page',
+      'http://localhost:8080/api/v1/plans?limit=100&cursor=next-page',
       expect.any(Object)
     );
   });
@@ -1150,7 +1150,7 @@ describe('useSubmitClarifications', () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 422,
-      json: async () => ({ detail: 'Invalid request payload' }),
+      text: async () => JSON.stringify({ detail: 'Invalid request payload' }),
     });
 
     let errorResult: Error | null = null;

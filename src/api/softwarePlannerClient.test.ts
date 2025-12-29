@@ -108,7 +108,7 @@ describe('Software Planner Client', () => {
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
-        json: async () => ({ error: 'Invalid request' }),
+        text: async () => JSON.stringify({ error: 'Invalid request' }),
       });
 
       await expect(
@@ -150,7 +150,7 @@ describe('Software Planner Client', () => {
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
-        json: async () => ({ error: 'Invalid request' }),
+        text: async () => JSON.stringify({ error: 'Invalid request' }),
       });
 
       await expect(
@@ -167,7 +167,7 @@ describe('Software Planner Client', () => {
       setupEnv();
 
       const mockResponse = {
-        job_id: 'test-job-id',
+        job_id: '550e8400-e29b-41d4-a716-446655440000',
         status: 'SUCCEEDED' as const,
         created_at: '2025-01-01T00:00:00Z',
         updated_at: '2025-01-01T00:00:05Z',
@@ -186,11 +186,11 @@ describe('Software Planner Client', () => {
         json: async () => mockResponse,
       });
 
-      const result = await getPlanById('test-job-id', mockFetch as any);
+      const result = await getPlanById('550e8400-e29b-41d4-a716-446655440000', mockFetch as any);
 
       expect(result).toEqual(mockResponse);
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8080/api/v1/plans/test-job-id',
+        'http://localhost:8080/api/v1/plans/550e8400-e29b-41d4-a716-446655440000',
         expect.objectContaining({
           method: 'GET',
         })
@@ -202,23 +202,39 @@ describe('Software Planner Client', () => {
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
-        json: async () => ({ error: 'Job not found' }),
+        text: async () => JSON.stringify({ error: 'Job not found' }),
       });
 
-      await expect(getPlanById('invalid-id', mockFetch as any)).rejects.toThrow(
-        /Failed to get plan status/
-      );
+      await expect(
+        getPlanById('550e8400-e29b-41d4-a716-446655440000', mockFetch as any)
+      ).rejects.toThrow(/Failed to get plan status/);
+    });
+
+    it('throws error when UUID format is invalid', async () => {
+      setupEnv();
+
+      await expect(
+        getPlanById('invalid-id', vi.fn() as any)
+      ).rejects.toThrow(/Invalid UUID format/);
+
+      await expect(
+        getPlanById('not-a-uuid', vi.fn() as any)
+      ).rejects.toThrow(/Invalid UUID format/);
+
+      await expect(
+        getPlanById('', vi.fn() as any)
+      ).rejects.toThrow(/Invalid UUID format/);
     });
   });
 
   describe('listPlans', () => {
-    it('successfully lists plans without limit (defaults to 25)', async () => {
+    it('successfully lists plans without limit (defaults to 100)', async () => {
       setupEnv();
 
       const mockResponse = {
         jobs: [],
         total: 0,
-        limit: 25,
+        limit: 100,
       };
 
       const mockFetch = vi.fn().mockResolvedValue({
@@ -230,31 +246,31 @@ describe('Software Planner Client', () => {
 
       expect(result).toEqual(mockResponse);
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8080/api/v1/plans?limit=25',
+        'http://localhost:8080/api/v1/plans?limit=100',
         expect.objectContaining({
           method: 'GET',
         })
       );
     });
 
-    it('includes limit parameter when provided and clamps to 25', async () => {
+    it('respects custom limit parameter', async () => {
       setupEnv();
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({ jobs: [], total: 0, limit: 25 }),
+        json: async () => ({ jobs: [], total: 0, limit: 50 }),
       });
 
       await listPlans({ limit: 50, fetchImpl: mockFetch as any });
 
-      // Should be clamped to 25
+      // Should pass through without clamping (up to 1000)
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8080/api/v1/plans?limit=25',
+        'http://localhost:8080/api/v1/plans?limit=50',
         expect.any(Object)
       );
     });
 
-    it('respects limit when less than 25', async () => {
+    it('respects limit when less than default', async () => {
       setupEnv();
 
       const mockFetch = vi.fn().mockResolvedValue({
@@ -275,7 +291,7 @@ describe('Software Planner Client', () => {
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({ jobs: [], total: 0, limit: 25 }),
+        json: async () => ({ jobs: [], total: 0, limit: 100 }),
       });
 
       await listPlans({
@@ -284,7 +300,7 @@ describe('Software Planner Client', () => {
       });
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8080/api/v1/plans?limit=25&cursor=next-page-token',
+        'http://localhost:8080/api/v1/plans?limit=100&cursor=next-page-token',
         expect.any(Object)
       );
     });
@@ -294,7 +310,7 @@ describe('Software Planner Client', () => {
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({ jobs: [], total: 0, limit: 25 }),
+        json: async () => ({ jobs: [], total: 0, limit: 100 }),
       });
 
       await listPlans({
@@ -304,7 +320,7 @@ describe('Software Planner Client', () => {
 
       // Empty cursor should not be sent
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:8080/api/v1/plans?limit=25',
+        'http://localhost:8080/api/v1/plans?limit=100',
         expect.any(Object)
       );
     });
@@ -314,12 +330,48 @@ describe('Software Planner Client', () => {
 
       const mockFetch = vi.fn().mockResolvedValue({
         ok: false,
-        json: async () => ({ error: 'Server error' }),
+        text: async () => JSON.stringify({ error: 'Server error' }),
       });
 
       await expect(listPlans({ fetchImpl: mockFetch as any })).rejects.toThrow(
         /Failed to list plans/
       );
+    });
+
+    it('throws error when limit is less than 1', async () => {
+      setupEnv();
+
+      await expect(
+        listPlans({ limit: 0, fetchImpl: vi.fn() as any })
+      ).rejects.toThrow(/Invalid limit: 0/);
+
+      await expect(
+        listPlans({ limit: -5, fetchImpl: vi.fn() as any })
+      ).rejects.toThrow(/Invalid limit: -5/);
+    });
+
+    it('throws error when limit is greater than 1000', async () => {
+      setupEnv();
+
+      await expect(
+        listPlans({ limit: 1001, fetchImpl: vi.fn() as any })
+      ).rejects.toThrow(/Invalid limit: 1001/);
+
+      await expect(
+        listPlans({ limit: 5000, fetchImpl: vi.fn() as any })
+      ).rejects.toThrow(/Invalid limit: 5000/);
+    });
+
+    it('throws error when limit is not a valid number', async () => {
+      setupEnv();
+
+      await expect(
+        listPlans({ limit: NaN, fetchImpl: vi.fn() as any })
+      ).rejects.toThrow(/Invalid limit/);
+
+      await expect(
+        listPlans({ limit: Infinity, fetchImpl: vi.fn() as any })
+      ).rejects.toThrow(/Invalid limit/);
     });
   });
 
@@ -332,6 +384,7 @@ describe('Software Planner Client', () => {
         description: 'Job is waiting to be processed',
         color: 'var(--color-info)',
         icon: 'clock',
+        progress: 0,
       });
     });
 
@@ -343,6 +396,7 @@ describe('Software Planner Client', () => {
         description: 'Job is currently being processed',
         color: 'var(--color-warning)',
         icon: 'spinner',
+        progress: 50,
       });
     });
 
@@ -354,6 +408,7 @@ describe('Software Planner Client', () => {
         description: 'Job completed successfully',
         color: 'var(--color-success)',
         icon: 'check',
+        progress: 100,
       });
     });
 
@@ -365,6 +420,7 @@ describe('Software Planner Client', () => {
         description: 'Job failed to complete',
         color: 'var(--color-danger)',
         icon: 'error',
+        progress: 100,
       });
     });
 
@@ -376,14 +432,8 @@ describe('Software Planner Client', () => {
         description: 'Status: UNKNOWN_STATUS',
         color: 'var(--color-text-secondary)',
         icon: 'question',
+        progress: 0,
       });
-    });
-
-    it('PLANNER_STATUS_MAP contains all known statuses', () => {
-      expect(PLANNER_STATUS_MAP).toHaveProperty('QUEUED');
-      expect(PLANNER_STATUS_MAP).toHaveProperty('RUNNING');
-      expect(PLANNER_STATUS_MAP).toHaveProperty('SUCCEEDED');
-      expect(PLANNER_STATUS_MAP).toHaveProperty('FAILED');
     });
   });
 });
