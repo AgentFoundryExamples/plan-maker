@@ -16,6 +16,338 @@ A Vite-powered React + TypeScript application for creating and managing software
 - 🔄 React Query for intelligent data fetching and caching
 - 🗺️ TypeScript path aliases for cleaner imports
 
+## Design System
+
+Plan Maker uses a comprehensive design system built on CSS custom properties (CSS variables) for consistent, maintainable, and themeable UI components.
+
+### Design Tokens
+
+Design tokens are defined in `src/styles/theme.css` and organized into semantic categories:
+
+#### Color Tokens
+
+**Primary Colors** - Brand and interactive elements:
+```css
+var(--color-primary)         /* #0066cc - Primary brand color */
+var(--color-primary-hover)   /* Hover state */
+var(--color-primary-light)   /* Light background variant */
+```
+
+**Semantic Status Colors** - WCAG AA compliant:
+```css
+var(--color-success)   /* Green for success states */
+var(--color-warning)   /* Orange for warning states */
+var(--color-error)     /* Red for error states */
+var(--color-info)      /* Blue for informational states */
+```
+
+**Surface Colors**:
+```css
+var(--color-background)      /* Page background */
+var(--color-surface)         /* Card/panel surfaces */
+var(--color-text)            /* Primary text */
+var(--color-text-secondary)  /* Secondary text */
+var(--color-border)          /* Borders and dividers */
+```
+
+#### Spacing Tokens
+
+Mobile-first spacing scale based on 4px increments:
+```css
+var(--spacing-xs)   /* 4px - minimal spacing */
+var(--spacing-sm)   /* 8px - compact spacing */
+var(--spacing-md)   /* 16px - standard spacing */
+var(--spacing-lg)   /* 24px - comfortable spacing */
+var(--spacing-xl)   /* 32px - generous spacing */
+var(--spacing-2xl)  /* 48px - section spacing */
+```
+
+#### Typography Tokens
+
+**Font Families**:
+```css
+var(--font-family-base)  /* System font stack */
+var(--font-family-mono)  /* Monospace font stack */
+```
+
+**Font Sizes** - Responsive scale:
+```css
+var(--font-size-xs)    /* 12px - captions, labels */
+var(--font-size-sm)    /* 14px - small text */
+var(--font-size-base)  /* 16px - body text */
+var(--font-size-lg)    /* 18px - emphasized text */
+var(--font-size-xl)    /* 20px - h5, subheadings */
+var(--font-size-2xl)   /* 24px - h3, h4 */
+var(--font-size-3xl)   /* 30px - h2 */
+var(--font-size-4xl)   /* 36px - h1 */
+```
+
+**Font Weights**:
+```css
+var(--font-weight-normal)     /* 400 */
+var(--font-weight-medium)     /* 500 */
+var(--font-weight-semibold)   /* 600 */
+var(--font-weight-bold)       /* 700 */
+```
+
+#### Layout Tokens
+
+**Border Radius**:
+```css
+var(--border-radius-sm)   /* 4px - subtle rounding */
+var(--border-radius-md)   /* 8px - standard rounding */
+var(--border-radius-lg)   /* 12px - prominent rounding */
+```
+
+**Shadows**:
+```css
+var(--shadow-sm)   /* Subtle elevation */
+var(--shadow-md)   /* Standard elevation */
+var(--shadow-lg)   /* Prominent elevation */
+```
+
+**Focus States** - For accessibility:
+```css
+var(--focus-ring-width)   /* 2px */
+var(--focus-ring-color)   /* Primary color */
+var(--focus-ring-offset)  /* 2px */
+```
+
+#### Motion Tokens
+
+**Durations**:
+```css
+var(--transition-duration-fast)   /* 150ms - instant feedback */
+var(--transition-duration-base)   /* 200ms - standard transitions */
+var(--transition-duration-slow)   /* 300ms - deliberate transitions */
+```
+
+**Easing Functions**:
+```css
+var(--transition-timing-ease-in-out)  /* Smooth transitions */
+var(--transition-timing-ease-out)     /* Natural deceleration */
+```
+
+**Common Transitions**:
+```css
+var(--transition-colors)      /* For color changes */
+var(--transition-transform)   /* For transforms */
+var(--transition-opacity)     /* For opacity changes */
+```
+
+### Component Styles
+
+Global component utilities are defined in `src/styles/global.css`:
+
+#### Buttons
+
+```tsx
+// Primary button
+<button className="btn btn-primary">Save</button>
+
+// Secondary button
+<button className="btn btn-secondary">Cancel</button>
+
+// Success/Danger variants
+<button className="btn btn-success">Confirm</button>
+<button className="btn btn-danger">Delete</button>
+
+// Sizes
+<button className="btn btn-sm">Small</button>
+<button className="btn btn-lg">Large</button>
+```
+
+#### Form Inputs
+
+Inputs automatically inherit design tokens:
+```tsx
+<input type="text" placeholder="Enter text..." />
+<textarea placeholder="Enter long text..."></textarea>
+
+// Error state
+<input type="text" className="input-error" />
+```
+
+#### Cards
+
+```tsx
+<div className="card">
+  <div className="card-header">
+    <h3>Card Title</h3>
+  </div>
+  <div className="card-body">
+    Card content goes here
+  </div>
+</div>
+```
+
+#### Badges
+
+```tsx
+<span className="badge badge-primary">New</span>
+<span className="badge badge-success">Active</span>
+<span className="badge badge-warning">Pending</span>
+<span className="badge badge-error">Failed</span>
+```
+
+#### Status Messages
+
+```tsx
+<div className="error">Error message</div>
+<div className="success">Success message</div>
+<div className="warning">Warning message</div>
+<div className="info">Info message</div>
+```
+
+### Usage Guidelines
+
+#### Using Tokens in CSS
+
+Always prefer design tokens over hard-coded values:
+
+```css
+/* ❌ Avoid hard-coded values */
+.my-component {
+  padding: 16px;
+  color: #666;
+  border-radius: 8px;
+}
+
+/* ✅ Use design tokens */
+.my-component {
+  padding: var(--spacing-md);
+  color: var(--color-text-secondary);
+  border-radius: var(--border-radius-md);
+}
+```
+
+#### Responsive Design
+
+Design tokens automatically adjust for different screen sizes:
+
+```css
+/* Spacing tokens increase on desktop (768px+) */
+.container {
+  padding: var(--spacing-lg);  /* 24px on mobile, 32px on desktop */
+}
+```
+
+#### Component-Level Overrides
+
+When you need component-specific adjustments, use CSS variables for configurability:
+
+```css
+:root {
+  --my-component-padding: var(--spacing-md);
+  --my-component-color: var(--color-primary);
+}
+
+.my-component {
+  padding: var(--my-component-padding);
+  color: var(--my-component-color);
+}
+```
+
+### Extending the Design System
+
+#### Adding New Tokens
+
+1. Define new tokens in `src/styles/theme.css`:
+
+```css
+:root {
+  /* Add to appropriate category */
+  --color-accent: #ff6b6b;
+  --spacing-3xl: 4rem;
+}
+```
+
+2. Document the token with an inline comment
+3. Update this README with the new token
+
+#### Creating Custom Components
+
+When creating new components:
+
+1. **Use existing utilities first** - Check if `.btn`, `.card`, `.badge` etc. meet your needs
+2. **Compose from tokens** - Build new styles using design tokens
+3. **Follow naming conventions** - Use BEM-style naming for clarity
+4. **Add to global.css** - If the component is reusable across pages
+
+Example:
+```css
+/* src/styles/global.css */
+.alert {
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  border: var(--border-width-thin) solid;
+  transition: var(--transition-colors);
+}
+
+.alert-warning {
+  background-color: var(--color-warning-light);
+  border-color: var(--color-warning);
+  color: var(--color-text);
+}
+```
+
+### Theming Support
+
+The design system is built to support theming:
+
+#### Prerequisites for Theming
+
+- All colors are defined as CSS variables
+- No hard-coded color values in components (except dynamic inline styles from data)
+- Color variables maintain semantic naming (primary, success, error, etc.)
+
+#### Future Theme Implementation
+
+To add theme switching (e.g., dark mode):
+
+1. Create theme variants in theme.css:
+
+```css
+/* Light theme (default) */
+:root {
+  --color-background: #ffffff;
+  --color-text: #1a1a1a;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --color-background: #1a1a1a;
+  --color-text: #f5f5f5;
+}
+```
+
+2. Toggle theme via JavaScript:
+
+```typescript
+document.documentElement.setAttribute('data-theme', 'dark');
+```
+
+3. Persist theme preference in localStorage
+
+### Accessibility
+
+All design tokens follow accessibility best practices:
+
+- **WCAG AA Contrast** - All text/background color combinations meet WCAG AA requirements (4.5:1 for normal text, 3:1 for large text)
+- **Focus Indicators** - Visible focus rings on all interactive elements
+- **Touch Targets** - Minimum 44x44px touch targets on mobile
+- **Motion** - Respects `prefers-reduced-motion` where appropriate
+
+### Browser Support
+
+Design tokens use CSS custom properties, which are supported in:
+- Chrome/Edge 49+
+- Firefox 31+
+- Safari 9.1+
+- iOS Safari 9.3+
+
+For older browsers, tokens gracefully degrade to their fallback values.
+
 ## Getting Started
 
 ### Prerequisites

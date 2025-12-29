@@ -45,21 +45,21 @@
   --color-border-focus: var(--color-primary);
 
   /* Semantic status colors */
-  --color-success: #388e3c;
-  --color-success-light: rgba(56, 142, 60, 0.1);
-  --color-success-border: rgba(56, 142, 60, 0.3);
+  --color-success: #2e7d32;
+  --color-success-light: rgba(46, 125, 50, 0.1);
+  --color-success-border: rgba(46, 125, 50, 0.3);
   
-  --color-warning: #f57c00;
-  --color-warning-light: rgba(245, 124, 0, 0.1);
-  --color-warning-border: rgba(245, 124, 0, 0.3);
+  --color-warning: #e65100;
+  --color-warning-light: rgba(230, 81, 0, 0.1);
+  --color-warning-border: rgba(230, 81, 0, 0.3);
   
   --color-error: #d32f2f;
   --color-error-light: rgba(211, 47, 47, 0.1);
   --color-error-border: rgba(211, 47, 47, 0.3);
   
-  --color-info: #0288d1;
-  --color-info-light: rgba(2, 136, 209, 0.1);
-  --color-info-border: rgba(2, 136, 209, 0.3);
+  --color-info: #0277bd;
+  --color-info-light: rgba(2, 119, 189, 0.1);
+  --color-info-border: rgba(2, 119, 189, 0.3);
 
   /* Neutral status colors - used for non-critical states */
   --color-neutral: #757575;
