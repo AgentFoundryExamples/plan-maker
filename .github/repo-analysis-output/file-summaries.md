@@ -128,8 +128,8 @@ Total files: 48
 **Role:** implementation  
 **Role Justification:** general implementation file (default classification)  
 **Summary:** TypeScript core implementation  
-**Size:** 11.77 KB  
-**LOC:** 346  
+**Size:** 11.75 KB  
+**LOC:** 345  
 **TODOs/FIXMEs:** 0  
 
 ## src/api/softwarePlannerClient.ts
