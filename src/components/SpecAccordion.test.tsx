@@ -212,14 +212,14 @@ describe('SpecAccordion', () => {
     it('shows unanswered count badge in header', () => {
       renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
-      expect(screen.getByText('2 unanswered')).toBeInTheDocument();
-      expect(screen.getByText('1 unanswered')).toBeInTheDocument();
+      expect(screen.getByText(/2 unanswered/i)).toBeInTheDocument();
+      expect(screen.getByText(/1 unanswered/i)).toBeInTheDocument();
     });
 
     it('shows "No questions" badge for specs without questions', () => {
       renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
 
-      expect(screen.getByText('No questions')).toBeInTheDocument();
+      expect(screen.getByLabelText(/no questions/i)).toBeInTheDocument();
     });
 
     it('updates badge to "All answered" when all questions are answered', async () => {

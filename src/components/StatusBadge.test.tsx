@@ -50,7 +50,7 @@ describe('StatusBadge', () => {
         'aria-label',
         'Status: Failed - Job failed to complete'
       );
-      expect(badge).toHaveStyle({ backgroundColor: 'var(--color-danger)' });
+      expect(badge).toHaveStyle({ backgroundColor: 'var(--color-error)' });
     });
   });
 
@@ -100,7 +100,7 @@ describe('StatusBadge', () => {
         'aria-label',
         'Status: Failed - Clarification failed with an error'
       );
-      expect(badge).toHaveStyle({ backgroundColor: 'var(--color-danger)' });
+      expect(badge).toHaveStyle({ backgroundColor: 'var(--color-error)' });
     });
   });
 
@@ -111,7 +111,7 @@ describe('StatusBadge', () => {
       const badge = screen.getByRole('status');
       expect(badge).toHaveTextContent('Unknown');
       expect(badge).toHaveAttribute('aria-label', 'Status: Unknown - Status: UNKNOWN_STATUS');
-      expect(badge).toHaveStyle({ backgroundColor: 'var(--color-text-secondary)' });
+      expect(badge).toHaveStyle({ backgroundColor: 'var(--color-neutral)' });
     });
 
     it('handles empty status string', () => {

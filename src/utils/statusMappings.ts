@@ -58,61 +58,63 @@ export type ClarifierStatus = 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED';
 
 /**
  * Status mapping for Software Planner job statuses
+ * All colors map to shared palette tokens from theme.css
  */
 const PLANNER_STATUS_MAP: Record<PlannerStatus, Omit<StatusMetadata, 'progress'>> = {
   QUEUED: {
     label: 'Queued',
     description: 'Job is waiting to be processed',
     color: 'var(--color-info)',
-    icon: 'clock',
+    icon: '⏱️',
   },
   RUNNING: {
     label: 'Running',
     description: 'Job is currently being processed',
     color: 'var(--color-warning)',
-    icon: 'spinner',
+    icon: '⚙️',
   },
   SUCCEEDED: {
     label: 'Succeeded',
     description: 'Job completed successfully',
     color: 'var(--color-success)',
-    icon: 'check',
+    icon: '✓',
   },
   FAILED: {
     label: 'Failed',
     description: 'Job failed to complete',
-    color: 'var(--color-danger)',
-    icon: 'error',
+    color: 'var(--color-error)',
+    icon: '✗',
   },
 };
 
 /**
  * Status mapping for Spec Clarifier job statuses
+ * All colors map to shared palette tokens from theme.css
  */
 const CLARIFIER_STATUS_MAP: Record<ClarifierStatus, Omit<StatusMetadata, 'progress'>> = {
   PENDING: {
     label: 'Pending',
     description: 'Job is queued and waiting to start',
     color: 'var(--color-info)',
-    icon: 'clock',
+    icon: '⏱️',
   },
   RUNNING: {
     label: 'Running',
     description: 'Job is currently being clarified',
     color: 'var(--color-warning)',
-    icon: 'spinner',
+    icon: '⚙️',
   },
   SUCCESS: {
     label: 'Success',
     description: 'Clarification completed successfully',
     color: 'var(--color-success)',
-    icon: 'check',
+    icon: '✓',
   },
   FAILED: {
     label: 'Failed',
     description: 'Clarification failed with an error',
-    color: 'var(--color-danger)',
-    icon: 'error',
+    color: 'var(--color-error)',
+    icon: '✗',
   },
 };
 
@@ -174,8 +176,8 @@ export function getPlannerStatusMetadata(status: string): StatusMetadata {
   return {
     label: 'Unknown',
     description: `Status: ${status}`,
-    color: 'var(--color-text-secondary)',
-    icon: 'question',
+    color: 'var(--color-neutral)',
+    icon: '?',
     progress: 0,
   };
 }
@@ -198,9 +200,49 @@ export function getClarifierStatusMetadata(status: string): StatusMetadata {
   return {
     label: 'Unknown',
     description: `Status: ${status}`,
-    color: 'var(--color-text-secondary)',
-    icon: 'question',
+    color: 'var(--color-neutral)',
+    icon: '?',
     progress: 0,
+  };
+}
+
+/**
+ * Question status types for UI components
+ */
+export type QuestionStatus = 'unanswered' | 'answered' | 'complete';
+
+/**
+ * Get status metadata for question answer states
+ * Maps to shared palette tokens for consistency
+ * @param status - The question status
+ * @returns Status metadata with label, description, color, and icon
+ */
+export function getQuestionStatusMetadata(status: QuestionStatus): StatusMetadata {
+  const questionStatusMap: Record<QuestionStatus, Omit<StatusMetadata, 'progress'>> = {
+    unanswered: {
+      label: 'Unanswered',
+      description: 'This question needs an answer',
+      color: 'var(--color-warning)',
+      icon: '○',
+    },
+    answered: {
+      label: 'Answered',
+      description: 'This question has been answered',
+      color: 'var(--color-success)',
+      icon: '✓',
+    },
+    complete: {
+      label: 'Complete',
+      description: 'All questions answered',
+      color: 'var(--color-success)',
+      icon: '✓',
+    },
+  };
+
+  const base = questionStatusMap[status];
+  return {
+    ...base,
+    progress: status === 'complete' || status === 'answered' ? 100 : 0,
   };
 }
 

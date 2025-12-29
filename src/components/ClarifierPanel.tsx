@@ -2,8 +2,10 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSubmitClarifications, useClarificationStatus } from '@/api/hooks';
 import { getClarifierDebug, type ClarifierDebugResponse } from '@/api/specClarifierClient';
 import { formatTimestamp } from '@/utils/dateUtils';
+import { formatQuestionCount, getQuestionText } from '@/utils/textUtils';
 import StatusBadge from './StatusBadge';
 import type { PlanJobStatus } from '@/api/softwarePlannerClient';
+import type { PlanValidationResult } from '@/state/planAnswersStore';
 import { getClarifierJobId, setClarifierJobId } from '@/utils/clarifierStorage';
 
 /**
@@ -16,6 +18,8 @@ export interface ClarifierPanelProps {
   onClarificationCreated?: (jobId: string) => void;
   /** Optional CSS class name */
   className?: string;
+  /** Validation result from plan answers - used to show readiness state */
+  validationResult?: PlanValidationResult | null;
 }
 
 /**
@@ -46,6 +50,7 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
   planJob,
   onClarificationCreated,
   className = '',
+  validationResult = null,
 }) => {
   // Local state
   const [manualJobId, setManualJobId] = useState('');
@@ -243,12 +248,43 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
               : 'This plan has no specifications to clarify.'}
           </p>
         )}
+        {canClarify && validationResult && !validationResult.isValid && (
+          <div className="clarifier-readiness-message clarifier-not-ready" role="status">
+            <span className="clarifier-readiness-icon">⚠️</span>
+            <div className="clarifier-readiness-content">
+              <p className="clarifier-readiness-text">
+                <strong>Not ready to submit:</strong> {formatQuestionCount(validationResult.unansweredCount)} still {validationResult.unansweredCount === 1 ? 'needs' : 'need'} answers.
+              </p>
+              <p className="clarifier-readiness-helper">
+                Please scroll up and answer all {getQuestionText(validationResult.unansweredCount)} in the specifications before starting clarification.
+              </p>
+            </div>
+          </div>
+        )}
+        {canClarify && validationResult && validationResult.isValid && (
+          <div className="clarifier-readiness-message clarifier-ready" role="status" aria-live="polite">
+            <span className="clarifier-readiness-icon">✓</span>
+            <div className="clarifier-readiness-content">
+              <p className="clarifier-readiness-text">
+                <strong>Ready to submit:</strong> All {formatQuestionCount(validationResult.totalQuestions)} {validationResult.totalQuestions !== 1 ? 'have' : 'has'} been answered.
+              </p>
+              <p className="clarifier-readiness-helper">
+                Click below to start the clarification process. Your answers will be processed and used to refine the specifications.
+              </p>
+            </div>
+          </div>
+        )}
         <button
           type="button"
           className="btn btn-primary"
           onClick={handleStartClarification}
-          disabled={!canClarify || submitClarification.isPending}
+          disabled={!canClarify || submitClarification.isPending || (validationResult !== null && !validationResult.isValid)}
           aria-busy={submitClarification.isPending}
+          title={
+            validationResult && !validationResult.isValid
+              ? `Please answer ${formatQuestionCount(validationResult.unansweredCount, ' remaining')} before starting clarification`
+              : undefined
+          }
         >
           {submitClarification.isPending ? 'Creating...' : 'Start Clarification'}
         </button>
