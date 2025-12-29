@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
+import ThemeToggle from '@/components/ThemeToggle';
 import './AppLayout.css';
 
 const AppLayout: React.FC = () => {
@@ -36,6 +37,9 @@ const AppLayout: React.FC = () => {
                   </li>
                 </ul>
               </nav>
+              <div className="header-actions">
+                <ThemeToggle />
+              </div>
             </div>
           </div>
         </header>

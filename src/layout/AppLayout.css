@@ -41,6 +41,13 @@
   width: 100%;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-left: auto;
+}
+
 .app-title {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);

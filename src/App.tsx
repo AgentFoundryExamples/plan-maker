@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import '@/styles/global.css';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -8,6 +8,7 @@ import PlannerInputPage from '@/pages/PlannerInputPage';
 import PlansListPage from '@/pages/PlansListPage';
 import { PlanAnswersProvider } from '@/state/planAnswersStore';
 import { SubmissionMetadataProvider } from '@/state/submissionMetadataStore';
+import { initializeTheme } from '@/hooks/useTheme';
 
 // Code-split the heavy PlanDetailPage to reduce initial bundle size
 const PlanDetailPage = React.lazy(() => import('@/pages/PlanDetailPage'));
@@ -59,6 +60,11 @@ const router = createBrowserRouter([
 ]);
 
 const App: React.FC = () => {
+  // Initialize theme before first render to prevent flash
+  useEffect(() => {
+    initializeTheme();
+  }, []);
+
   return (
     <ErrorBoundary>
       <SubmissionMetadataProvider>
