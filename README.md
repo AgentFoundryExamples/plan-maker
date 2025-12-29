@@ -874,6 +874,76 @@ This guide covers:
 - API endpoint reference with request/response examples
 - Troubleshooting common issues
 
+## Copy and Tone Guidelines
+
+Plan Maker follows a concise, helpful, and action-oriented voice across all UI text:
+
+### Tone Principles
+
+1. **Concise**: Use fewer words to convey the same meaning. Avoid redundancy.
+   - ❌ "You haven't created any plans yet. Get started by creating your first software development plan."
+   - ✅ "Create your first software development plan to get started."
+
+2. **Helpful**: Provide clear next steps. Guide users to what they can do.
+   - ❌ "No plans found"
+   - ✅ "No Plans Yet" + actionable button "Create Plan"
+
+3. **Direct**: Use active voice and imperative mood for actions.
+   - ❌ "Click below to start the clarification process."
+   - ✅ "Start Clarification"
+
+4. **Specific**: Replace vague language with concrete examples.
+   - ❌ "Enter a description of your project"
+   - ✅ "Describe your software project. Example: Build a REST API for task management..."
+
+### Button Text
+
+- Use verb phrases: "Create Plan", "Check Status", "Refresh"
+- Avoid unnecessary articles: "Submit" not "Submit the Form"
+- Show loading states: "Creating..." instead of just disabling
+
+### Helper Text
+
+- One sentence when possible
+- Lead with the action, not the reason
+- ❌ "This field allows you to specify a model name. Leave empty to use the default."
+- ✅ "Specify a model name. Leave empty to use default."
+
+### Placeholders
+
+- Use concrete examples over abstract instructions
+- Keep under 80 characters when possible
+- ❌ "Enter your text here"
+- ✅ "gpt-4-turbo or claude-opus"
+
+### Empty States
+
+- State what's missing + provide an action
+- Avoid negative framing ("haven't", "no", "empty")
+- ❌ "You don't have any items"
+- ✅ "Create your first item to get started"
+
+### Error Messages
+
+- Explain what went wrong and how to fix it
+- Be specific about the validation requirement
+- ❌ "Invalid input"
+- ✅ "Description is required and cannot be empty"
+
+### Accessibility
+
+- All interactive elements have descriptive aria-labels
+- Status changes are announced via aria-live regions
+- Focus indicators are visible and consistent
+
+### Localization Considerations
+
+While the app is currently English-only, all copy is designed to:
+- Avoid idioms and colloquialisms
+- Use simple sentence structures
+- Allow for text expansion (German/French are ~30% longer)
+- Be screen-reader friendly with proper punctuation
+
 ## Browser Support
 
 - Modern browsers (Chrome, Firefox, Safari, Edge)
