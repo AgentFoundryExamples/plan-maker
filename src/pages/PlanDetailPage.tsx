@@ -1,10 +1,12 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { usePlanDetail, useSubmitClarifications, useClarificationStatus } from '@/api/hooks';
 import { getStatusMetadata } from '@/api/softwarePlannerClient';
 import { formatTimestamp } from '@/utils/dateUtils';
 import { truncateJobId, formatQuestionCount, getQuestionText } from '@/utils/textUtils';
 import SpecAccordion from '@/components/SpecAccordion';
+import SpecListPane from '@/components/SpecListPane';
+import SpecDetailPane from '@/components/SpecDetailPane';
 import ClarifierPanel from '@/components/ClarifierPanel';
 import PlanTimeline from '@/components/PlanTimeline';
 import Breadcrumb, { type BreadcrumbItem } from '@/components/Breadcrumb';
@@ -17,6 +19,7 @@ import '@/styles/PlanDetailPage.css';
 
 const PlanDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data, isLoading, error, refetch } = usePlanDetail(id);
   const { validateAnswers, getAnswer } = usePlanAnswers();
   const { getSubmission, setSubmission } = useSubmissionMetadata();
@@ -27,6 +30,69 @@ const PlanDetailPage: React.FC = () => {
     message: string;
   } | null>(null);
   const [clarifierJobIdForTimeline, setClarifierJobIdForTimeline] = useState<string | null>(null);
+  
+  // Dual-pane layout: Track viewport size to determine layout mode
+  // Initialize in useEffect to avoid hydration issues with SSR
+  const [isDesktop, setIsDesktop] = useState(false);
+  
+  // Dual-pane layout: Selected spec index (synced with URL)
+  const [selectedSpecIndex, setSelectedSpecIndex] = useState<number | null>(null);
+  
+  // Track if spec selection has been initialized to prevent race conditions
+  const [isSpecInitialized, setIsSpecInitialized] = useState(false);
+
+  // Initialize viewport detection after mount
+  useEffect(() => {
+    setIsDesktop(window.innerWidth >= 768);
+  }, []);
+
+  // Handle viewport resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Initialize selected spec from URL or default
+  useEffect(() => {
+    if (!data?.result?.specs || isSpecInitialized) return;
+    
+    const specs = data.result.specs;
+    if (specs.length === 0) return;
+
+    // Try to get spec index from URL
+    const specParam = searchParams.get('spec');
+    if (specParam !== null) {
+      const paramIndex = parseInt(specParam, 10);
+      if (!isNaN(paramIndex) && paramIndex >= 0 && paramIndex < specs.length) {
+        setSelectedSpecIndex(paramIndex);
+        setIsSpecInitialized(true);
+        return;
+      }
+    }
+
+    // Default: Select first spec with unanswered questions, or first spec
+    const validationResult = validateAnswers(data.job_id, specs);
+    if (validationResult.errors.length > 0) {
+      // Find first spec with unanswered questions
+      const firstErrorSpecIndex = validationResult.errors[0].specIndex;
+      setSelectedSpecIndex(firstErrorSpecIndex);
+      setSearchParams({ spec: firstErrorSpecIndex.toString() }, { replace: true });
+    } else {
+      // No errors, select first spec
+      setSelectedSpecIndex(0);
+      setSearchParams({ spec: '0' }, { replace: true });
+    }
+    setIsSpecInitialized(true);
+  }, [data, searchParams, setSearchParams, validateAnswers, isSpecInitialized]);
+
+  // Handle spec selection
+  const handleSelectSpec = useCallback((index: number) => {
+    setSelectedSpecIndex(index);
+    setSearchParams({ spec: index.toString() }, { replace: false });
+  }, [setSearchParams]);
 
   // Load stored clarifier job ID for timeline
   React.useEffect(() => {
@@ -323,12 +389,51 @@ const PlanDetailPage: React.FC = () => {
             </div>
           ) : (
             <>
-              <SpecAccordion 
-                planId={data.job_id} 
-                specs={specs}
-                validationResult={validationResult || undefined}
-                showValidationErrors={showValidationErrors}
-              />
+              {/* Dual-pane layout for desktop, accordion for mobile */}
+              {isDesktop ? (
+                <div className="dual-pane-container">
+                  <SpecListPane
+                    specs={specs}
+                    selectedIndex={selectedSpecIndex}
+                    onSelectSpec={handleSelectSpec}
+                    getUnansweredCount={(spec, index) => {
+                      if (!validationResult) return 0;
+                      const questions = spec.open_questions || [];
+                      if (questions.length === 0) return 0;
+                      return validationResult.errors.filter(
+                        (err) => err.specIndex === index
+                      ).length;
+                    }}
+                  />
+                  <SpecDetailPane
+                    spec={selectedSpecIndex !== null ? specs[selectedSpecIndex] : null}
+                    specIndex={selectedSpecIndex}
+                    planId={data.job_id}
+                    hasValidationError={(specIndex, questionIndex) => {
+                      if (!showValidationErrors || !validationResult) return false;
+                      return validationResult.errors.some(
+                        (err) =>
+                          err.specIndex === specIndex && err.questionIndex === questionIndex
+                      );
+                    }}
+                    getValidationError={(specIndex, questionIndex) => {
+                      if (!showValidationErrors || !validationResult) return '';
+                      const error = validationResult.errors.find(
+                        (err) =>
+                          err.specIndex === specIndex && err.questionIndex === questionIndex
+                      );
+                      return error?.error || '';
+                    }}
+                  />
+                </div>
+              ) : (
+                <SpecAccordion
+                  planId={data.job_id}
+                  specs={specs}
+                  validationResult={validationResult || undefined}
+                  showValidationErrors={showValidationErrors}
+                />
+              )}
 
               {/* Readiness Banner - Show when all questions are answered */}
               {hasQuestions && validationResult && validationResult.isValid && (

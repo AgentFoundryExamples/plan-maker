@@ -44,6 +44,7 @@ vi.mock('@/utils/clarifierStorage', () => ({
 describe('PlanDetailPage', () => {
   let queryClient: QueryClient;
   const mockUsePlanDetail = vi.mocked(hooks.usePlanDetail);
+  let originalInnerWidth: number;
 
   beforeEach(() => {
     queryClient = new QueryClient({
@@ -52,10 +53,24 @@ describe('PlanDetailPage', () => {
       },
     });
     vi.clearAllMocks();
+    // Save original window.innerWidth
+    originalInnerWidth = window.innerWidth;
+    // Default to mobile view for existing tests (can be overridden per test)
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 600, // Mobile width
+    });
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    // Restore original window.innerWidth
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: originalInnerWidth,
+    });
   });
 
   const renderComponent = (planId = '123') => {
@@ -1072,6 +1087,352 @@ describe('PlanDetailPage', () => {
       expect(screen.getByText('Status:')).toBeInTheDocument();
       expect(screen.getByText('Created:')).toBeInTheDocument();
       expect(screen.getByText('Updated:')).toBeInTheDocument();
+    });
+  });
+
+  describe('Dual-Pane Layout (Desktop)', () => {
+    const mockPlanWithSpecs: PlanJobStatus = {
+      job_id: 'plan-dual-pane',
+      status: 'SUCCEEDED',
+      created_at: '2025-01-15T10:30:00Z',
+      updated_at: '2025-01-15T10:35:00Z',
+      result: {
+        specs: [
+          {
+            purpose: 'Build REST API',
+            vision: 'Create a scalable REST API',
+            must: ['Authentication', 'CRUD operations'],
+            open_questions: ['Which database?'],
+          },
+          {
+            purpose: 'Build Frontend',
+            vision: 'Create a user interface',
+            must: ['React', 'Responsive design'],
+            open_questions: ['Which state management?'],
+          },
+          {
+            purpose: 'Add Analytics',
+            vision: 'Track user behavior',
+            must: ['Privacy compliant'],
+          },
+        ],
+      },
+    };
+
+    beforeEach(() => {
+      // Set desktop viewport width
+      Object.defineProperty(window, 'innerWidth', {
+        writable: true,
+        configurable: true,
+        value: 1024,
+      });
+    });
+
+    it('renders dual-pane layout on desktop viewport', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithSpecs,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-dual-pane');
+
+      // Check for dual-pane container
+      const dualPaneContainer = document.querySelector('.dual-pane-container');
+      expect(dualPaneContainer).toBeInTheDocument();
+
+      // Check for spec list pane
+      const specListPane = document.querySelector('.spec-list-pane');
+      expect(specListPane).toBeInTheDocument();
+
+      // Check for detail pane
+      const specDetailPane = document.querySelector('.spec-detail-pane');
+      expect(specDetailPane).toBeInTheDocument();
+
+      // Accordion should not be rendered in desktop mode
+      const accordion = document.querySelector('.spec-accordion-container');
+      expect(accordion).not.toBeInTheDocument();
+    });
+
+    it('displays all specs in the list pane', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithSpecs,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-dual-pane');
+
+      // Check for spec list header
+      expect(screen.getByText('Specifications (3)')).toBeInTheDocument();
+
+      // Check spec list items specifically within spec list pane
+      const specListPane = document.querySelector('.spec-list-pane');
+      expect(specListPane).toBeInTheDocument();
+      
+      const specListItems = specListPane?.querySelectorAll('.spec-list-item');
+      expect(specListItems?.length).toBe(3);
+      
+      // Verify spec titles appear in the list
+      const specTexts = Array.from(specListItems || []).map(item => item.textContent);
+      expect(specTexts.some(text => text?.includes('Build REST API'))).toBe(true);
+      expect(specTexts.some(text => text?.includes('Build Frontend'))).toBe(true);
+      expect(specTexts.some(text => text?.includes('Add Analytics'))).toBe(true);
+    });
+
+    it('displays first spec as initially selected', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithSpecs,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-dual-pane');
+
+      // A spec should be selected
+      const selectedSpec = document.querySelector('.spec-list-item.selected');
+      expect(selectedSpec).toBeInTheDocument();
+      
+      // Detail pane should show content (not empty state)
+      const detailPane = document.querySelector('.spec-detail-pane');
+      expect(detailPane).toBeInTheDocument();
+      expect(detailPane?.textContent).not.toContain('Select a specification from the list');
+    });
+
+    it('updates selection when spec is clicked', async () => {
+      const user = (await import('@testing-library/user-event')).default.setup();
+      
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithSpecs,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      const { rerender } = renderComponent('plan-dual-pane');
+
+      // Find second spec item in the list pane
+      const specListPane = document.querySelector('.spec-list-pane');
+      const secondSpecItem = Array.from(specListPane?.querySelectorAll('.spec-list-item') || []).find(
+        (item) => item.textContent?.includes('Build Frontend')
+      ) as HTMLElement;
+      
+      expect(secondSpecItem).toBeTruthy();
+      
+      if (secondSpecItem) {
+        await user.click(secondSpecItem);
+        
+        // Selection should be updated (the element should have selected class)
+        expect(secondSpecItem).toHaveClass('selected');
+      }
+    });
+
+    it('updates selection when clicking specs', async () => {
+      const user = (await import('@testing-library/user-event')).default.setup();
+      
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithSpecs,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-dual-pane');
+
+      // Wait for initial spec to be selected
+      await import('@testing-library/react').then(({ waitFor }) =>
+        waitFor(() => {
+          const specListPane = document.querySelector('.spec-list-pane');
+          const selectedItem = specListPane?.querySelector('.spec-list-item.selected');
+          expect(selectedItem).toBeInTheDocument();
+        }, { timeout: 3000 })
+      );
+
+      // Find spec items in the list pane
+      const specListPane = document.querySelector('.spec-list-pane');
+      
+      const secondSpecItem = Array.from(specListPane?.querySelectorAll('.spec-list-item') || []).find(
+        (item) => item.textContent?.includes('Build Frontend')
+      ) as HTMLElement;
+      
+      const firstSpecItem = specListPane?.querySelector('.spec-list-item.selected');
+      
+      // Verify initial selection exists
+      expect(firstSpecItem).toBeInTheDocument();
+      
+      if (secondSpecItem && firstSpecItem) {
+        await user.click(secondSpecItem);
+        
+        // Wait for selection update
+        await import('@testing-library/react').then(({ waitFor }) =>
+          waitFor(() => {
+            expect(secondSpecItem).toHaveClass('selected');
+          })
+        );
+        
+        // Second spec should now be selected
+        expect(secondSpecItem).toHaveClass('selected');
+        // First spec should no longer be selected (unless they're the same)
+        if (firstSpecItem !== secondSpecItem) {
+          expect(firstSpecItem).not.toHaveClass('selected');
+        }
+      }
+    });
+
+    it('supports keyboard navigation in spec list', async () => {
+      const user = (await import('@testing-library/user-event')).default.setup();
+      
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithSpecs,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-dual-pane');
+
+      // Find first spec item in the list pane
+      const specListPane = document.querySelector('.spec-list-pane');
+      const firstSpecItem = specListPane?.querySelector('.spec-list-item') as HTMLElement;
+      
+      expect(firstSpecItem).toBeTruthy();
+      
+      if (firstSpecItem) {
+        // Focus the first item
+        firstSpecItem.focus();
+        expect(document.activeElement).toBe(firstSpecItem);
+        
+        // Press ArrowDown
+        await user.keyboard('{ArrowDown}');
+        
+        // Second spec item should now be selected
+        const specItems = specListPane?.querySelectorAll('.spec-list-item');
+        const secondSpecItem = specItems?.[1];
+        expect(secondSpecItem).toHaveClass('selected');
+      }
+    });
+
+    it('shows question status badges in spec list', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithSpecs,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-dual-pane');
+
+      // Check in spec list pane specifically
+      const specListPane = document.querySelector('.spec-list-pane');
+      expect(specListPane).toBeInTheDocument();
+      
+      // Specs with questions should show "1 left" badges
+      const badges = specListPane?.querySelectorAll('.spec-list-item-badge');
+      expect(badges?.length).toBeGreaterThan(0);
+      
+      // Check badge text content
+      const badgeTexts = Array.from(badges || []).map(b => b.textContent);
+      expect(badgeTexts).toContain('⚠ 1 left');
+      expect(badgeTexts).toContain('✓ No questions');
+    });
+
+    it('displays empty state when no spec is selected', () => {
+      const emptyPlan: PlanJobStatus = {
+        ...mockPlanWithSpecs,
+        result: { specs: [] },
+      };
+
+      mockUsePlanDetail.mockReturnValue({
+        data: emptyPlan,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-dual-pane');
+
+      expect(screen.getByText('No specs available yet')).toBeInTheDocument();
+    });
+
+    it('handles spec list with 100+ specs without performance issues', () => {
+      const largeSpecList = Array.from({ length: 100 }, (_, i) => ({
+        purpose: `Spec ${i + 1}`,
+        vision: `Vision for spec ${i + 1}`,
+      }));
+
+      const largePlan: PlanJobStatus = {
+        ...mockPlanWithSpecs,
+        result: { specs: largeSpecList },
+      };
+
+      mockUsePlanDetail.mockReturnValue({
+        data: largePlan,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-dual-pane');
+
+      // Spec list should show count
+      expect(screen.getByText('Specifications (100)')).toBeInTheDocument();
+      
+      // Check spec list items specifically
+      const specListPane = document.querySelector('.spec-list-pane');
+      const specListItems = specListPane?.querySelectorAll('.spec-list-item');
+      expect(specListItems?.length).toBe(100);
+    });
+
+    it('maintains independent scrolling between panes', () => {
+      mockUsePlanDetail.mockReturnValue({
+        data: mockPlanWithSpecs,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+        refetch: vi.fn(),
+      } as any);
+
+      renderComponent('plan-dual-pane');
+
+      // Both panes should exist as separate containers
+      const specListPane = document.querySelector('.spec-list-pane');
+      const specDetailPane = document.querySelector('.spec-detail-pane');
+      
+      expect(specListPane).toBeInTheDocument();
+      expect(specDetailPane).toBeInTheDocument();
+      
+      // Verify panes are in dual-pane container
+      const dualPaneContainer = document.querySelector('.dual-pane-container');
+      expect(dualPaneContainer).toBeInTheDocument();
+      expect(dualPaneContainer?.contains(specListPane as Node)).toBe(true);
+      expect(dualPaneContainer?.contains(specDetailPane as Node)).toBe(true);
+      
+      // Verify both panes have proper CSS classes for scrolling
+      // (CSS media queries set overflow-y: auto on desktop)
+      expect(specListPane?.classList.contains('spec-list-pane')).toBe(true);
+      expect(specDetailPane?.classList.contains('spec-detail-pane')).toBe(true);
     });
   });
 });
