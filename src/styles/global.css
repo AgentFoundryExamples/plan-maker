@@ -415,6 +415,11 @@ a:focus-visible {
   color: var(--color-primary-active);
 }
 
+.btn-text:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
 /* ===========================
    INPUT UTILITIES
    =========================== */
