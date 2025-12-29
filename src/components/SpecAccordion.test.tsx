@@ -782,4 +782,191 @@ describe('SpecAccordion', () => {
       expect(errorMessages.length).toBe(0);
     });
   });
+
+  describe('Q&A Navigation Controls', () => {
+    it('shows navigation controls when spec is expanded with questions', async () => {
+      const user = userEvent.setup();
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordion);
+
+      // Navigation controls should be visible
+      expect(screen.getByRole('navigation', { name: /question navigation/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /previous question/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /next question/i })).toBeInTheDocument();
+      expect(screen.getByRole('combobox', { name: /jump to question/i })).toBeInTheDocument();
+    });
+
+    it('shows progress indicator with current question', async () => {
+      const user = userEvent.setup();
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordion);
+
+      // Should show "Question 1 of 2" for first spec
+      expect(screen.getByText(/question 1 of 2/i)).toBeInTheDocument();
+    });
+
+    it('disables previous button when at first question of first spec', async () => {
+      const user = userEvent.setup();
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordion);
+
+      const previousButton = screen.getByRole('button', { name: /previous question/i });
+      expect(previousButton).toBeDisabled();
+    });
+
+    it('disables next button when at last question of last spec', async () => {
+      const user = userEvent.setup();
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      // Expand last spec with questions (spec #2)
+      const secondAccordion = screen.getByRole('button', { name: /spec #2/i });
+      await user.click(secondAccordion);
+
+      // It only has 1 question, so we're at the last question
+      const nextButton = screen.getByRole('button', { name: /next question/i });
+      expect(nextButton).toBeDisabled();
+    });
+
+    it('navigates to next question when Next button is clicked', async () => {
+      const user = userEvent.setup();
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordion);
+
+      // Should start at Question 1 of 2
+      expect(screen.getByText(/question 1 of 2/i)).toBeInTheDocument();
+
+      const nextButton = screen.getByRole('button', { name: /next question/i });
+      await user.click(nextButton);
+
+      // Should now be at Question 2 of 2
+      await waitFor(() => {
+        expect(screen.getByText(/question 2 of 2/i)).toBeInTheDocument();
+      });
+    });
+
+    it('navigates to previous question when Previous button is clicked', async () => {
+      const user = userEvent.setup();
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordion);
+
+      // Navigate to second question first
+      const nextButton = screen.getByRole('button', { name: /next question/i });
+      await user.click(nextButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/question 2 of 2/i)).toBeInTheDocument();
+      });
+
+      // Now go back
+      const previousButton = screen.getByRole('button', { name: /previous question/i });
+      await user.click(previousButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/question 1 of 2/i)).toBeInTheDocument();
+      });
+    });
+
+    it('jumps to specific question using dropdown', async () => {
+      const user = userEvent.setup();
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordion);
+
+      const jumpSelect = screen.getByRole('combobox', { name: /jump to question/i });
+      
+      // Jump to second question
+      await user.selectOptions(jumpSelect, '1');
+
+      await waitFor(() => {
+        expect(screen.getByText(/question 2 of 2/i)).toBeInTheDocument();
+      });
+    });
+
+    it('shows answered indicator in jump menu', async () => {
+      const user = userEvent.setup();
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordion);
+
+      // Answer first question
+      const textareas = screen.getAllByPlaceholderText(/enter your answer/i);
+      await user.type(textareas[0], 'PostgreSQL');
+
+      // Check the jump menu shows the answered indicator
+      await waitFor(() => {
+        const jumpSelect = screen.getByRole('combobox', { name: /jump to question/i }) as HTMLSelectElement;
+        const firstOption = jumpSelect.options[0];
+        expect(firstOption.text).toContain('✓');
+      });
+    });
+  });
+
+  describe('Keyboard Shortcuts', () => {
+    it('shows keyboard hint for Ctrl+Enter', async () => {
+      const user = userEvent.setup();
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordion);
+
+      // Should show keyboard hint - check for unique part
+      expect(screen.getByText(/press/i)).toBeInTheDocument();
+      const ctrlKeys = screen.getAllByText(/ctrl/i);
+      expect(ctrlKeys.length).toBeGreaterThanOrEqual(1);
+      const enterKeys = screen.getAllByText(/enter/i);
+      expect(enterKeys.length).toBeGreaterThanOrEqual(2); // Appears twice in the hint
+    });
+
+    it('advances to next question when Ctrl+Enter is pressed', async () => {
+      const user = userEvent.setup();
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordion);
+
+      const textarea = screen.getAllByPlaceholderText(/enter your answer/i)[0];
+      await user.click(textarea);
+
+      // Type some answer
+      await user.type(textarea, 'My answer');
+
+      // Press Ctrl+Enter
+      await user.keyboard('{Control>}{Enter}{/Control}');
+
+      // Should advance to question 2
+      await waitFor(() => {
+        expect(screen.getByText(/question 2 of 2/i)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Autosave Indicator', () => {
+    it('shows autosave indicator after typing', async () => {
+      const user = userEvent.setup();
+      renderWithProvider(<SpecAccordion planId={planId} specs={mockSpecs} />);
+
+      const firstAccordion = screen.getByRole('button', { name: /spec #1/i });
+      await user.click(firstAccordion);
+
+      const textarea = screen.getAllByPlaceholderText(/enter your answer/i)[0];
+      await user.type(textarea, 'Test answer');
+
+      // Autosave indicator should appear briefly
+      await waitFor(() => {
+        expect(screen.getByText(/saved/i)).toBeInTheDocument();
+      }, { timeout: 100 });
+    });
+  });
 });
