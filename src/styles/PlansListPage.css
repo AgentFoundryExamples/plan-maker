@@ -373,14 +373,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
-  .recent-activity {
-    margin-left: calc(-1 * var(--spacing-md));
-    margin-right: calc(-1 * var(--spacing-md));
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-  }
 }
 
 /* Print styles */

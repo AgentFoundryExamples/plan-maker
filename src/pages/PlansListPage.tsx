@@ -158,6 +158,7 @@ const PlansListPage: React.FC = () => {
               <h2>Recent Activity</h2>
               <div className="timeline">
                 {data.jobs
+                  .filter((job: PlanJobStatus) => job.job_id)
                   .slice(0, RECENT_ACTIVITY_COUNT)
                   .map((job: PlanJobStatus) => (
                     <div key={`timeline-${job.job_id}`} className="timeline-item">

@@ -3,14 +3,16 @@ import {
   getPlannerStatusMetadata,
   getClarifierStatusMetadata,
   type StatusMetadata,
+  type PlannerStatus,
+  type ClarifierStatus,
 } from '@/utils/statusMappings';
 
 /**
  * Props for the StatusBadge component
  */
 export interface StatusBadgeProps {
-  /** The status value to display */
-  status: string;
+  /** The status value to display - must be a valid planner or clarifier status */
+  status: PlannerStatus | ClarifierStatus | string;
   /** The type of status - 'planner' or 'clarifier' */
   type?: 'planner' | 'clarifier';
   /** Optional additional CSS classes */
