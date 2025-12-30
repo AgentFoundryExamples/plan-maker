@@ -39,6 +39,14 @@
   /* Clarifier panel configuration (bottom pane) */
   --clarifier-panel-max-height: 500px; /* Maximum height for clarifier panel */
   --clarifier-panel-min-height: 200px; /* Minimum height for clarifier panel */
+
+  /* PlanStatusBar configuration */
+  --plan-status-bar-position: top; /* Options: top, bottom */
+  --plan-status-bar-offset: 0px; /* Offset from edge */
+  --plan-status-bar-z-index: var(--z-index-sticky); /* Z-index for layering */
+  --plan-status-bar-max-height: 120px; /* Maximum height for the bar */
+  --plan-status-bar-padding: var(--spacing-md) var(--spacing-lg); /* Padding inside the bar */
+  --plan-status-bar-gap: var(--spacing-md); /* Gap between info and actions */
 }
 
 /* Plan header with actions */
@@ -1925,5 +1933,152 @@
   .question-progress-text {
     width: 100%;
     text-align: center;
+  }
+}
+
+/* ==========================================================================
+   PlanStatusBar Component Styles
+   ========================================================================== */
+
+/**
+ * PlanStatusBar - Compact status bar for clarification progress and submission
+ * Displays above the three-pane layout with sticky positioning support
+ */
+
+.plan-status-bar {
+  padding: var(--plan-status-bar-padding);
+  background-color: var(--color-background);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
+  max-height: var(--plan-status-bar-max-height);
+  margin-bottom: var(--spacing-lg);
+  animation: fadeInUp var(--transition-duration-base) var(--transition-timing-ease-out);
+}
+
+/* Sticky positioning variant */
+.plan-status-bar-sticky {
+  position: sticky;
+  z-index: var(--plan-status-bar-z-index);
+}
+
+.plan-status-bar-sticky[data-position="top"] {
+  top: var(--plan-status-bar-offset);
+}
+
+.plan-status-bar-sticky[data-position="bottom"] {
+  bottom: var(--plan-status-bar-offset);
+}
+
+/* Main content container */
+.plan-status-bar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--plan-status-bar-gap);
+  flex-wrap: wrap;
+}
+
+/* Info section (left side) */
+.plan-status-bar-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+  min-width: 0; /* Allow text to wrap */
+}
+
+.plan-status-bar-primary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.plan-status-bar-status {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-normal);
+}
+
+.plan-status-bar-status.status-complete {
+  color: var(--color-success);
+}
+
+.plan-status-bar-status.status-pending {
+  color: var(--color-text);
+}
+
+.plan-status-bar-helper {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.plan-status-bar-secondary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.plan-status-bar-last-submitted {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.plan-status-bar-job-id {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-xs);
+}
+
+/* Actions section (right side) */
+.plan-status-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.btn-submit-clarifications {
+  min-width: 12.5rem;
+  white-space: nowrap;
+}
+
+/* Responsive adjustments for PlanStatusBar */
+@media (max-width: 768px) {
+  .plan-status-bar {
+    padding: var(--spacing-md);
+  }
+
+  .plan-status-bar-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .plan-status-bar-actions {
+    width: 100%;
+  }
+
+  .btn-submit-clarifications {
+    width: 100%;
+    min-height: 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .plan-status-bar {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .plan-status-bar-primary {
+    gap: var(--spacing-xxs);
+  }
+
+  .plan-status-bar-status {
+    font-size: var(--font-size-sm);
+  }
+
+  .plan-status-bar-helper {
+    font-size: var(--font-size-xs);
   }
 }

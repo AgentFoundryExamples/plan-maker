@@ -14,7 +14,6 @@ vi.mock('@/api/hooks', async () => {
   const actual = await vi.importActual('@/api/hooks');
   return {
     ...actual,
-    useSubmitClarifications: vi.fn(),
     useClarificationStatus: vi.fn(),
   };
 });
@@ -38,7 +37,6 @@ vi.mock('@/utils/clarifierStorage', async () => {
 
 describe('ClarifierPanel', () => {
   let queryClient: QueryClient;
-  const mockUseSubmitClarifications = vi.mocked(hooks.useSubmitClarifications);
   const mockUseClarificationStatus = vi.mocked(hooks.useClarificationStatus);
   const mockGetClarifierDebug = vi.mocked(specClarifierClient.getClarifierDebug);
   const mockGetClarifierJobId = vi.mocked(clarifierStorage.getClarifierJobId);
@@ -69,14 +67,6 @@ describe('ClarifierPanel', () => {
     vi.clearAllMocks();
 
     // Default mock implementations
-    mockUseSubmitClarifications.mockReturnValue({
-      mutate: vi.fn(),
-      isPending: false,
-      isError: false,
-      isSuccess: false,
-      error: null,
-      data: null,
-    } as any);
 
     mockUseClarificationStatus.mockReturnValue({
       data: undefined,
@@ -107,7 +97,6 @@ describe('ClarifierPanel', () => {
       renderComponent();
 
       expect(screen.getByText('Clarification')).toBeInTheDocument();
-      expect(screen.getByText('Start New Clarification')).toBeInTheDocument();
       expect(screen.getByText('Track Existing Job')).toBeInTheDocument();
     });
 
@@ -119,165 +108,6 @@ describe('ClarifierPanel', () => {
       );
 
       expect(container.querySelector('.custom-class')).toBeInTheDocument();
-    });
-  });
-
-  describe('Start Clarification', () => {
-    it('enables start button when plan is SUCCEEDED with specs', () => {
-      renderComponent();
-
-      const startButton = screen.getByRole('button', { name: /start clarification/i });
-      expect(startButton).not.toBeDisabled();
-    });
-
-    it('disables start button when plan is not SUCCEEDED', () => {
-      const queuedPlan: PlanJobStatus = {
-        ...mockSucceededPlan,
-        status: 'QUEUED',
-      };
-
-      renderComponent(queuedPlan);
-
-      const startButton = screen.getByRole('button', { name: /start clarification/i });
-      expect(startButton).toBeDisabled();
-      expect(screen.getByText(/only available for successfully completed plans/i)).toBeInTheDocument();
-    });
-
-    it('disables start button when plan has no specs', () => {
-      const noSpecsPlan: PlanJobStatus = {
-        ...mockSucceededPlan,
-        result: {
-          specs: [],
-        },
-      };
-
-      renderComponent(noSpecsPlan);
-
-      const startButton = screen.getByRole('button', { name: /start clarification/i });
-      expect(startButton).toBeDisabled();
-      expect(screen.getByText(/no specifications to clarify/i)).toBeInTheDocument();
-    });
-
-    it('calls mutation when start button is clicked', async () => {
-      const user = userEvent.setup();
-      const mutateFn = vi.fn();
-      mockUseSubmitClarifications.mockReturnValue({
-        mutate: mutateFn,
-        isPending: false,
-      } as any);
-
-      renderComponent();
-
-      const startButton = screen.getByRole('button', { name: /start clarification/i });
-      await user.click(startButton);
-
-      expect(mutateFn).toHaveBeenCalledWith({
-        plan: {
-          specs: mockSucceededPlan.result!.specs,
-        },
-        answers: [],
-        config: null,
-      });
-    });
-
-    it('shows success banner when clarification is created', async () => {
-      const user = userEvent.setup();
-      let onSuccessCallback: ((response: any) => void) | undefined;
-
-      mockUseSubmitClarifications.mockImplementation((options) => {
-        onSuccessCallback = options?.onSuccess;
-        return {
-          mutate: vi.fn(() => {
-            if (onSuccessCallback) {
-              onSuccessCallback({ id: 'new-job-123' });
-            }
-          }),
-          isPending: false,
-        } as any;
-      });
-
-      renderComponent();
-
-      const startButton = screen.getByRole('button', { name: /start clarification/i });
-      await user.click(startButton);
-
-      await waitFor(() => {
-        expect(screen.getByText(/clarification job created successfully/i)).toBeInTheDocument();
-        // Use getAllByText since the job ID appears multiple times (banner + current job section)
-        expect(screen.getAllByText(/new-job-123/).length).toBeGreaterThan(0);
-      });
-    });
-
-    it('calls onClarificationCreated callback', async () => {
-      const user = userEvent.setup();
-      const onClarificationCreated = vi.fn();
-      let onSuccessCallback: ((response: any) => void) | undefined;
-
-      mockUseSubmitClarifications.mockImplementation((options) => {
-        onSuccessCallback = options?.onSuccess;
-        return {
-          mutate: vi.fn(() => {
-            if (onSuccessCallback) {
-              onSuccessCallback({ id: 'new-job-123' });
-            }
-          }),
-          isPending: false,
-        } as any;
-      });
-
-      render(
-        <QueryClientProvider client={queryClient}>
-          <ClarifierPanel 
-            planJob={mockSucceededPlan}
-            onClarificationCreated={onClarificationCreated}
-          />
-        </QueryClientProvider>
-      );
-
-      const startButton = screen.getByRole('button', { name: /start clarification/i });
-      await user.click(startButton);
-
-      await waitFor(() => {
-        expect(onClarificationCreated).toHaveBeenCalledWith('new-job-123');
-      });
-    });
-
-    it('shows error banner when clarification fails', async () => {
-      const user = userEvent.setup();
-      let onErrorCallback: ((error: Error) => void) | undefined;
-
-      mockUseSubmitClarifications.mockImplementation((options) => {
-        onErrorCallback = options?.onError;
-        return {
-          mutate: vi.fn(() => {
-            if (onErrorCallback) {
-              onErrorCallback(new Error('Network error'));
-            }
-          }),
-          isPending: false,
-        } as any;
-      });
-
-      renderComponent();
-
-      const startButton = screen.getByRole('button', { name: /start clarification/i });
-      await user.click(startButton);
-
-      await waitFor(() => {
-        expect(screen.getByText(/network error/i)).toBeInTheDocument();
-      });
-    });
-
-    it('shows loading state during submission', () => {
-      mockUseSubmitClarifications.mockReturnValue({
-        mutate: vi.fn(),
-        isPending: true,
-      } as any);
-
-      renderComponent();
-
-      const startButton = screen.getByRole('button', { name: /creating/i });
-      expect(startButton).toBeDisabled();
     });
   });
 
@@ -388,30 +218,19 @@ describe('ClarifierPanel', () => {
       });
     });
 
-    it('displays current job section after creation', async () => {
+    it('displays current job section after manual job ID entry', async () => {
       const user = userEvent.setup();
-      let onSuccessCallback: ((response: any) => void) | undefined;
-
-      mockUseSubmitClarifications.mockImplementation((options) => {
-        onSuccessCallback = options?.onSuccess;
-        return {
-          mutate: vi.fn(() => {
-            if (onSuccessCallback) {
-              onSuccessCallback({ id: 'new-job-123' });
-            }
-          }),
-          isPending: false,
-        } as any;
-      });
+      const validUUID = '550e8400-e29b-41d4-a716-446655440000';
 
       renderComponent();
 
-      const startButton = screen.getByRole('button', { name: /start clarification/i });
-      await user.click(startButton);
+      const input = screen.getByPlaceholderText(/enter job id/i);
+      await user.type(input, validUUID);
+      await user.keyboard('{Enter}');
 
       await waitFor(() => {
         expect(screen.getByText('Current Job')).toBeInTheDocument();
-        expect(screen.getByText('new-job-123')).toBeInTheDocument();
+        expect(screen.getByText(validUUID)).toBeInTheDocument();
       });
     });
 
@@ -679,41 +498,6 @@ describe('ClarifierPanel', () => {
     });
   });
 
-  describe('Banner Dismissal', () => {
-    it('can dismiss banner messages', async () => {
-      const user = userEvent.setup();
-      let onErrorCallback: ((error: Error) => void) | undefined;
-
-      mockUseSubmitClarifications.mockImplementation((options) => {
-        onErrorCallback = options?.onError;
-        return {
-          mutate: vi.fn(() => {
-            if (onErrorCallback) {
-              onErrorCallback(new Error('Test error'));
-            }
-          }),
-          isPending: false,
-        } as any;
-      });
-
-      renderComponent();
-
-      const startButton = screen.getByRole('button', { name: /start clarification/i });
-      await user.click(startButton);
-
-      await waitFor(() => {
-        expect(screen.getByText(/test error/i)).toBeInTheDocument();
-      });
-
-      const dismissButton = screen.getByRole('button', { name: /dismiss message/i });
-      await user.click(dismissButton);
-
-      await waitFor(() => {
-        expect(screen.queryByText(/test error/i)).not.toBeInTheDocument();
-      });
-    });
-  });
-
   describe('Layout Structure', () => {
     it('renders with scrollable clarifier panel container', () => {
       renderComponent();
@@ -729,7 +513,6 @@ describe('ClarifierPanel', () => {
 
       // Verify all major sections are present
       expect(screen.getByText('Clarification')).toBeInTheDocument();
-      expect(screen.getByText('Start New Clarification')).toBeInTheDocument();
       expect(screen.getByText('Track Existing Job')).toBeInTheDocument();
       
       // Verify clarifier panel container exists

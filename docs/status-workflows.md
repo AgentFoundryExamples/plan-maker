@@ -94,20 +94,28 @@ Once a plan has **SUCCEEDED** and contains open questions, you can submit it for
 
 ### Step 1: Answer Questions
 
-1. On the Plan Detail page (`/plans/{job_id}`), expand the specification sections
-2. Find questions marked with ❓ icon
+1. On the Plan Detail page (`/plans/{job_id}`), view the specification sections
+2. Find questions marked with their labels
 3. Type your answers in the text area below each question
-4. All questions must be answered before submission
+4. Monitor your progress in the **Status Bar** at the top of the specifications section
+5. All questions must be answered before submission
+
+**Progress Tracking:**
+- The Status Bar displays: "✓ All X questions answered" when complete, or "⚠ X questions remaining" when incomplete
+- Last submission time is shown (if previously submitted)
+- Submit button is automatically enabled/disabled based on completion status
 
 **Validation:**
 - Unanswered questions are highlighted when you attempt to submit
-- Error banner shows: _"Please answer all N remaining questions before submitting"_
+- Error banner shows: _"Please answer all questions before submitting"_
 
 ### Step 2: Submit for Clarification
 
-1. After answering all questions, scroll to the **Clarifier Panel**
-2. Review your answers
-3. Click **"Submit for Clarification"**
+**New Location:** Submission controls are now in the **Status Bar** above the specifications for easy access without scrolling.
+
+1. After answering all questions, locate the **Status Bar** at the top of the specifications section
+2. Review the status indicator showing all questions are answered
+3. Click **"Submit for Clarification"** button in the Status Bar
 
 **Expected Response:**
 - Success banner: _"Clarification job created successfully. Job ID: {job_id}"_
@@ -116,7 +124,8 @@ Once a plan has **SUCCEEDED** and contains open questions, you can submit it for
 
 ### Step 3: Track Clarification Job
 
-The clarifier job ID is displayed in the Clarifier Panel. You can:
+The clarifier job tracking is available in the **Clarifier Panel** at the bottom of the page. You can:
+- Enter a clarification job ID manually to track an existing job
 - Click **"Check Status"** to manually refresh the status
 - View the current status badge (PENDING → RUNNING → SUCCESS → FAILED)
 - See timestamps for when the job was created and last updated
@@ -744,6 +753,46 @@ The UI follows an "integrate if available" philosophy - features are only shown 
 - Contact your administrator
 - Request `APP_ENABLE_DEBUG_ENDPOINT=true` on backend
 - Note: Should only be enabled in development/staging environments
+
+---
+
+## UI Configuration
+
+### Status Bar Configuration
+
+The Status Bar that displays clarification progress and submission controls can be configured via CSS variables in `src/styles/PlanDetailPage.css`:
+
+```css
+:root {
+  /* PlanStatusBar configuration */
+  --plan-status-bar-position: top; /* Options: top, bottom */
+  --plan-status-bar-offset: 0px; /* Offset from edge */
+  --plan-status-bar-z-index: var(--z-index-sticky); /* Z-index for layering */
+  --plan-status-bar-max-height: 120px; /* Maximum height for the bar */
+  --plan-status-bar-padding: var(--spacing-md) var(--spacing-lg); /* Padding inside the bar */
+  --plan-status-bar-gap: var(--spacing-md); /* Gap between info and actions */
+}
+```
+
+**Configuration Options:**
+
+- `--plan-status-bar-position`: Controls whether the bar is positioned at the `top` or `bottom` of the specifications section
+- `--plan-status-bar-offset`: Adjusts the distance from the edge (useful for headers or navigation)
+- `--plan-status-bar-z-index`: Controls the stacking order relative to other elements
+- `--plan-status-bar-max-height`: Limits the bar's maximum height to prevent excessive vertical space
+- `--plan-status-bar-padding`: Adjusts internal spacing
+- `--plan-status-bar-gap`: Controls spacing between status information and action buttons
+
+**Sticky Behavior:**
+
+The Status Bar uses sticky positioning by default, meaning it stays visible when scrolling through long specification lists. This can be controlled via the component's `config` prop if needed.
+
+**Responsive Behavior:**
+
+On mobile devices (screen width < 768px):
+- The bar switches to a vertical layout with the button below status information
+- Padding is reduced for better space utilization
+- The button expands to full width for better touch accessibility
 
 ---
 

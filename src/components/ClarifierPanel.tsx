@@ -1,8 +1,7 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { useSubmitClarifications, useClarificationStatus } from '@/api/hooks';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useClarificationStatus } from '@/api/hooks';
 import { getClarifierDebug, type ClarifierDebugResponse } from '@/api/specClarifierClient';
 import { formatTimestamp } from '@/utils/dateUtils';
-import { formatQuestionCount, getQuestionText } from '@/utils/textUtils';
 import StatusBadge from './StatusBadge';
 import type { PlanJobStatus } from '@/api/softwarePlannerClient';
 import type { PlanValidationResult } from '@/state/planAnswersStore';
@@ -14,26 +13,32 @@ import { getClarifierJobId, setClarifierJobId } from '@/utils/clarifierStorage';
 export interface ClarifierPanelProps {
   /** The plan job to clarify */
   planJob: PlanJobStatus;
-  /** Callback when clarification job is created */
-  onClarificationCreated?: (jobId: string) => void;
   /** Optional CSS class name */
   className?: string;
-  /** Validation result from plan answers - used to show readiness state */
+  /**
+   * @deprecated No longer used - submission controls moved to PlanStatusBar.
+   * Kept for backward compatibility with existing code.
+   */
+  onClarificationCreated?: (jobId: string) => void;
+  /**
+   * @deprecated No longer used - validation UI moved to PlanStatusBar.
+   * Kept for backward compatibility with existing code.
+   */
   validationResult?: PlanValidationResult | null;
 }
 
 /**
  * ClarifierPanel Component
  * 
- * Manages the clarification workflow for a plan:
- * - Start new clarification job
+ * Manages the clarification job tracking workflow for a plan:
  * - Manual job ID entry
  * - Check clarification status
  * - View debug information (when available)
  * 
+ * Note: Submission controls have been moved to PlanStatusBar component.
+ * 
  * Features:
  * - Stores last clarification job ID per plan
- * - Prevents clarification on non-SUCCEEDED plans
  * - On-demand status checking (no auto-polling)
  * - Graceful 403 handling for disabled debug endpoint
  * - Accessible with keyboard navigation
@@ -48,9 +53,10 @@ export interface ClarifierPanelProps {
  */
 export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
   planJob,
-  onClarificationCreated,
   className = '',
-  validationResult = null,
+  // Deprecated props kept for backward compatibility
+  onClarificationCreated: _onClarificationCreated,
+  validationResult: _validationResult,
 }) => {
   // Local state
   const [manualJobId, setManualJobId] = useState('');
@@ -72,32 +78,6 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
     }
   }, [planJob.job_id]);
 
-  // Submit clarification mutation
-  const submitClarification = useSubmitClarifications({
-    onSuccess: (response) => {
-      const jobId = response.id;
-      setCurrentJobId(jobId);
-      setClarifierJobId(planJob.job_id, jobId);
-      setBannerMessage({
-        type: 'success',
-        message: `Clarification job created successfully. Job ID: ${jobId}`,
-      });
-      setStatusChecked(false);
-      setDebugData(null);
-      setDebugError(null);
-      
-      if (onClarificationCreated) {
-        onClarificationCreated(jobId);
-      }
-    },
-    onError: (error) => {
-      setBannerMessage({
-        type: 'error',
-        message: error.message || 'Failed to create clarification job',
-      });
-    },
-  });
-
   // Clarification status query (only enabled when we want to check)
   const { data: clarificationStatus, refetch: refetchStatus, isLoading: statusLoading } = useClarificationStatus(
     statusChecked ? currentJobId || undefined : undefined,
@@ -105,29 +85,6 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
       enabled: false, // Manual trigger only
     }
   );
-
-  // Check if plan can be clarified
-  const canClarify = useMemo(() => {
-    return planJob.status === 'SUCCEEDED' && planJob.result?.specs && planJob.result.specs.length > 0;
-  }, [planJob]);
-
-  // Handle starting clarification
-  const handleStartClarification = useCallback(() => {
-    if (!canClarify || !planJob.result?.specs) return;
-
-    setBannerMessage(null);
-    setStatusChecked(false);
-    setDebugData(null);
-    setDebugError(null);
-
-    submitClarification.mutate({
-      plan: {
-        specs: planJob.result.specs,
-      },
-      answers: [],
-      config: null,
-    });
-  }, [canClarify, planJob.result?.specs, submitClarification]);
 
   // Handle manual job ID submission
   const handleManualJobIdSubmit = useCallback(() => {
@@ -237,58 +194,6 @@ export const ClarifierPanel: React.FC<ClarifierPanelProps> = ({
           </button>
         </div>
       )}
-
-      {/* Start Clarification */}
-      <div className="clarifier-section">
-        <h4 className="clarifier-section-heading">Start New Clarification</h4>
-        {!canClarify && (
-          <p className="clarifier-warning" role="status">
-            {planJob.status !== 'SUCCEEDED' 
-              ? 'Clarification is only available for successfully completed plans.'
-              : 'This plan has no specifications to clarify.'}
-          </p>
-        )}
-        {canClarify && validationResult && !validationResult.isValid && (
-          <div className="clarifier-readiness-message clarifier-not-ready" role="status">
-            <span className="clarifier-readiness-icon">⚠️</span>
-            <div className="clarifier-readiness-content">
-              <p className="clarifier-readiness-text">
-                <strong>Not ready to submit:</strong> {formatQuestionCount(validationResult.unansweredCount)} still {validationResult.unansweredCount === 1 ? 'needs' : 'need'} answers.
-              </p>
-              <p className="clarifier-readiness-helper">
-                Please scroll up and answer all {getQuestionText(validationResult.unansweredCount)} in the specifications before starting clarification.
-              </p>
-            </div>
-          </div>
-        )}
-        {canClarify && validationResult && validationResult.isValid && (
-          <div className="clarifier-readiness-message clarifier-ready" role="status" aria-live="polite">
-            <span className="clarifier-readiness-icon">✓</span>
-            <div className="clarifier-readiness-content">
-              <p className="clarifier-readiness-text">
-                <strong>Ready to submit:</strong> All {formatQuestionCount(validationResult.totalQuestions)} {validationResult.totalQuestions !== 1 ? 'have' : 'has'} been answered.
-              </p>
-              <p className="clarifier-readiness-helper">
-                Click below to start the clarification process. Your answers will be processed and used to refine the specifications.
-              </p>
-            </div>
-          </div>
-        )}
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={handleStartClarification}
-          disabled={!canClarify || submitClarification.isPending || (validationResult !== null && !validationResult.isValid)}
-          aria-busy={submitClarification.isPending}
-          title={
-            validationResult && !validationResult.isValid
-              ? `Please answer ${formatQuestionCount(validationResult.unansweredCount, ' remaining')} before starting clarification`
-              : undefined
-          }
-        >
-          {submitClarification.isPending ? 'Creating...' : 'Start Clarification'}
-        </button>
-      </div>
 
       {/* Manual Job ID Entry */}
       <div className="clarifier-section">
