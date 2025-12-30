@@ -17,6 +17,8 @@ export interface SpecDetailPaneProps {
   onNavigateSpec?: (specIndex: number) => void;
   // Callback to return to spec list (mobile only)
   onBackToList?: () => void;
+  // Mobile breakpoint detection (passed from parent to avoid duplicate logic)
+  isMobile?: boolean;
 }
 
 /**
@@ -40,33 +42,12 @@ export const SpecDetailPane: React.FC<SpecDetailPaneProps> = ({
   totalSpecs = 0,
   onNavigateSpec,
   onBackToList,
+  isMobile = false,
 }) => {
   const { getAnswer, setAnswer } = usePlanAnswers();
   const questionRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [showSaveIndicator, setShowSaveIndicator] = useState(false);
-  
-  // Detect mobile breakpoint for conditional UI
-  const [isMobile, setIsMobile] = useState(false);
-  
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    
-    let resizeTimeout: ReturnType<typeof setTimeout>;
-    const debouncedResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(checkMobile, 150);
-    };
-    
-    window.addEventListener('resize', debouncedResize);
-    return () => {
-      clearTimeout(resizeTimeout);
-      window.removeEventListener('resize', debouncedResize);
-    };
-  }, []);
 
   // Handle answer change
   const handleAnswerChange = useCallback(

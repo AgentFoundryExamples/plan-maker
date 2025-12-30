@@ -58,9 +58,14 @@ const PlanDetailPage: React.FC = () => {
       // Reset mobile view when switching to desktop
       if (newIsDesktop) {
         setMobileView(null);
-      } else if (mobileView === null && selectedSpecIndex !== null) {
-        // Initialize mobile view when switching to mobile with a spec selected
-        setMobileView('spec-detail');
+      } else {
+        // When switching to mobile, set view based on current selection
+        setMobileView((currentView) => {
+          // If already in a mobile view, keep it
+          if (currentView !== null) return currentView;
+          // If a spec is selected, show detail view
+          return selectedSpecIndex !== null ? 'spec-detail' : null;
+        });
       }
     };
 
@@ -77,7 +82,7 @@ const PlanDetailPage: React.FC = () => {
       clearTimeout(resizeTimeout);
       window.removeEventListener('resize', debouncedResize);
     };
-  }, [mobileView, selectedSpecIndex]);
+  }, [selectedSpecIndex]);
 
   // Initialize selected spec from URL or default
   useEffect(() => {
@@ -496,6 +501,7 @@ const PlanDetailPage: React.FC = () => {
                     planId={data.job_id}
                     totalSpecs={specs.length}
                     onNavigateSpec={handleSelectSpec}
+                    isMobile={false}
                     hasValidationError={(specIndex, questionIndex) => {
                       if (!showValidationErrors || !validationResult) return false;
                       return validationResult.errors.some(
@@ -542,6 +548,7 @@ const PlanDetailPage: React.FC = () => {
                       totalSpecs={specs.length}
                       onNavigateSpec={handleSelectSpec}
                       onBackToList={handleBackToList}
+                      isMobile={true}
                       hasValidationError={(specIndex, questionIndex) => {
                         if (!showValidationErrors || !validationResult) return false;
                         return validationResult.errors.some(
