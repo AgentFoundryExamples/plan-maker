@@ -93,6 +93,10 @@ const PlanDetailPage: React.FC = () => {
       if (!isNaN(paramIndex) && paramIndex >= 0 && paramIndex < specs.length) {
         setSelectedSpecIndex(paramIndex);
         setIsSpecInitialized(true);
+        // On mobile, transition to spec detail view when spec is auto-selected
+        if (!isDesktop) {
+          setMobileView('spec-detail');
+        }
         return;
       }
     }
@@ -109,8 +113,12 @@ const PlanDetailPage: React.FC = () => {
       setSelectedSpecIndex(0);
       setSearchParams({ spec: '0' }, { replace: true });
     }
+    // On mobile, transition to spec detail view when spec is auto-selected
+    if (!isDesktop) {
+      setMobileView('spec-detail');
+    }
     setIsSpecInitialized(true);
-  }, [data, searchParams, setSearchParams, validateAnswers, isSpecInitialized]);
+  }, [data, searchParams, setSearchParams, validateAnswers, isSpecInitialized, isDesktop]);
 
   // Handle spec selection
   const handleSelectSpec = useCallback((index: number) => {

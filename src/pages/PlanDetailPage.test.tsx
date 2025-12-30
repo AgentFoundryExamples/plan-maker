@@ -312,11 +312,14 @@ describe('PlanDetailPage', () => {
       renderComponent('plan-123');
 
       expect(screen.getByText('Specifications')).toBeInTheDocument();
-      // Accordion should render with spec header visible
-      expect(screen.getByRole('button', { name: /spec #1/i })).toBeInTheDocument();
+      
+      // Mobile now shows spec detail view by default (first spec auto-selected)
+      // Check for spec detail content
       expect(screen.getByText(/build rest api/i)).toBeInTheDocument();
-      // Should show question summary (both inline and sticky)
-      expect(screen.getAllByText(/1 of 1 question remaining/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText('Which database?')).toBeInTheDocument();
+      
+      // Should show question status in PlanStatusBar
+      expect(screen.getByText(/1 question remaining/i)).toBeInTheDocument();
     });
 
     it('renders all spec sections when present', async () => {
@@ -333,12 +336,15 @@ describe('PlanDetailPage', () => {
 
       renderComponent('plan-123');
 
-      // Expand the accordion to see spec details
-      const accordionButton = screen.getByRole('button', { name: /spec #1/i });
-      await user.click(accordionButton);
+      // On mobile, spec is selected by default and shown in detail pane
+      // Wait for spec to be initialized
+      await import('@testing-library/react').then(({ waitFor }) =>
+        waitFor(() => {
+          expect(screen.getByText('Must Have:')).toBeInTheDocument();
+        })
+      );
 
       // Now we can see the spec details
-      expect(screen.getByText('Must Have:')).toBeInTheDocument();
       expect(screen.getByText('Authentication')).toBeInTheDocument();
       expect(screen.getByText('Nice to Have:')).toBeInTheDocument();
       expect(screen.getByText('Caching')).toBeInTheDocument();
@@ -508,8 +514,9 @@ describe('PlanDetailPage', () => {
 
       renderComponent('plan-minimal');
 
-      // Accordion header should show spec purpose
-      expect(screen.getByRole('button', { name: /basic spec/i })).toBeInTheDocument();
+      // Mobile uses SpecListPane - check for spec list item with purpose
+      expect(screen.getByText(/basic spec/i)).toBeInTheDocument();
+      
       // Should not crash with missing optional fields
       expect(screen.queryByText('Must Have:')).not.toBeInTheDocument();
       expect(screen.queryByText('Nice to Have:')).not.toBeInTheDocument();
@@ -558,9 +565,10 @@ describe('PlanDetailPage', () => {
 
       renderComponent('plan-large');
 
-      // Accordion should render all specs
-      const accordions = screen.getAllByRole('button', { name: /spec #/i });
-      expect(accordions).toHaveLength(50);
+      // Mobile shows spec detail view by default (first spec auto-selected)
+      // Check for first spec content
+      expect(screen.getByText(/spec 1 purpose/i)).toBeInTheDocument();
+      
       // Metadata should still render without being blocked
       expect(screen.getByText('Plan #plan-large')).toBeInTheDocument();
     });
@@ -656,7 +664,7 @@ describe('PlanDetailPage', () => {
   });
 
   describe('Accordion Integration', () => {
-    it('renders SpecAccordion when specs are present', () => {
+    it('renders SpecListPane and SpecDetailPane on mobile (not accordion)', () => {
       const mockPlanData: PlanJobStatus = {
         job_id: 'plan-123',
         status: 'SUCCEEDED',
@@ -685,8 +693,14 @@ describe('PlanDetailPage', () => {
       renderComponent('plan-123');
 
       expect(screen.getByText('Specifications')).toBeInTheDocument();
-      // Accordion header should be rendered
-      expect(screen.getByRole('button', { name: /spec #1/i })).toBeInTheDocument();
+      
+      // Mobile now shows spec detail view by default (not accordion, not spec list)
+      const specDetailPane = document.querySelector('.spec-detail-pane');
+      expect(specDetailPane).toBeInTheDocument();
+      
+      // Should show spec content in detail pane
+      expect(screen.getByText(/build rest api/i)).toBeInTheDocument();
+      expect(screen.getByText('Which database?')).toBeInTheDocument();
     });
 
     it('does not render old spec container format', () => {
@@ -835,20 +849,52 @@ describe('PlanDetailPage', () => {
 
       renderComponent('plan-submit');
 
-      // Expand first spec and answer questions
-      const spec1Button = screen.getByRole('button', { name: /spec #1.*build rest api/i });
-      await user.click(spec1Button);
+      // Wait for first spec to be selected and displayed
+      await import('@testing-library/react').then(({ waitFor }) =>
+        waitFor(() => {
+          expect(screen.getByText('Which database?')).toBeInTheDocument();
+        })
+      );
 
+      // Answer questions in the currently displayed spec (first spec)
       const textareas = screen.getAllByPlaceholderText(/enter your answer/i);
       await user.type(textareas[0], 'PostgreSQL');
       await user.type(textareas[1], 'JWT tokens');
 
-      // Expand second spec and answer question
-      const spec2Button = screen.getByRole('button', { name: /spec #2.*frontend/i });
-      await user.click(spec2Button);
-
-      const allTextareas = screen.getAllByPlaceholderText(/enter your answer/i);
-      await user.type(allTextareas[allTextareas.length - 1], 'React');
+      // On mobile, need to navigate back to spec list, then select second spec
+      const backButton = screen.queryByRole('button', { name: /back to specifications list/i });
+      if (backButton) {
+        await user.click(backButton);
+        
+        // Wait for spec list to be displayed
+        await import('@testing-library/react').then(({ waitFor }) =>
+          waitFor(() => {
+            const specListItems = document.querySelectorAll('.spec-list-item');
+            expect(specListItems.length).toBeGreaterThan(0);
+          })
+        );
+        
+        // Navigate to second spec using spec list
+        const specListItems = document.querySelectorAll('.spec-list-item');
+        const secondSpecItem = Array.from(specListItems).find(
+          item => item.textContent?.includes('Frontend')
+        ) as HTMLElement;
+        
+        if (secondSpecItem) {
+          await user.click(secondSpecItem);
+          
+          // Wait for second spec to be displayed
+          await import('@testing-library/react').then(({ waitFor }) =>
+            waitFor(() => {
+              expect(screen.getByText('Which framework?')).toBeInTheDocument();
+            })
+          );
+          
+          // Answer question in second spec
+          const allTextareas = screen.getAllByPlaceholderText(/enter your answer/i);
+          await user.type(allTextareas[0], 'React');
+        }
+      }
 
       // Submit button should now be enabled
       const submitButton = screen.getByRole('button', { name: /submit for clarification/i });
