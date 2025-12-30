@@ -1,9 +1,6 @@
 import React from 'react';
 import type { SpecItem } from '@/api/softwarePlanner/models/SpecItem';
 
-// Shared breakpoint constant - must match CSS --dual-pane-breakpoint
-const MOBILE_BREAKPOINT = 768;
-
 export interface SpecListPaneProps {
   specs: SpecItem[];
   selectedIndex: number | null;
@@ -15,7 +12,7 @@ export interface SpecListPaneProps {
  * SpecListPane Component
  * 
  * Displays a list of specifications in the dual-pane layout.
- * On mobile: Collapsible drawer at top of page
+ * On mobile: Full-screen view showing spec list
  * On desktop: Fixed left pane with scrollable list
  * 
  * Features:
@@ -23,7 +20,6 @@ export interface SpecListPaneProps {
  * - Visual indicators for unanswered questions
  * - Keyboard navigation support
  * - Sticky header
- * - Mobile: Collapsible toggle to hide/show spec list
  */
 export const SpecListPane: React.FC<SpecListPaneProps> = ({
   specs,
@@ -31,53 +27,17 @@ export const SpecListPane: React.FC<SpecListPaneProps> = ({
   onSelectSpec,
   getUnansweredCount,
 }) => {
-  // State for mobile collapse
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
-  
   // Use refs for focus management instead of DOM queries
   const itemRefs = React.useRef<(HTMLDivElement | null)[]>([]);
   
   // Track if component is mounted to prevent state updates after unmount
   const isMountedRef = React.useRef(true);
 
-  // Detect if we're on mobile (< 768px)
-  const [isMobile, setIsMobile] = React.useState(false);
-
   React.useEffect(() => {
-    const checkMobile = () => {
-      if (isMountedRef.current) {
-        setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-      }
-    };
-    
-    checkMobile(); // Initial check
-    
-    // Debounced resize handler to avoid excessive re-renders
-    let resizeTimeout: ReturnType<typeof setTimeout>;
-    const debouncedResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(checkMobile, 150);
-    };
-    
-    window.addEventListener('resize', debouncedResize);
     return () => {
       isMountedRef.current = false;
-      clearTimeout(resizeTimeout);
-      window.removeEventListener('resize', debouncedResize);
     };
   }, []);
-
-  // Ensure refs array matches specs length
-  React.useEffect(() => {
-    itemRefs.current = itemRefs.current.slice(0, specs.length);
-  }, [specs.length]);
-
-  // Auto-collapse on mobile when a spec is selected
-  React.useEffect(() => {
-    if (isMobile && selectedIndex !== null) {
-      setIsCollapsed(true);
-    }
-  }, [selectedIndex, isMobile]);
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
@@ -104,20 +64,11 @@ export const SpecListPane: React.FC<SpecListPaneProps> = ({
   };
 
   return (
-    <div className={`spec-list-pane ${isCollapsed ? 'collapsed' : ''}`}>
+    <div className="spec-list-pane">
       <div className="spec-list-header">
         <h3>Specifications ({specs.length})</h3>
-        <button
-          className="spec-list-toggle"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          aria-label={isCollapsed ? 'Show specifications list' : 'Hide specifications list'}
-          aria-expanded={!isCollapsed}
-          type="button"
-        >
-          {isCollapsed ? '▼' : '▲'}
-        </button>
       </div>
-      <div className="spec-list-items" role="list" aria-hidden={isCollapsed}>
+      <div className="spec-list-items" role="list">
         {specs.map((spec, index) => {
           const isSelected = selectedIndex === index;
           const questions = spec.open_questions || [];

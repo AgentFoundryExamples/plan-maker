@@ -4,7 +4,6 @@ import { usePlanDetail, useSubmitClarifications, useClarificationStatus } from '
 import { getStatusMetadata } from '@/api/softwarePlannerClient';
 import { formatTimestamp } from '@/utils/dateUtils';
 import { truncateJobId, formatQuestionCount } from '@/utils/textUtils';
-import SpecAccordion from '@/components/SpecAccordion';
 import SpecListPane from '@/components/SpecListPane';
 import SpecDetailPane from '@/components/SpecDetailPane';
 import ClarifierPanel from '@/components/ClarifierPanel';
@@ -44,11 +43,25 @@ const PlanDetailPage: React.FC = () => {
   
   // Track if spec selection has been initialized to prevent race conditions
   const [isSpecInitialized, setIsSpecInitialized] = useState(false);
+  
+  // Mobile navigation: Track which view is active (spec-list, spec-detail, or null for default)
+  // On mobile: spec-list shows full-screen spec list, spec-detail shows selected spec detail
+  // On desktop: always null (dual-pane layout always visible)
+  const [mobileView, setMobileView] = useState<'spec-list' | 'spec-detail' | null>(null);
 
   // Handle viewport resize with debouncing (consolidated with initial check)
   useEffect(() => {
     const handleResize = () => {
-      setIsDesktop(window.innerWidth >= MOBILE_BREAKPOINT);
+      const newIsDesktop = window.innerWidth >= MOBILE_BREAKPOINT;
+      setIsDesktop(newIsDesktop);
+      
+      // Reset mobile view when switching to desktop
+      if (newIsDesktop) {
+        setMobileView(null);
+      } else if (mobileView === null && selectedSpecIndex !== null) {
+        // Initialize mobile view when switching to mobile with a spec selected
+        setMobileView('spec-detail');
+      }
     };
 
     handleResize(); // Initial check
@@ -64,7 +77,7 @@ const PlanDetailPage: React.FC = () => {
       clearTimeout(resizeTimeout);
       window.removeEventListener('resize', debouncedResize);
     };
-  }, []);
+  }, [mobileView, selectedSpecIndex]);
 
   // Initialize selected spec from URL or default
   useEffect(() => {
@@ -103,7 +116,19 @@ const PlanDetailPage: React.FC = () => {
   const handleSelectSpec = useCallback((index: number) => {
     setSelectedSpecIndex(index);
     setSearchParams({ spec: index.toString() }, { replace: false });
-  }, [setSearchParams]);
+    
+    // On mobile, transition to spec detail view when a spec is selected
+    if (!isDesktop) {
+      setMobileView('spec-detail');
+    }
+  }, [setSearchParams, isDesktop]);
+  
+  // Handle back navigation from spec detail to spec list on mobile
+  const handleBackToList = useCallback(() => {
+    if (!isDesktop) {
+      setMobileView('spec-list');
+    }
+  }, [isDesktop]);
 
   // Load stored clarifier job ID for timeline
   React.useEffect(() => {
@@ -441,7 +466,7 @@ const PlanDetailPage: React.FC = () => {
                 </>
               )}
 
-              {/* Dual-pane layout for desktop, accordion for mobile */}
+              {/* Dual-pane layout for desktop, stacked workflow for mobile */}
               {isDesktop ? (
                 <div className="dual-pane-container">
                   <SpecListPane
@@ -481,12 +506,52 @@ const PlanDetailPage: React.FC = () => {
                   />
                 </div>
               ) : (
-                <SpecAccordion
-                  planId={data.job_id}
-                  specs={specs}
-                  validationResult={validationResult || undefined}
-                  showValidationErrors={showValidationErrors}
-                />
+                /* Mobile: Stacked workflow with distinct views */
+                <div className="mobile-stacked-container">
+                  {/* View 1: Spec List (default mobile view or when explicitly selected) */}
+                  {(mobileView === 'spec-list' || mobileView === null) && (
+                    <SpecListPane
+                      specs={specs}
+                      selectedIndex={selectedSpecIndex}
+                      onSelectSpec={handleSelectSpec}
+                      getUnansweredCount={(spec, index) => {
+                        if (!validationResult) return 0;
+                        const questions = spec.open_questions || [];
+                        if (questions.length === 0) return 0;
+                        return validationResult.errors.filter(
+                          (err) => err.specIndex === index
+                        ).length;
+                      }}
+                    />
+                  )}
+                  
+                  {/* View 2: Spec Detail (shown when a spec is selected) */}
+                  {mobileView === 'spec-detail' && selectedSpecIndex !== null && (
+                    <SpecDetailPane
+                      spec={specs[selectedSpecIndex]}
+                      specIndex={selectedSpecIndex}
+                      planId={data.job_id}
+                      totalSpecs={specs.length}
+                      onNavigateSpec={handleSelectSpec}
+                      onBackToList={handleBackToList}
+                      hasValidationError={(specIndex, questionIndex) => {
+                        if (!showValidationErrors || !validationResult) return false;
+                        return validationResult.errors.some(
+                          (err) =>
+                            err.specIndex === specIndex && err.questionIndex === questionIndex
+                        );
+                      }}
+                      getValidationError={(specIndex, questionIndex) => {
+                        if (!showValidationErrors || !validationResult) return '';
+                        const error = validationResult.errors.find(
+                          (err) =>
+                            err.specIndex === specIndex && err.questionIndex === questionIndex
+                        );
+                        return error?.error || '';
+                      }}
+                    />
+                  )}
+                </div>
               )}
             </>
           )}

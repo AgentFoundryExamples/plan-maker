@@ -15,6 +15,8 @@ export interface SpecDetailPaneProps {
   totalSpecs?: number;
   // Callback to navigate to different spec
   onNavigateSpec?: (specIndex: number) => void;
+  // Callback to return to spec list (mobile only)
+  onBackToList?: () => void;
 }
 
 /**
@@ -37,11 +39,34 @@ export const SpecDetailPane: React.FC<SpecDetailPaneProps> = ({
   getValidationError,
   totalSpecs = 0,
   onNavigateSpec,
+  onBackToList,
 }) => {
   const { getAnswer, setAnswer } = usePlanAnswers();
   const questionRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [showSaveIndicator, setShowSaveIndicator] = useState(false);
+  
+  // Detect mobile breakpoint for conditional UI
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    
+    let resizeTimeout: ReturnType<typeof setTimeout>;
+    const debouncedResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(checkMobile, 150);
+    };
+    
+    window.addEventListener('resize', debouncedResize);
+    return () => {
+      clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', debouncedResize);
+    };
+  }, []);
 
   // Handle answer change
   const handleAnswerChange = useCallback(
@@ -200,6 +225,18 @@ export const SpecDetailPane: React.FC<SpecDetailPaneProps> = ({
     <div className="spec-detail-pane">
       {/* Sticky Header */}
       <div className="spec-detail-header">
+        {/* Mobile: Show back button */}
+        {isMobile && onBackToList && (
+          <button
+            type="button"
+            className="btn btn-text spec-detail-back-button"
+            onClick={onBackToList}
+            aria-label="Back to specifications list"
+          >
+            ← Back
+          </button>
+        )}
+        
         <div className="spec-detail-title">
           <span className="spec-detail-number">Spec #{specIndex + 1}</span>
           <h3>{spec.purpose}</h3>

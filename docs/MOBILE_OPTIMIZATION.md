@@ -11,20 +11,27 @@ This document outlines the mobile and touch-first optimizations implemented acro
 The Plan Detail page implements a dual-mode responsive layout:
 
 **Mobile Mode (< 768px):**
-- **Collapsible Spec List**: A sticky, top-docked drawer showing all specifications
-  - Toggle button to expand/collapse the list
-  - Auto-collapses when a spec is selected for optimal viewing space
-  - Sticky positioned below the header for easy access
-- **Detail Pane**: Stacked below the spec list
-  - Shows the currently selected specification's content and Q&A
-  - Natural full-page vertical scrolling
-  - No fixed heights or nested scrollbars
+- **Stacked Workflow with Distinct Views**: Users navigate between full-screen views
+  - **Spec List View**: Full-screen view showing all specifications
+    - Tap a spec to navigate to its detail view
+    - Shows question status badges for each spec
+  - **Spec Detail View**: Full-screen view showing selected spec content and Q&A
+    - Shows back button (← Back) to return to spec list
+    - Full content visibility without scrolling conflicts
+    - Natural page-level vertical scrolling
+- **Navigation Flow**:
+  1. User starts on spec list view
+  2. Taps a spec → transitions to spec detail view
+  3. Answers questions, navigates between questions
+  4. Taps back button → returns to spec list view
+  5. Can select a different spec and repeat
 
 **Desktop Mode (≥ 768px):**
 - **Dual-Pane Layout**: Side-by-side spec list and detail pane
   - Fixed-width left pane (320px) with scrollable spec list
   - Flexible-width right pane with scrollable detail content
   - Fixed maximum height with internal scrolling
+  - Both panes visible simultaneously
 
 ### Breakpoints
 
@@ -49,7 +56,7 @@ All interactive elements meet or exceed the minimum 44×44px touch target requir
 - **Buttons**: Minimum 44px height on mobile, 48px for primary actions
 - **Form inputs**: Minimum 44px height with increased padding on mobile
 - **Spec list items**: Minimum 88px height for adequate touch surface
-- **Toggle button**: 44×44px minimum for easy interaction
+- **Back button**: 44px minimum height, full-width tap area on mobile
 - **Checkboxes/Radio buttons**: Minimum 24×24px
 
 Mobile-specific touch target improvements:
@@ -63,6 +70,11 @@ Mobile-specific touch target improvements:
   .btn-submit {
     width: 100%;
     min-height: 48px;
+  }
+  
+  .spec-detail-back-button {
+    min-height: 44px;
+    width: fit-content;
   }
 }
 ```
@@ -97,13 +109,18 @@ Optimized for common device sizes:
 ### 4. Smooth Scrolling
 
 #### Page-Level Scrolling
-On mobile, the entire page uses natural vertical scrolling - no nested scrollbars or fixed-height containers that could trap content.
+On mobile, each view uses natural vertical scrolling - no nested scrollbars or fixed-height containers that could trap content.
 
 **Mobile (<768px):**
-- Spec list is collapsible and sticky at the top
-- Detail pane scrolls naturally with page content
-- No `max-height` constraints
-- Single scroll context for the entire page
+- **Spec List View**: Full-screen with natural page scrolling
+  - Scrollable list of all specs
+  - No height constraints
+  - Single scroll context
+- **Spec Detail View**: Full-screen with natural page scrolling
+  - Back button at top to return to list
+  - Detail content scrolls naturally with page
+  - No `max-height` constraints
+  - Single scroll context per view
 
 **Desktop (≥768px):**
 - Dual-pane layout with fixed max-height
@@ -122,23 +139,40 @@ The application relies on native browser scrolling behavior which provides:
 
 **Note:** The deprecated `-webkit-overflow-scrolling: touch` property has been removed from all stylesheets as modern browsers handle this automatically.
 
-#### Collapsible Spec List (Mobile)
+#### Mobile Navigation Flow
 
-The spec list on mobile features:
-- **Sticky positioning** below the header
-- **Toggle button** (▼/▲) to expand/collapse
-- **Auto-collapse** when a spec is selected
-- **Smooth animation** for expand/collapse transitions
-- **Accessible** with ARIA labels and keyboard support
+The mobile experience uses distinct full-screen views for clarity:
 
+**View Transitions**:
+- **Spec List → Spec Detail**: Tap any spec item
+- **Spec Detail → Spec List**: Tap back button (← Back)
+
+**State Management**:
 ```tsx
-// Auto-collapse behavior
-useEffect(() => {
-  if (isMobile && selectedIndex !== null) {
-    setIsCollapsed(true);
+// Mobile view state ('spec-list', 'spec-detail', or null for desktop)
+const [mobileView, setMobileView] = useState<'spec-list' | 'spec-detail' | null>(null);
+
+// Navigate to spec detail when spec is selected on mobile
+const handleSelectSpec = (index: number) => {
+  setSelectedSpecIndex(index);
+  if (!isDesktop) {
+    setMobileView('spec-detail');
   }
-}, [selectedIndex, isMobile]);
+};
+
+// Return to spec list on mobile
+const handleBackToList = () => {
+  if (!isDesktop) {
+    setMobileView('spec-list');
+  }
+};
 ```
+
+**Accessibility**:
+- Back button has clear label: "Back to specifications list"
+- Focus management ensures back button is first interactive element
+- Screen readers announce view transitions
+- Keyboard navigation supported with external keyboard
 
 ### 5. Sticky Action Bars
 
@@ -223,14 +257,17 @@ The PlanDetailPage implements responsive layout switching based on viewport widt
 ```tsx
 // Detect viewport size
 const [isDesktop, setIsDesktop] = useState(false);
-
-useEffect(() => {
-  setIsDesktop(window.innerWidth >= 768);
-}, []);
+const [mobileView, setMobileView] = useState<'spec-list' | 'spec-detail' | null>(null);
 
 useEffect(() => {
   const handleResize = () => {
-    setIsDesktop(window.innerWidth >= 768);
+    const newIsDesktop = window.innerWidth >= 768;
+    setIsDesktop(newIsDesktop);
+    
+    // Reset mobile view when switching to desktop
+    if (newIsDesktop) {
+      setMobileView(null);
+    }
   };
   window.addEventListener('resize', handleResize);
   return () => window.removeEventListener('resize', handleResize);
@@ -246,20 +283,23 @@ useEffect(() => {
     <SpecDetailPane ... />
   </div>
 ) : (
-  // Mobile: Accordion layout (legacy) or Stacked layout (new)
-  <div className="dual-pane-container">
-    <SpecListPane ... />  {/* Collapsible */}
-    <SpecDetailPane ... /> {/* Stacked below */}
+  // Mobile: Stacked views with navigation
+  <div className="mobile-stacked-container">
+    {(mobileView === 'spec-list' || mobileView === null) && (
+      <SpecListPane ... />
+    )}
+    {mobileView === 'spec-detail' && selectedSpecIndex !== null && (
+      <SpecDetailPane ... onBackToList={handleBackToList} />
+    )}
   </div>
 )}
 ```
 
 **Mobile Optimizations:**
-- Collapsible spec list with toggle button
-- Natural page-level scrolling (no fixed heights)
-- Full-width submit buttons (48px height)
-- Safe area padding for all form fields
-- Reduced motion for animations
+- Distinct full-screen views for spec list and spec detail
+- Natural page-level scrolling per view
+- Back button for explicit navigation
+- Full-width elements (no sidebar confusion)
 - 88px minimum height for spec list items
 - Increased font sizes for readability
 
@@ -273,42 +313,43 @@ useEffect(() => {
 The SpecListPane component adapts for mobile:
 
 ```tsx
-const [isCollapsed, setIsCollapsed] = React.useState(false);
-const [isMobile, setIsMobile] = React.useState(false);
-
-// Auto-collapse when spec is selected on mobile
-useEffect(() => {
-  if (isMobile && selectedIndex !== null) {
-    setIsCollapsed(true);
-  }
-}, [selectedIndex, isMobile]);
+// On mobile: Full-screen view showing all specs
+// On desktop: Left pane in dual-pane layout
 ```
 
 **CSS Implementation:**
 ```css
 @media (max-width: 767px) {
   .spec-list-pane {
-    position: sticky;
-    top: calc(var(--header-height) + var(--spacing-sm));
-    z-index: calc(var(--z-index-sticky) - 1);
-  }
-
-  .spec-list-pane.collapsed .spec-list-items {
-    display: none;
+    min-height: 100vh;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
   }
 }
 ```
 
 ### SpecDetailPane (Mobile Scrolling)
 
-On mobile, the detail pane allows natural scrolling:
+On mobile, the detail pane displays full-screen with a back button:
 
 ```css
 @media (max-width: 767px) {
   .spec-detail-pane {
-    /* Allow natural scrolling */
-    overflow: visible;
-    min-height: 300px;
+    /* Full-screen mobile view */
+    min-height: 100vh;
+    border-radius: 0;
+    overflow: visible; /* Natural scrolling */
+  }
+  
+  .spec-detail-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .spec-detail-back-button {
+    order: -1; /* Move back button to top */
+    min-height: 44px;
   }
 }
 
@@ -374,8 +415,8 @@ Test the application at these common viewport widths:
 
 Verify touch interactions on actual mobile devices:
 
-- [ ] Spec list toggle button is easy to tap (44×44px minimum)
 - [ ] Spec list items are easy to tap (88px minimum height)
+- [ ] Back button is easy to tap (44px minimum height, full-width area)
 - [ ] Submit buttons are easy to tap (48px minimum height)
 - [ ] Form inputs are easy to tap (44px minimum height)
 - [ ] No accidental taps on adjacent elements
@@ -385,11 +426,12 @@ Verify touch interactions on actual mobile devices:
 
 Test scrolling behavior across devices:
 
-- [ ] **Mobile**: Page scrolls naturally from top to bottom
-- [ ] **Mobile**: No nested scrollbars (one scroll context only)
+- [ ] **Mobile**: Spec list view scrolls naturally from top to bottom
+- [ ] **Mobile**: Spec detail view scrolls naturally from top to bottom
+- [ ] **Mobile**: No nested scrollbars (one scroll context per view)
 - [ ] **Mobile**: Momentum scrolling works smoothly on iOS
 - [ ] **Mobile**: Virtual keyboard doesn't hide inputs or buttons
-- [ ] **Mobile**: Spec list auto-collapses when spec selected
+- [ ] **Mobile**: Back button remains visible when scrolling
 - [ ] **Desktop**: Dual panes scroll independently
 - [ ] **Desktop**: No page-level scroll, only pane scrolling
 
@@ -399,10 +441,11 @@ Ensure mobile accessibility:
 
 - [ ] Reduced motion preference disables animations
 - [ ] Focus indicators are visible on all interactive elements
-- [ ] Screen reader announces spec list toggle state
+- [ ] Screen reader announces back button and view changes
 - [ ] Screen reader announces selected spec
 - [ ] Keyboard navigation works on mobile (with external keyboard)
 - [ ] Touch targets meet WCAG 2.1 AA requirements (44×44px)
+- [ ] Back button has clear aria-label
 
 ### Edge Cases
 
@@ -410,16 +453,22 @@ Test these scenarios:
 
 - [ ] **Device Rotation**: Rotate from portrait to landscape and back
   - Selected spec should remain selected
-  - Scroll position should be preserved reasonably
+  - Current view should be preserved
   - Layout should adapt without breaking
+  
+- [ ] **Navigation Flow**: Test complete navigation cycle
+  - Spec list → select spec → spec detail → back button → spec list
+  - Select different spec → spec detail → back button → spec list
+  - No state loss during transitions
   
 - [ ] **Very Long Specs**: Test with specs that have long titles and many questions
   - Text should wrap without breaking layout
   - Scroll should work smoothly
   - No horizontal overflow
+  - Back button remains accessible
   
 - [ ] **Virtual Keyboard**: Open keyboard in spec detail inputs
-  - Sticky elements should not hide content
+  - Back button should remain accessible
   - Submit button should remain accessible
   - Keyboard offset should be handled properly
   
