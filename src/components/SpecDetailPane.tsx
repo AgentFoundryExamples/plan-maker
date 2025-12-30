@@ -15,6 +15,10 @@ export interface SpecDetailPaneProps {
   totalSpecs?: number;
   // Callback to navigate to different spec
   onNavigateSpec?: (specIndex: number) => void;
+  // Callback to return to spec list (mobile only)
+  onBackToList?: () => void;
+  // Mobile breakpoint detection (passed from parent to avoid duplicate logic)
+  isMobile?: boolean;
 }
 
 /**
@@ -37,6 +41,8 @@ export const SpecDetailPane: React.FC<SpecDetailPaneProps> = ({
   getValidationError,
   totalSpecs = 0,
   onNavigateSpec,
+  onBackToList,
+  isMobile = false,
 }) => {
   const { getAnswer, setAnswer } = usePlanAnswers();
   const questionRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
@@ -200,6 +206,18 @@ export const SpecDetailPane: React.FC<SpecDetailPaneProps> = ({
     <div className="spec-detail-pane">
       {/* Sticky Header */}
       <div className="spec-detail-header">
+        {/* Mobile: Show back button */}
+        {isMobile && onBackToList && (
+          <button
+            type="button"
+            className="btn btn-text spec-detail-back-button"
+            onClick={onBackToList}
+            aria-label="Back to specifications list"
+          >
+            ← Back
+          </button>
+        )}
+        
         <div className="spec-detail-title">
           <span className="spec-detail-number">Spec #{specIndex + 1}</span>
           <h3>{spec.purpose}</h3>
