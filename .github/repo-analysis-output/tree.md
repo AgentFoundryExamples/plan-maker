@@ -62,6 +62,8 @@
     ├── ClarifierPanel.tsx
     ├── ErrorBoundary.test.tsx
     ├── ErrorBoundary.tsx
+    ├── PlanStatusBar.test.tsx
+    ├── PlanStatusBar.tsx
     ├── PlanTimeline.test.tsx
     ├── PlanTimeline.tsx
     ├── SpecAccordion.test.tsx

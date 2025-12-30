@@ -272,6 +272,14 @@
             },
             {
               "type": "file",
+              "name": "PlanStatusBar.test.tsx"
+            },
+            {
+              "type": "file",
+              "name": "PlanStatusBar.tsx"
+            },
+            {
+              "type": "file",
               "name": "PlanTimeline.test.tsx"
             },
             {
